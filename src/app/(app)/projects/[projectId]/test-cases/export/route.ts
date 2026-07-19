@@ -1,0 +1,57 @@
+import { createClient } from "@/lib/supabase/server";
+import type { TestStep } from "@/lib/types/database";
+
+function csvEscape(value: string) {
+  if (/[",\n]/.test(value)) {
+    return `"${value.replace(/"/g, '""')}"`;
+  }
+  return value;
+}
+
+function encodeSteps(steps: TestStep[]) {
+  return steps.map((s) => `${s.step}|${s.expected}`).join(";;");
+}
+
+export async function GET(
+  _request: Request,
+  context: { params: Promise<{ projectId: string }> }
+) {
+  const { projectId } = await context.params;
+  const supabase = await createClient();
+
+  const { data: testCases } = await supabase
+    .from("test_cases")
+    .select("title, preconditions, priority, status, steps, test_case_tag_links(test_case_tags(name))")
+    .eq("project_id", projectId)
+    .order("created_at");
+
+  const header = "title,preconditions,priority,status,tags,steps";
+  const rows = (testCases ?? []).map((tc) => {
+    const tags = (tc.test_case_tag_links ?? [])
+      .map((l) => {
+        const linked = l.test_case_tags as unknown as { name: string } | { name: string }[] | null;
+        return Array.isArray(linked) ? linked[0]?.name : linked?.name;
+      })
+      .filter(Boolean)
+      .join("|");
+    return [
+      tc.title,
+      tc.preconditions ?? "",
+      tc.priority,
+      tc.status,
+      tags,
+      encodeSteps((tc.steps as TestStep[]) ?? []),
+    ]
+      .map((v) => csvEscape(String(v)))
+      .join(",");
+  });
+
+  const csv = [header, ...rows].join("\n");
+
+  return new Response(csv, {
+    headers: {
+      "Content-Type": "text/csv",
+      "Content-Disposition": `attachment; filename="test-cases-${projectId}.csv"`,
+    },
+  });
+}

@@ -1,0 +1,639 @@
+// Generated from the live Supabase project (meridian-qa / ucnfcsosbdgknmzyuqbw).
+// Regenerate after schema changes with:
+//   npx supabase gen types typescript --project-id ucnfcsosbdgknmzyuqbw > src/lib/types/database.generated.ts
+
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5"
+  }
+  public: {
+    Tables: {
+      issues: {
+        Row: {
+          assignee_id: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          linked_run_case_id: string | null
+          linked_test_case_id: string | null
+          project_id: string
+          severity: Database["public"]["Enums"]["issue_severity"]
+          status: Database["public"]["Enums"]["issue_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          linked_run_case_id?: string | null
+          linked_test_case_id?: string | null
+          project_id: string
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          assignee_id?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          linked_run_case_id?: string | null
+          linked_test_case_id?: string | null
+          project_id?: string
+          severity?: Database["public"]["Enums"]["issue_severity"]
+          status?: Database["public"]["Enums"]["issue_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issues_linked_run_case_id_fkey"
+            columns: ["linked_run_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_run_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_linked_test_case_id_fkey"
+            columns: ["linked_test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issues_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          org_id: string
+          role: Database["public"]["Enums"]["org_role"]
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          org_id: string
+          role?: Database["public"]["Enums"]["org_role"]
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["org_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invites_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organization_members: {
+        Row: {
+          created_at: string
+          org_id: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          org_id: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          org_id?: string
+          role?: Database["public"]["Enums"]["org_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      organizations: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      projects: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          key: string
+          name: string
+          org_id: string
+          template: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          key: string
+          name: string
+          org_id: string
+          template?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          key?: string
+          name?: string
+          org_id?: string
+          template?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projects_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_case_tag_links: {
+        Row: {
+          tag_id: string
+          test_case_id: string
+        }
+        Insert: {
+          tag_id: string
+          test_case_id: string
+        }
+        Update: {
+          tag_id?: string
+          test_case_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_tag_links_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "test_case_tags"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_case_tag_links_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_case_tags: {
+        Row: {
+          color: string
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          color?: string
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          color?: string
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_tags_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_case_versions: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: string
+          snapshot: Json
+          test_case_id: string
+          version: number
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: string
+          snapshot: Json
+          test_case_id: string
+          version: number
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          snapshot?: Json
+          test_case_id?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_versions_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_cases: {
+        Row: {
+          created_at: string
+          created_by: string
+          custom_fields: Json
+          id: string
+          preconditions: string | null
+          priority: Database["public"]["Enums"]["test_case_priority"]
+          project_id: string
+          status: Database["public"]["Enums"]["test_case_status"]
+          steps: Json
+          title: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          custom_fields?: Json
+          id?: string
+          preconditions?: string | null
+          priority?: Database["public"]["Enums"]["test_case_priority"]
+          project_id: string
+          status?: Database["public"]["Enums"]["test_case_status"]
+          steps?: Json
+          title: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          custom_fields?: Json
+          id?: string
+          preconditions?: string | null
+          priority?: Database["public"]["Enums"]["test_case_priority"]
+          project_id?: string
+          status?: Database["public"]["Enums"]["test_case_status"]
+          steps?: Json
+          title?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_cases_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_run_cases: {
+        Row: {
+          executed_at: string | null
+          executed_by: string | null
+          id: string
+          notes: string | null
+          order_index: number
+          run_id: string
+          status: Database["public"]["Enums"]["run_case_status"]
+          test_case_id: string
+        }
+        Insert: {
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          notes?: string | null
+          order_index?: number
+          run_id: string
+          status?: Database["public"]["Enums"]["run_case_status"]
+          test_case_id: string
+        }
+        Update: {
+          executed_at?: string | null
+          executed_by?: string | null
+          id?: string
+          notes?: string | null
+          order_index?: number
+          run_id?: string
+          status?: Database["public"]["Enums"]["run_case_status"]
+          test_case_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_run_cases_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "test_runs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_run_cases_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          project_id: string
+          status: Database["public"]["Enums"]["run_status"]
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          project_id: string
+          status?: Database["public"]["Enums"]["run_status"]
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          project_id?: string
+          status?: Database["public"]["Enums"]["run_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      create_organization_with_owner: {
+        Args: { org_name: string; org_slug: string }
+        Returns: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          slug: string
+        }
+      }
+      get_org_members: {
+        Args: { check_org_id: string }
+        Returns: {
+          created_at: string
+          email: string
+          role: Database["public"]["Enums"]["org_role"]
+          user_id: string
+        }[]
+      }
+      is_org_admin: { Args: { check_org_id: string }; Returns: boolean }
+      is_org_member: { Args: { check_org_id: string }; Returns: boolean }
+      project_org_id: { Args: { check_project_id: string }; Returns: string }
+    }
+    Enums: {
+      issue_severity: "low" | "medium" | "high" | "critical"
+      issue_status: "open" | "in_progress" | "resolved" | "closed"
+      org_role: "owner" | "admin" | "member"
+      run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
+      run_status: "planned" | "in_progress" | "completed"
+      test_case_priority: "low" | "medium" | "high" | "critical"
+      test_case_status: "active" | "draft" | "deprecated"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  public: {
+    Enums: {
+      issue_severity: ["low", "medium", "high", "critical"],
+      issue_status: ["open", "in_progress", "resolved", "closed"],
+      org_role: ["owner", "admin", "member"],
+      run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],
+      run_status: ["planned", "in_progress", "completed"],
+      test_case_priority: ["low", "medium", "high", "critical"],
+      test_case_status: ["active", "draft", "deprecated"],
+    },
+  },
+} as const
+
+// --- App-level convenience aliases on top of the generated types above ---
+
+export type OrgRole = Enums<"org_role">;
+export type TestCasePriority = Enums<"test_case_priority">;
+export type TestCaseStatus = Enums<"test_case_status">;
+export type RunStatus = Enums<"run_status">;
+export type RunCaseStatus = Enums<"run_case_status">;
+export type IssueStatus = Enums<"issue_status">;
+export type IssueSeverity = Enums<"issue_severity">;
+export type ProjectTemplate = "web" | "mobile" | "api" | "blank";
+
+// The extra index signature keeps this structurally assignable to/from the
+// generated `Json` type (used for the `steps` jsonb column) without casts
+// through `unknown` at every call site.
+export interface TestStep {
+  step: string;
+  expected: string;
+  [key: string]: Json | undefined;
+}
