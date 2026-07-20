@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { clsx } from "clsx";
 import { CheckCircle2, XCircle, MinusCircle, SkipForward } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/card";
 import { setRunCaseStatus } from "@/lib/actions/runs";
 import type { RunCaseStatus, TestStep } from "@/lib/types/database";
@@ -26,11 +25,33 @@ const STATUS_CONFIG: Record<
   Exclude<RunCaseStatus, "pending">,
   { label: string; icon: typeof CheckCircle2; className: string; key: string }
 > = {
-  passed: { label: "Pass", icon: CheckCircle2, className: "bg-emerald-600 hover:bg-emerald-500", key: "P" },
-  failed: { label: "Fail", icon: XCircle, className: "bg-red-600 hover:bg-red-500", key: "F" },
-  blocked: { label: "Blocked", icon: MinusCircle, className: "bg-amber-500 hover:bg-amber-400", key: "B" },
-  skipped: { label: "Skip", icon: SkipForward, className: "bg-slate-400 hover:bg-slate-300", key: "S" },
+  passed: {
+    label: "Pass Case",
+    icon: CheckCircle2,
+    className: "bg-meridian-dark text-white hover:shadow-lg",
+    key: "ENTER",
+  },
+  failed: {
+    label: "Fail",
+    icon: XCircle,
+    className: "border border-fail/20 bg-fail-soft text-fail hover:bg-fail-soft/80",
+    key: "F",
+  },
+  blocked: {
+    label: "Blocked",
+    icon: MinusCircle,
+    className: "border border-blocked/20 bg-blocked-soft text-blocked hover:bg-blocked-soft/80",
+    key: "B",
+  },
+  skipped: {
+    label: "Skip",
+    icon: SkipForward,
+    className: "border border-border-medium bg-white text-ink-secondary hover:bg-paper-muted",
+    key: "S",
+  },
 };
+
+const ORDER: (keyof typeof STATUS_CONFIG)[] = ["skipped", "blocked", "failed", "passed"];
 
 export function RunExecutor({
   projectId,
@@ -79,7 +100,7 @@ export function RunExecutor({
       if (document.activeElement === notesRef.current) return;
       if (e.key === "ArrowRight") setIndex((i) => Math.min(i + 1, items.length - 1));
       if (e.key === "ArrowLeft") setIndex((i) => Math.max(i - 1, 0));
-      if (e.key.toLowerCase() === "p") applyStatus("passed");
+      if (e.key === "Enter") applyStatus("passed");
       if (e.key.toLowerCase() === "f") applyStatus("failed");
       if (e.key.toLowerCase() === "b") applyStatus("blocked");
       if (e.key.toLowerCase() === "s") applyStatus("skipped");
@@ -92,29 +113,31 @@ export function RunExecutor({
   if (!current) return null;
 
   return (
-    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[220px_1fr]">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
       <div>
-        <div className="mb-2 text-xs text-slate-500">
+        <div className="mb-2 font-ui-label text-xs text-ink-secondary">
           {doneCount}/{items.length} executed · {passedCount} passed · {failedCount} failed
         </div>
-        <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+        <div className="mb-4 h-1.5 w-full overflow-hidden rounded-full bg-surface-container-highest">
           <div
-            className="h-full bg-indigo-600 transition-all"
+            className="h-full bg-primary transition-all"
             style={{ width: `${(doneCount / items.length) * 100}%` }}
           />
         </div>
-        <div className="max-h-[60vh] space-y-1 overflow-y-auto">
+        <div className="max-h-[65vh] space-y-2 overflow-y-auto pr-1">
           {items.map((c, i) => (
             <button
               key={c.id}
               onClick={() => setIndex(i)}
               className={clsx(
-                "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm",
-                i === index ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-50"
+                "flex w-full items-center gap-3 rounded-xl border p-3 text-left text-sm transition-all",
+                i === index
+                  ? "translate-x-1 border-2 border-meridian-dark bg-meridian-soft shadow-md"
+                  : "border-border-light bg-white hover:border-primary/40"
               )}
             >
               <StatusDot status={c.status} />
-              <span className="truncate">{c.test_case.title}</span>
+              <span className="min-w-0 flex-1 truncate text-ink-primary">{c.test_case.title}</span>
             </button>
           ))}
         </div>
@@ -123,34 +146,42 @@ export function RunExecutor({
       <div>
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <h2 className="text-lg font-semibold text-slate-900">{current.test_case.title}</h2>
+            <h2 className="font-headline-sm text-lg font-semibold text-ink-primary">
+              {current.test_case.title}
+            </h2>
             <StatusBadge status={current.status} />
           </div>
           <Link
             href={`/projects/${projectId}/issues/new?testCaseId=${current.test_case.id}&runCaseId=${current.id}`}
-            className="text-xs font-medium text-indigo-600 hover:text-indigo-500"
+            className="text-xs font-ui-label font-semibold text-primary hover:text-meridian-dark"
           >
             Report issue
           </Link>
         </div>
 
         {current.test_case.preconditions && (
-          <p className="mb-4 rounded-md bg-slate-50 px-3 py-2 text-sm text-slate-600">
-            <span className="font-medium">Preconditions:</span> {current.test_case.preconditions}
+          <p className="mb-4 rounded-lg bg-paper-muted px-3 py-2 text-sm text-ink-secondary">
+            <span className="font-semibold text-ink-primary">Preconditions:</span>{" "}
+            {current.test_case.preconditions}
           </p>
         )}
 
         <ol className="mb-4 space-y-2">
           {current.test_case.steps.map((s, i) => (
-            <li key={i} className="rounded-md border border-slate-200 p-3 text-sm">
-              <div className="text-slate-800">
-                <span className="font-medium text-slate-400">{i + 1}.</span> {s.step}
+            <li
+              key={i}
+              className="rounded-xl border border-border-light bg-paper-surface/30 p-4 text-sm transition-colors hover:bg-paper-surface"
+            >
+              <div className="text-ink-primary">
+                <span className="font-bold text-ink-tertiary">{i + 1}.</span> {s.step}
               </div>
-              {s.expected && <div className="mt-1 text-slate-500">Expected: {s.expected}</div>}
+              {s.expected && (
+                <div className="mt-1 italic text-ink-secondary">Expected: {s.expected}</div>
+              )}
             </li>
           ))}
           {current.test_case.steps.length === 0 && (
-            <li className="text-sm text-slate-400">No steps recorded for this test case.</li>
+            <li className="text-sm text-ink-tertiary">No steps recorded for this test case.</li>
           )}
         </ol>
 
@@ -158,31 +189,35 @@ export function RunExecutor({
           ref={notesRef}
           key={current.id}
           defaultValue={current.notes ?? ""}
-          placeholder="Notes (optional)…"
+          placeholder="Add observations or failure details here…"
           rows={2}
-          className="mb-4 block w-full rounded-md border border-slate-300 px-3 py-2 text-sm shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="mb-4 block w-full rounded-xl border border-border-light bg-paper-muted/50 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
         />
 
-        <div className="flex gap-2">
-          {(Object.keys(STATUS_CONFIG) as (keyof typeof STATUS_CONFIG)[]).map((status) => {
+        <div className="flex gap-3">
+          {ORDER.map((status) => {
             const cfg = STATUS_CONFIG[status];
             const Icon = cfg.icon;
             return (
-              <Button
+              <button
                 key={status}
                 type="button"
                 disabled={isPending}
                 onClick={() => applyStatus(status)}
-                className={cfg.className}
+                className={clsx(
+                  "relative flex h-16 flex-1 flex-col items-center justify-center gap-1 rounded-xl text-xs font-ui-label font-bold uppercase tracking-wide transition-all disabled:opacity-60",
+                  cfg.className
+                )}
               >
-                <Icon size={16} /> {cfg.label}{" "}
-                <kbd className="ml-1 rounded bg-black/20 px-1 text-[10px]">{cfg.key}</kbd>
-              </Button>
+                <Icon size={20} />
+                {cfg.label}
+                <span className="kbd absolute right-2 top-1 opacity-60">{cfg.key}</span>
+              </button>
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-slate-400">
-          Shortcuts: P pass · F fail · B blocked · S skip · ← → navigate
+        <p className="mt-3 text-xs text-ink-tertiary">
+          Shortcuts: Enter pass · F fail · B blocked · S skip · ← → navigate
         </p>
       </div>
     </div>
@@ -191,13 +226,13 @@ export function RunExecutor({
 
 function StatusDot({ status }: { status: RunCaseStatus }) {
   const colors: Record<RunCaseStatus, string> = {
-    pending: "bg-slate-300",
-    passed: "bg-emerald-500",
-    failed: "bg-red-500",
-    blocked: "bg-amber-500",
-    skipped: "bg-slate-400",
+    pending: "bg-border-medium",
+    passed: "bg-pass",
+    failed: "bg-fail",
+    blocked: "bg-blocked",
+    skipped: "bg-ink-tertiary",
   };
-  return <span className={clsx("h-2 w-2 shrink-0 rounded-full", colors[status])} />;
+  return <span className={clsx("h-2.5 w-2.5 shrink-0 rounded-full", colors[status])} />;
 }
 
 function StatusBadge({ status }: { status: RunCaseStatus }) {

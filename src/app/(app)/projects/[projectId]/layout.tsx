@@ -22,17 +22,20 @@ export default async function ProjectLayout({
 
   return (
     <div>
-      <div className="border-b border-slate-200 bg-white px-6 pt-6">
-        <Link href="/projects" className="text-xs font-medium text-slate-400 hover:text-slate-600">
+      <div className="-mx-8 -mt-8 border-b border-border-light bg-white px-8 pt-8">
+        <Link
+          href="/projects"
+          className="text-xs font-ui-label font-semibold text-ink-tertiary hover:text-ink-secondary"
+        >
           ← All projects
         </Link>
-        <h1 className="mt-1 text-xl font-semibold text-slate-900">
+        <h1 className="font-headline-sm mt-1 text-xl font-semibold text-ink-primary">
           {project.name}{" "}
-          <span className="text-sm font-normal text-slate-400">{project.key}</span>
+          <span className="text-sm font-normal text-ink-tertiary">{project.key}</span>
         </h1>
         <ProjectTabs projectId={project.id} />
       </div>
-      <div className="mx-auto max-w-6xl px-6 py-6">{children}</div>
+      <div className="py-6">{children}</div>
     </div>
   );
 }

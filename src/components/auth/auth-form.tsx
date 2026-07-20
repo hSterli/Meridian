@@ -41,25 +41,25 @@ export function AuthForm({
       </div>
 
       {state.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-lg bg-fail-soft px-3 py-2 text-sm text-fail">{state.error}</p>
       )}
 
       <Button type="submit" className="w-full" disabled={isPending}>
         {isPending ? "Please wait…" : mode === "signup" ? "Create account" : "Log in"}
       </Button>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-ink-secondary">
         {mode === "signup" ? (
           <>
             Already have an account?{" "}
-            <Link href="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/login" className="font-semibold text-primary hover:text-meridian-dark">
               Log in
             </Link>
           </>
         ) : (
           <>
             New to Meridian?{" "}
-            <Link href="/signup" className="font-medium text-indigo-600 hover:text-indigo-500">
+            <Link href="/signup" className="font-semibold text-primary hover:text-meridian-dark">
               Create an account
             </Link>
           </>

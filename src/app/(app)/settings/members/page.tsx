@@ -37,10 +37,10 @@ export default async function MembersPage() {
         </Card>
       )}
 
-      <Card className="divide-y divide-slate-100">
+      <Card className="divide-y divide-border-light">
         {(members ?? []).map((m: { user_id: string; email: string; role: OrgRole }) => (
           <div key={m.user_id} className="flex items-center justify-between px-4 py-3">
-            <span className="text-sm text-slate-800">{m.email}</span>
+            <span className="text-sm text-ink-primary">{m.email}</span>
             <div className="flex items-center gap-2">
               {isAdmin && m.role !== "owner" ? (
                 <>
@@ -71,11 +71,11 @@ export default async function MembersPage() {
 
       {isAdmin && (invites ?? []).length > 0 && (
         <div className="mt-6">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">Pending invites</h2>
-          <Card className="divide-y divide-slate-100">
+          <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Pending invites</h2>
+          <Card className="divide-y divide-border-light">
             {(invites ?? []).map((inv: { id: string; email: string; role: OrgRole }) => (
               <div key={inv.id} className="flex items-center justify-between px-4 py-3">
-                <span className="text-sm text-slate-600">{inv.email}</span>
+                <span className="text-sm text-ink-secondary">{inv.email}</span>
                 <div className="flex items-center gap-2">
                   <Badge tone="slate">{inv.role}</Badge>
                   <form action={cancelInvite.bind(null, inv.id)}>

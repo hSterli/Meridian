@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
+import { rateLimit } from "@/lib/rate-limit";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -22,6 +23,9 @@ export async function createIssue(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("create_issue", 60, 60);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
   const { data: issue, error } = await supabase

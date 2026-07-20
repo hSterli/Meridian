@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const activeOrg = ctx.memberships.find((m) => m.org_id === ctx.activeOrgId);
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-paper-surface">
       <Sidebar
         orgs={ctx.memberships.map((m) => ({
           id: m.organizations.id,
@@ -21,7 +21,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         activeRole={ctx.activeRole}
         userEmail={ctx.email}
       />
-      <main className="flex-1 overflow-y-auto">{children}</main>
+      <main className="flex-1 overflow-y-auto p-8">{children}</main>
     </div>
   );
 }

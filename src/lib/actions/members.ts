@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
+import { rateLimit } from "@/lib/rate-limit";
 import type { OrgRole } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -14,6 +15,9 @@ export async function inviteMember(_prevState: ActionState, formData: FormData):
 
   const ctx = await getUserContext();
   if (!ctx || !ctx.activeOrgId) return { error: "No active team selected." };
+
+  const limitError = await rateLimit("invite_member", 20, 3600);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
   const { error } = await supabase

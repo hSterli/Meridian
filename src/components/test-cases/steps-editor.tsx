@@ -30,7 +30,7 @@ export function StepsEditor({ initialSteps = [] }: { initialSteps?: TestStep[] }
       <div className="space-y-2">
         {steps.map((s, i) => (
           <div key={i} className="flex items-start gap-2">
-            <span className="mt-2.5 w-5 shrink-0 text-xs text-slate-400">{i + 1}.</span>
+            <span className="mt-2.5 w-5 shrink-0 text-xs text-ink-tertiary">{i + 1}.</span>
             <Input
               placeholder="Action"
               value={s.step}
@@ -46,7 +46,7 @@ export function StepsEditor({ initialSteps = [] }: { initialSteps?: TestStep[] }
             <button
               type="button"
               onClick={() => removeStep(i)}
-              className="mt-2 text-slate-400 hover:text-red-600"
+              className="mt-2 text-ink-tertiary hover:text-fail"
               aria-label="Remove step"
             >
               <Trash2 size={16} />

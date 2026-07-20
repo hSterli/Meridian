@@ -9,6 +9,8 @@ import {
   Users,
   LogOut,
   ChevronDown,
+  Plus,
+  HelpCircle,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/lib/actions/auth";
@@ -38,27 +40,29 @@ export function Sidebar({
   const [switcherOpen, setSwitcherOpen] = useState(false);
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-white">
-      <div className="border-b border-slate-200 p-4">
-        <div className="text-sm font-semibold text-indigo-600">Meridian QA</div>
-        <div className="relative mt-2">
+    <aside className="flex w-60 shrink-0 flex-col bg-ink-primary py-6 px-4 shadow-sm">
+      <div className="mb-8 px-2">
+        <h1 className="font-headline-sm text-[21px] font-semibold text-primary-fixed-dim tracking-tight">
+          Meridian QA
+        </h1>
+        <div className="relative mt-3">
           <button
             type="button"
             onClick={() => setSwitcherOpen((v) => !v)}
-            className="flex w-full items-center justify-between rounded-md border border-slate-200 px-2 py-1.5 text-sm text-slate-700 hover:bg-slate-50"
+            className="flex w-full items-center justify-between rounded-lg border border-white/10 px-2 py-1.5 text-sm text-ink-tertiary hover:bg-white/5"
           >
             <span className="truncate">{activeOrgName || "Select team"}</span>
             <ChevronDown size={14} />
           </button>
           {switcherOpen && orgs.length > 1 && (
-            <div className="absolute z-10 mt-1 w-full rounded-md border border-slate-200 bg-white py-1 shadow-lg">
+            <div className="absolute z-10 mt-1 w-full rounded-lg border border-border-light bg-white py-1 shadow-lg">
               {orgs.map((org) => (
                 <form key={org.id} action={switchActiveOrg.bind(null, org.id)}>
                   <button
                     type="submit"
                     className={clsx(
-                      "block w-full truncate px-3 py-1.5 text-left text-sm hover:bg-slate-50",
-                      org.id === activeOrgId && "font-medium text-indigo-600"
+                      "block w-full truncate px-3 py-1.5 text-left text-sm text-ink-primary hover:bg-paper-muted",
+                      org.id === activeOrgId && "font-bold text-primary"
                     )}
                   >
                     {org.name}
@@ -69,13 +73,13 @@ export function Sidebar({
           )}
         </div>
         {activeRole && (
-          <span className="mt-2 inline-block rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium capitalize text-slate-600">
+          <span className="mt-2 inline-block rounded-full bg-white/10 px-2 py-0.5 text-[11px] font-ui-label font-bold capitalize text-primary-fixed-dim">
             {activeRole}
           </span>
         )}
       </div>
 
-      <nav className="flex-1 space-y-0.5 p-3">
+      <nav className="flex-1 space-y-2">
         {NAV.map((item) => {
           const active = pathname?.startsWith(item.href);
           const Icon = item.icon;
@@ -84,8 +88,10 @@ export function Sidebar({
               key={item.href}
               href={item.href}
               className={clsx(
-                "flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-colors",
-                active ? "bg-indigo-50 text-indigo-700" : "text-slate-600 hover:bg-slate-100"
+                "flex items-center gap-3 rounded-r-lg p-2 text-sm font-ui-label font-semibold transition-all",
+                active
+                  ? "translate-x-1 border-l-4 border-primary-fixed-dim bg-meridian-dark text-primary-fixed"
+                  : "text-ink-tertiary hover:bg-white/5 hover:text-white"
               )}
             >
               <Icon size={16} />
@@ -95,15 +101,29 @@ export function Sidebar({
         })}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
-        <div className="mb-2 truncate px-1 text-xs text-slate-500">{userEmail}</div>
+      <div className="mt-auto space-y-2 border-t border-white/10 pt-6">
+        <Link
+          href="/projects/new"
+          className="mb-2 flex w-full items-center justify-center gap-2 rounded-lg bg-primary-container py-2.5 text-sm font-ui-label font-bold text-on-primary-container transition-opacity hover:opacity-90"
+        >
+          <Plus size={16} />
+          New Project
+        </Link>
+        <div className="truncate px-2 text-xs text-ink-tertiary">{userEmail}</div>
+        <Link
+          href="/onboarding"
+          className="flex w-full items-center gap-3 rounded-lg p-2 text-sm text-ink-tertiary hover:bg-white/5 hover:text-white"
+        >
+          <HelpCircle size={16} />
+          Help Center
+        </Link>
         <form action={signOut}>
           <button
             type="submit"
-            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-slate-600 hover:bg-slate-100"
+            className="flex w-full items-center gap-3 rounded-lg p-2 text-sm text-ink-tertiary hover:bg-white/5 hover:text-white"
           >
             <LogOut size={16} />
-            Sign out
+            Log Out
           </button>
         </form>
       </div>

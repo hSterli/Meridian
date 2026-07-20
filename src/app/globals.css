@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+@theme {
+  /* Paper/Ink palette — ported from the Meridian design mockups */
+  --color-primary-fixed-dim: #86d5c3;
+  --color-surface-dim: #dcdad5;
+  --color-on-tertiary-fixed-variant: #7f2b00;
+  --color-on-surface-variant: #3f4946;
+  --color-fail: #d9482b;
+  --color-on-secondary: #ffffff;
+  --color-on-background: #1c1c19;
+  --color-secondary-fixed: #dae5e0;
+  --color-ink-tertiary: #8a928e;
+  --color-on-primary-fixed: #00201a;
+  --color-on-secondary-fixed: #141e1b;
+  --color-tertiary-fixed: #ffdbce;
+  --color-on-error-container: #93000a;
+  --color-outline-variant: #bec9c5;
+  --color-secondary-container: #d7e2dd;
+  --color-blocked: #c08a1e;
+  --color-inverse-surface: #31302d;
+  --color-surface-container-high: #ebe8e3;
+  --color-tertiary: #802c00;
+  --color-secondary: #56615d;
+  --color-secondary-fixed-dim: #bec9c4;
+  --color-surface: #fcf9f4;
+  --color-on-surface: #1c1c19;
+  --color-border-medium: #d8d0bf;
+  --color-on-tertiary: #ffffff;
+  --color-surface-container-low: #f6f3ee;
+  --color-pass-soft: #e1f2e8;
+  --color-primary: #005145;
+  --color-on-primary-container: #99e8d5;
+  --color-paper-surface: #faf7f2;
+  --color-on-primary: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-primary-container: #0e6b5c;
+  --color-surface-container-highest: #e5e2dd;
+  --color-on-error: #ffffff;
+  --color-border-light: #e5dfd3;
+  --color-error: #ba1a1a;
+  --color-surface-bright: #fcf9f4;
+  --color-fail-soft: #fbe9e3;
+  --color-error-container: #ffdad6;
+  --color-inverse-on-surface: #f3f0eb;
+  --color-on-tertiary-fixed: #370e00;
+  --color-blocked-soft: #f9efd8;
+  --color-on-secondary-fixed-variant: #3e4945;
+  --color-surface-variant: #e5e2dd;
+  --color-ink-primary: #1a2421;
+  --color-pass: #1e8a5b;
+  --color-on-tertiary-container: #ffcfbe;
+  --color-background: #fcf9f4;
+  --color-on-primary-fixed-variant: #005144;
+  --color-tertiary-container: #a73c00;
+  --color-surface-tint: #0d6a5b;
+  --color-primary-fixed: #a2f2de;
+  --color-on-secondary-container: #5a6561;
+  --color-surface-container: #f0ede9;
+  --color-ink-secondary: #4a5551;
+  --color-meridian-soft: #e3efeb;
+  --color-paper-muted: #f3efe7;
+  --color-inverse-primary: #86d5c3;
+  --color-outline: #6f7976;
+  --color-meridian-dark: #0a5348;
+  --color-tertiary-fixed-dim: #ffb598;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  /* Fonts — wired to next/font variables set on <html> */
+  --font-body-md: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-body-lg: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-body-sm: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-ui-label: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-overline: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
+  --font-headline-lg: var(--font-fraunces), ui-serif, serif;
+  --font-headline-md: var(--font-fraunces), ui-serif, serif;
+  --font-headline-sm: var(--font-fraunces), ui-serif, serif;
+  --font-mono-data: var(--font-plex-mono), ui-monospace, monospace;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper-surface);
+  color: var(--color-ink-primary);
+}
+
+.kbd {
+  background-color: var(--color-paper-muted);
+  border-bottom: 2px solid var(--color-border-medium);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: var(--font-plex-mono), monospace;
+  font-size: 10.5px;
+  line-height: 1.6;
+}
+
+.paper-card {
+  background-color: #ffffff;
+  border: 1px solid var(--color-border-light);
+  border-radius: 10px;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-medium);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-ink-tertiary);
 }

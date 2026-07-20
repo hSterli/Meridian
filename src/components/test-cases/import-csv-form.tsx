@@ -24,12 +24,12 @@ export function ImportCsvForm({ projectId }: { projectId: string }) {
         name="file"
         accept=".csv"
         required
-        className="text-xs text-slate-600 file:mr-2 file:rounded-md file:border-0 file:bg-slate-100 file:px-2 file:py-1.5 file:text-xs file:font-medium"
+        className="text-xs text-ink-secondary file:mr-2 file:rounded-md file:border-0 file:bg-paper-muted file:px-2 file:py-1.5 file:text-xs file:font-medium"
       />
       <Button type="submit" variant="secondary" disabled={isPending}>
         {isPending ? "Importing…" : "Import CSV"}
       </Button>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
+      {state.error && <span className="text-xs text-fail">{state.error}</span>}
     </form>
   );
 }

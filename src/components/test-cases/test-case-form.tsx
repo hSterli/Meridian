@@ -42,7 +42,7 @@ export function TestCaseForm({
           name="preconditions"
           rows={2}
           defaultValue={initialValues?.preconditions ?? ""}
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
@@ -55,7 +55,7 @@ export function TestCaseForm({
             id="priority"
             name="priority"
             defaultValue={initialValues?.priority ?? "medium"}
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
@@ -69,7 +69,7 @@ export function TestCaseForm({
             id="status"
             name="status"
             defaultValue={initialValues?.status ?? "active"}
-            className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           >
             <option value="active">Active</option>
             <option value="draft">Draft</option>
@@ -84,7 +84,7 @@ export function TestCaseForm({
       </div>
 
       {state.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-fail-soft px-3 py-2 text-sm text-fail">{state.error}</p>
       )}
 
       <Button type="submit" disabled={isPending}>

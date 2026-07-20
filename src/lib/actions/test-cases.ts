@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
+import { rateLimit } from "@/lib/rate-limit";
 import type { TestCasePriority, TestCaseStatus, TestStep } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -70,6 +71,9 @@ export async function createTestCase(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("create_test_case", 120, 60);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
 
@@ -230,6 +234,9 @@ export async function bulkImportTestCases(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("bulk_import_test_cases", 10, 3600);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
 

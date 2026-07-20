@@ -37,15 +37,15 @@ export default async function RunsPage({
       />
 
       {!runs || runs.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-slate-500">
+        <Card className="p-8 text-center text-sm text-ink-tertiary">
           No runs yet.{" "}
-          <Link href={`/projects/${projectId}/runs/new`} className="font-medium text-indigo-600">
+          <Link href={`/projects/${projectId}/runs/new`} className="font-medium text-primary">
             Start one
           </Link>
           .
         </Card>
       ) : (
-        <Card className="divide-y divide-slate-100">
+        <Card className="divide-y divide-border-light">
           {runs.map((run) => {
             const total = run.test_run_cases?.length ?? 0;
             const passed = run.test_run_cases?.filter((c) => c.status === "passed").length ?? 0;
@@ -54,11 +54,11 @@ export default async function RunsPage({
               <Link
                 key={run.id}
                 href={`/projects/${projectId}/runs/${run.id}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50"
+                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-paper-surface"
               >
                 <div>
-                  <div className="font-medium text-slate-900">{run.name}</div>
-                  <div className="text-xs text-slate-400">
+                  <div className="font-medium text-ink-primary">{run.name}</div>
+                  <div className="text-xs text-ink-tertiary">
                     {passed}/{total} passed
                     {failed > 0 && `, ${failed} failed`}
                   </div>

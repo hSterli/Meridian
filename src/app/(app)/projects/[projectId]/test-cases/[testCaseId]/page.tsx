@@ -45,7 +45,7 @@ export default async function TestCaseDetailPage({
           action={
             <Link
               href={`/projects/${projectId}/issues/new?testCaseId=${testCaseId}`}
-              className="text-sm font-medium text-indigo-600 hover:text-indigo-500"
+              className="text-sm font-medium text-primary hover:text-primary"
             >
               Report issue
             </Link>
@@ -73,15 +73,15 @@ export default async function TestCaseDetailPage({
       </div>
 
       <div>
-        <h2 className="mb-2 text-sm font-semibold text-slate-700">Version history</h2>
-        <Card className="divide-y divide-slate-100">
-          <div className="px-3 py-2 text-sm text-slate-600">
-            v{testCase.version} <span className="text-xs text-slate-400">current</span>
+        <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Version history</h2>
+        <Card className="divide-y divide-border-light">
+          <div className="px-3 py-2 text-sm text-ink-secondary">
+            v{testCase.version} <span className="text-xs text-ink-tertiary">current</span>
           </div>
           {(versions ?? []).map((v) => (
-            <div key={v.version} className="px-3 py-2 text-sm text-slate-500">
+            <div key={v.version} className="px-3 py-2 text-sm text-ink-tertiary">
               v{v.version}{" "}
-              <span className="text-xs text-slate-400">
+              <span className="text-xs text-ink-tertiary">
                 {new Date(v.changed_at).toLocaleString()}
               </span>
             </div>

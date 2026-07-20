@@ -36,22 +36,22 @@ export default async function IssueDetailPage({
 
       <Card className="p-6">
         {issue.description && (
-          <p className="mb-4 whitespace-pre-wrap text-sm text-slate-700">{issue.description}</p>
+          <p className="mb-4 whitespace-pre-wrap text-sm text-ink-secondary">{issue.description}</p>
         )}
 
         {issue.test_cases && (
-          <p className="mb-4 text-sm text-slate-500">
+          <p className="mb-4 text-sm text-ink-tertiary">
             Linked test case:{" "}
             <Link
               href={`/projects/${projectId}/test-cases/${issue.test_cases.id}`}
-              className="font-medium text-indigo-600"
+              className="font-medium text-primary"
             >
               {issue.test_cases.title}
             </Link>
           </p>
         )}
 
-        <div className="mb-2 text-sm font-medium text-slate-700">Status</div>
+        <div className="mb-2 text-sm font-medium text-ink-secondary">Status</div>
         <div className="flex flex-wrap gap-2">
           {STATUSES.map((status) => {
             const action = updateIssueStatus.bind(null, projectId, issueId, status);

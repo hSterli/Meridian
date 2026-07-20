@@ -34,7 +34,7 @@ export function TestCaseFilters({ tags }: { tags: string[] }) {
       <select
         defaultValue={searchParams.get("priority") ?? ""}
         onChange={(e) => updateParam("priority", e.target.value)}
-        className="rounded-md border border-slate-300 px-2 py-2 text-sm text-slate-700"
+        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
       >
         <option value="">All priorities</option>
         <option value="low">Low</option>
@@ -45,7 +45,7 @@ export function TestCaseFilters({ tags }: { tags: string[] }) {
       <select
         defaultValue={searchParams.get("status") ?? ""}
         onChange={(e) => updateParam("status", e.target.value)}
-        className="rounded-md border border-slate-300 px-2 py-2 text-sm text-slate-700"
+        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
       >
         <option value="">All statuses</option>
         <option value="active">Active</option>
@@ -56,7 +56,7 @@ export function TestCaseFilters({ tags }: { tags: string[] }) {
         <select
           defaultValue={searchParams.get("tag") ?? ""}
           onChange={(e) => updateParam("tag", e.target.value)}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm text-slate-700"
+          className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
         >
           <option value="">All tags</option>
           {tags.map((t) => (

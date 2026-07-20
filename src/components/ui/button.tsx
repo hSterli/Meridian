@@ -4,10 +4,11 @@ import { clsx } from "clsx";
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
 const variantClasses: Record<Variant, string> = {
-  primary: "bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-indigo-300",
-  secondary: "bg-white text-slate-900 border border-slate-300 hover:bg-slate-50",
-  ghost: "text-slate-600 hover:bg-slate-100",
-  danger: "bg-red-600 text-white hover:bg-red-500",
+  primary: "bg-primary text-white hover:bg-meridian-dark disabled:bg-primary/40",
+  secondary:
+    "bg-white text-ink-primary border border-border-medium hover:bg-paper-muted",
+  ghost: "text-ink-secondary hover:bg-paper-muted",
+  danger: "bg-fail text-white hover:bg-fail/90",
 };
 
 export const Button = forwardRef<
@@ -18,7 +19,7 @@ export const Button = forwardRef<
     <button
       ref={ref}
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-md px-3.5 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-ui-label font-semibold transition-all disabled:cursor-not-allowed disabled:opacity-60",
         variantClasses[variant],
         className
       )}

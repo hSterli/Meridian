@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
+import { rateLimit } from "@/lib/rate-limit";
 import type { RunCaseStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -20,6 +21,9 @@ export async function createRun(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("create_run", 30, 3600);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
 
@@ -53,6 +57,9 @@ export async function setRunCaseStatus(
 ) {
   const ctx = await getUserContext();
   if (!ctx) return;
+
+  const limitError = await rateLimit("set_run_case_status", 300, 300);
+  if (limitError) return;
 
   const supabase = await createClient();
 

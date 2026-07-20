@@ -34,7 +34,7 @@ export function NewProjectForm() {
               key={t.id}
               className={clsx(
                 "cursor-pointer rounded-md border p-3 text-sm transition-colors",
-                template === t.id ? "border-indigo-500 bg-indigo-50" : "border-slate-200 hover:border-slate-300"
+                template === t.id ? "border-primary bg-meridian-soft" : "border-border-light hover:border-border-medium"
               )}
             >
               <input
@@ -45,14 +45,14 @@ export function NewProjectForm() {
                 onChange={() => setTemplate(t.id)}
                 className="sr-only"
               />
-              <div className="font-medium text-slate-900">{t.label}</div>
+              <div className="font-medium text-ink-primary">{t.label}</div>
             </label>
           ))}
         </div>
       </div>
 
       {state.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-fail-soft px-3 py-2 text-sm text-fail">{state.error}</p>
       )}
 
       <Button type="submit" disabled={isPending}>

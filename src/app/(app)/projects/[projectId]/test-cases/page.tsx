@@ -74,19 +74,21 @@ export default async function TestCasesPage({
       </div>
 
       {filtered.length === 0 ? (
-        <Card className="mt-4 p-8 text-center text-sm text-slate-500">
+        <Card className="mt-4 p-8 text-center text-sm text-ink-secondary">
           No test cases match. {q || priority || status || tag ? "Try clearing filters." : ""}
         </Card>
       ) : (
-        <Card className="mt-4 divide-y divide-slate-100">
+        <Card className="mt-4 divide-y divide-border-light">
           {filtered.map((tc) => (
             <Link
               key={tc.id}
               href={`/projects/${projectId}/test-cases/${tc.id}`}
-              className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-slate-50"
+              className="flex items-center justify-between gap-4 px-4 py-3 transition-colors hover:bg-paper-surface"
             >
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-slate-900">{tc.title}</div>
+                <div className="truncate font-ui-label font-semibold text-ink-primary">
+                  {tc.title}
+                </div>
                 <div className="mt-1 flex flex-wrap gap-1">
                   {tc.test_case_tag_links?.map((l) =>
                     tagName(l) ? (

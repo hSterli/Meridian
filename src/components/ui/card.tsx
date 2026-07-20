@@ -4,7 +4,10 @@ import { clsx } from "clsx";
 export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
-      className={clsx("rounded-lg border border-slate-200 bg-white shadow-sm", className)}
+      className={clsx(
+        "rounded-xl border border-border-light bg-white shadow-sm",
+        className
+      )}
       {...props}
     />
   );
@@ -18,17 +21,17 @@ export function Badge({
   tone?: "slate" | "green" | "red" | "amber" | "indigo" | "blue";
 }) {
   const tones: Record<string, string> = {
-    slate: "bg-slate-100 text-slate-700",
-    green: "bg-emerald-100 text-emerald-700",
-    red: "bg-red-100 text-red-700",
-    amber: "bg-amber-100 text-amber-700",
-    indigo: "bg-indigo-100 text-indigo-700",
-    blue: "bg-blue-100 text-blue-700",
+    slate: "bg-surface-container-highest text-ink-secondary",
+    green: "bg-pass-soft text-pass",
+    red: "bg-fail-soft text-fail",
+    amber: "bg-blocked-soft text-blocked",
+    indigo: "bg-meridian-soft text-meridian-dark",
+    blue: "bg-blue-50 text-blue-700",
   };
   return (
     <span
       className={clsx(
-        "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-ui-label font-bold",
         tones[tone],
         className
       )}

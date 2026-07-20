@@ -22,7 +22,7 @@ export function IssueForm({
   return (
     <form action={formAction} className="space-y-4">
       {linkedTestCaseTitle && (
-        <p className="rounded-md bg-indigo-50 px-3 py-2 text-sm text-indigo-700">
+        <p className="rounded-md bg-meridian-soft px-3 py-2 text-sm text-primary">
           Linked to test case: <span className="font-medium">{linkedTestCaseTitle}</span>
         </p>
       )}
@@ -40,7 +40,7 @@ export function IssueForm({
           id="description"
           name="description"
           rows={4}
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         />
       </div>
 
@@ -50,7 +50,7 @@ export function IssueForm({
           id="severity"
           name="severity"
           defaultValue="medium"
-          className="block w-full rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 shadow-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
         >
           <option value="low">Low</option>
           <option value="medium">Medium</option>
@@ -60,7 +60,7 @@ export function IssueForm({
       </div>
 
       {state.error && (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+        <p className="rounded-md bg-fail-soft px-3 py-2 text-sm text-fail">{state.error}</p>
       )}
 
       <Button type="submit" disabled={isPending}>

@@ -17,7 +17,7 @@ export function InviteForm() {
       <select
         name="role"
         defaultValue="member"
-        className="rounded-md border border-slate-300 px-2 py-2 text-sm text-slate-700"
+        className="rounded-md border border-border-medium px-2 py-2 text-sm text-ink-secondary"
       >
         <option value="member">Member</option>
         <option value="admin">Admin</option>
@@ -25,7 +25,7 @@ export function InviteForm() {
       <Button type="submit" disabled={isPending}>
         {isPending ? "Inviting…" : "Invite"}
       </Button>
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
+      {state.error && <span className="text-xs text-fail">{state.error}</span>}
     </form>
   );
 }

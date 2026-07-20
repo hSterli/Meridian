@@ -25,10 +25,10 @@ export function OnboardingWizard() {
 
   return (
     <form action={formAction} className="space-y-6">
-      <div className="flex items-center gap-2 text-xs font-medium text-slate-400">
-        <span className={step === 1 ? "text-indigo-600" : ""}>1. Your team</span>
+      <div className="flex items-center gap-2 text-xs font-ui-label font-semibold text-ink-tertiary">
+        <span className={step === 1 ? "text-primary" : ""}>1. Your team</span>
         <span>→</span>
-        <span className={step === 2 ? "text-indigo-600" : ""}>2. First project</span>
+        <span className={step === 2 ? "text-primary" : ""}>2. First project</span>
       </div>
 
       <div className={clsx("space-y-4", step !== 1 && "hidden")}>
@@ -54,10 +54,10 @@ export function OnboardingWizard() {
               <label
                 key={t.id}
                 className={clsx(
-                  "cursor-pointer rounded-md border p-3 text-sm transition-colors",
+                  "cursor-pointer rounded-lg border p-3 text-sm transition-colors",
                   template === t.id
-                    ? "border-indigo-500 bg-indigo-50"
-                    : "border-slate-200 hover:border-slate-300"
+                    ? "border-primary bg-meridian-soft"
+                    : "border-border-light hover:border-border-medium"
                 )}
               >
                 <input
@@ -68,15 +68,15 @@ export function OnboardingWizard() {
                   onChange={() => setTemplate(t.id)}
                   className="sr-only"
                 />
-                <div className="font-medium text-slate-900">{t.label}</div>
-                <div className="text-xs text-slate-500">{t.description}</div>
+                <div className="font-ui-label font-semibold text-ink-primary">{t.label}</div>
+                <div className="text-xs text-ink-tertiary">{t.description}</div>
               </label>
             ))}
           </div>
         </div>
 
         {state.error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{state.error}</p>
+          <p className="rounded-lg bg-fail-soft px-3 py-2 text-sm text-fail">{state.error}</p>
         )}
 
         <div className="flex gap-2">

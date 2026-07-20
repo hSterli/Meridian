@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { FolderKanban, ListChecks, Zap, Bug } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { Card, Badge } from "@/components/ui/card";
@@ -21,11 +22,11 @@ export default async function DashboardPage() {
 
   if (projectIds.length === 0) {
     return (
-      <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="mx-auto max-w-[1400px]">
         <PageHeader title="Dashboard" />
-        <Card className="p-8 text-center text-sm text-slate-500">
+        <Card className="p-8 text-center text-sm text-ink-secondary">
           No projects yet.{" "}
-          <Link href="/projects/new" className="font-medium text-indigo-600">
+          <Link href="/projects/new" className="font-semibold text-primary">
             Create one
           </Link>{" "}
           to see cross-project reporting here.
@@ -98,14 +99,15 @@ export default async function DashboardPage() {
   }).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="mx-auto max-w-[1400px]">
       <PageHeader title="Dashboard" description="Cross-project view — no manual export needed." />
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-        <StatTile label="Projects" value={projectIds.length} />
-        <StatTile label="Test cases" value={testCaseCount ?? 0} />
-        <StatTile label="Runs (7d)" value={testRunsThisWeek} />
+        <StatTile icon={FolderKanban} label="Projects" value={projectIds.length} />
+        <StatTile icon={ListChecks} label="Test cases" value={testCaseCount ?? 0} />
+        <StatTile icon={Zap} label="Runs (7d)" value={testRunsThisWeek} />
         <StatTile
+          icon={Bug}
           label="Open issues"
           value={openIssueCount ?? 0}
           tone={(openIssueCount ?? 0) > 0 ? "red" : "green"}
@@ -114,29 +116,32 @@ export default async function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div>
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">Recent runs — pass/fail trend</h2>
-          <Card className="divide-y divide-slate-100">
+          <h2 className="mb-3 font-headline-sm text-[17px] font-semibold text-ink-primary">
+            Recent runs — pass/fail trend
+          </h2>
+          <Card className="divide-y divide-border-light">
             {runStats.length === 0 && (
-              <p className="p-4 text-sm text-slate-400">No runs yet.</p>
+              <p className="p-4 text-sm text-ink-tertiary">No runs yet.</p>
             )}
             {runStats.map((run) => (
               <Link
                 key={run.id}
                 href={`/projects/${run.project_id}/runs/${run.id}`}
-                className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-slate-50"
+                className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-paper-surface"
               >
                 <div className="min-w-0">
-                  <div className="truncate text-sm font-medium text-slate-900">{run.name}</div>
-                  <div className="text-xs text-slate-400">{run.projectName}</div>
+                  <div className="truncate text-sm font-ui-label font-semibold text-ink-primary">
+                    {run.name}
+                  </div>
+                  <div className="text-xs text-ink-tertiary">{run.projectName}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="h-1.5 w-20 overflow-hidden rounded-full bg-slate-100">
-                    <div
-                      className="h-full bg-emerald-500"
-                      style={{ width: `${run.passRate}%` }}
-                    />
+                  <div className="h-1.5 w-20 overflow-hidden rounded-full bg-surface-container-highest">
+                    <div className="h-full bg-pass" style={{ width: `${run.passRate}%` }} />
                   </div>
-                  <span className="w-10 text-right text-xs text-slate-500">{run.passRate}%</span>
+                  <span className="w-10 text-right font-mono-data text-xs font-bold text-pass">
+                    {run.passRate}%
+                  </span>
                 </div>
               </Link>
             ))}
@@ -144,16 +149,19 @@ export default async function DashboardPage() {
         </div>
 
         <div>
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">Flaky-test tracker</h2>
-          <Card className="divide-y divide-slate-100">
+          <h2 className="mb-3 font-headline-sm text-[17px] font-semibold text-ink-primary">
+            Flaky-test tracker
+          </h2>
+          <Card className="divide-y divide-border-light">
             {flaky.length === 0 && (
-              <p className="p-4 text-sm text-slate-400">
-                No flaky tests detected yet — a test needs both a pass and a fail in history to show here.
+              <p className="p-4 text-sm text-ink-tertiary">
+                No flaky tests detected yet — a test needs both a pass and a fail in history to
+                show here.
               </p>
             )}
             {flaky.map((f) => (
               <div key={f.title} className="flex items-center justify-between px-4 py-3">
-                <span className="truncate text-sm text-slate-800">{f.title}</span>
+                <span className="truncate text-sm text-ink-primary">{f.title}</span>
                 <div className="flex gap-1">
                   <Badge tone="green">{f.passed} pass</Badge>
                   <Badge tone="red">{f.failed} fail</Badge>
@@ -165,16 +173,20 @@ export default async function DashboardPage() {
       </div>
 
       <div className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-slate-700">Coverage by project</h2>
-        <Card className="divide-y divide-slate-100">
+        <h2 className="mb-3 font-headline-sm text-[17px] font-semibold text-ink-primary">
+          Coverage by project
+        </h2>
+        <Card className="divide-y divide-border-light">
           {(projects ?? []).map((p) => (
             <Link
               key={p.id}
               href={`/projects/${p.id}/test-cases`}
-              className="flex items-center justify-between px-4 py-3 hover:bg-slate-50"
+              className="flex items-center justify-between px-4 py-3 transition-colors hover:bg-paper-surface"
             >
-              <span className="text-sm font-medium text-slate-800">{p.name}</span>
-              <span className="text-xs text-slate-400">{p.key}</span>
+              <span className="text-sm font-ui-label font-semibold text-ink-primary">
+                {p.name}
+              </span>
+              <span className="font-mono-data text-xs text-ink-tertiary">{p.key}</span>
             </Link>
           ))}
         </Card>
@@ -184,20 +196,32 @@ export default async function DashboardPage() {
 }
 
 function StatTile({
+  icon: Icon,
   label,
   value,
   tone = "slate",
 }: {
+  icon: typeof FolderKanban;
   label: string;
   value: number;
   tone?: "slate" | "green" | "red";
 }) {
-  const toneClass =
-    tone === "green" ? "text-emerald-600" : tone === "red" ? "text-red-600" : "text-slate-900";
+  const toneClass = tone === "green" ? "text-pass" : tone === "red" ? "text-fail" : "text-ink-primary";
+  const chipClass =
+    tone === "green"
+      ? "bg-pass-soft text-pass"
+      : tone === "red"
+        ? "bg-fail-soft text-fail"
+        : "bg-meridian-soft text-primary";
   return (
-    <Card className="p-4">
-      <div className="text-xs font-medium text-slate-500">{label}</div>
-      <div className={`mt-1 text-2xl font-semibold ${toneClass}`}>{value}</div>
+    <Card className="p-4 transition-all hover:-translate-y-0.5 hover:shadow-md">
+      <div className={`mb-3 inline-flex rounded-lg p-2 ${chipClass}`}>
+        <Icon size={18} />
+      </div>
+      <div className="text-xs font-ui-label font-semibold uppercase tracking-wide text-ink-tertiary">
+        {label}
+      </div>
+      <div className={`mt-1 font-headline-md text-2xl font-semibold ${toneClass}`}>{value}</div>
     </Card>
   );
 }

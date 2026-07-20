@@ -14,7 +14,7 @@ export function ProjectTabs({ projectId }: { projectId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-4 flex gap-4">
+    <nav className="mt-4 flex gap-6 border-b border-border-light">
       {TABS.map((tab) => {
         const href = `/projects/${projectId}/${tab.segment}`;
         const active = pathname?.startsWith(href);
@@ -23,10 +23,10 @@ export function ProjectTabs({ projectId }: { projectId: string }) {
             key={tab.segment}
             href={href}
             className={clsx(
-              "border-b-2 pb-2 text-sm font-medium transition-colors",
+              "-mb-px border-b-2 pb-2 text-sm font-ui-label font-semibold transition-colors",
               active
-                ? "border-indigo-600 text-indigo-700"
-                : "border-transparent text-slate-500 hover:text-slate-700"
+                ? "border-meridian-dark text-meridian-dark"
+                : "border-transparent text-ink-tertiary hover:text-ink-primary"
             )}
           >
             {tab.label}

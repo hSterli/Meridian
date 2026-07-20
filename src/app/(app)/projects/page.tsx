@@ -30,9 +30,9 @@ export default async function ProjectsPage() {
       />
 
       {!projects || projects.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-slate-500">
+        <Card className="p-8 text-center text-sm text-ink-tertiary">
           No projects yet.{" "}
-          <Link href="/projects/new" className="font-medium text-indigo-600">
+          <Link href="/projects/new" className="font-medium text-primary">
             Create your first one
           </Link>
           .
@@ -42,11 +42,11 @@ export default async function ProjectsPage() {
           {projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}/test-cases`}>
               <Card className="p-5 transition-shadow hover:shadow-md">
-                <div className="mb-1 text-xs font-medium uppercase tracking-wide text-indigo-500">
+                <div className="mb-1 text-xs font-medium uppercase tracking-wide text-primary">
                   {p.key}
                 </div>
-                <div className="font-semibold text-slate-900">{p.name}</div>
-                <div className="mt-1 text-xs capitalize text-slate-400">{p.template} template</div>
+                <div className="font-semibold text-ink-primary">{p.name}</div>
+                <div className="mt-1 text-xs capitalize text-ink-tertiary">{p.template} template</div>
               </Card>
             </Link>
           ))}

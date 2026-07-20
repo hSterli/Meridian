@@ -14,10 +14,12 @@ export default async function OnboardingPage() {
   if (ctx.memberships.length > 0) redirect("/dashboard");
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-4">
-      <div className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="mb-1 text-xl font-semibold text-slate-900">Set up your workspace</h1>
-        <p className="mb-6 text-sm text-slate-500">
+    <div className="flex min-h-screen items-center justify-center bg-paper-surface px-4">
+      <div className="w-full max-w-md rounded-xl border border-border-light bg-white p-8 shadow-sm">
+        <h1 className="font-headline-md mb-1 text-[22px] font-semibold text-ink-primary">
+          Set up your workspace
+        </h1>
+        <p className="mb-6 text-sm text-ink-secondary">
           One guided flow: create your team, then your first project.
         </p>
         <OnboardingWizard />

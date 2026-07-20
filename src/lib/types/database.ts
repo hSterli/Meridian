@@ -468,9 +468,10 @@ export type Database = {
           user_id: string
         }[]
       }
-      is_org_admin: { Args: { check_org_id: string }; Returns: boolean }
-      is_org_member: { Args: { check_org_id: string }; Returns: boolean }
-      project_org_id: { Args: { check_project_id: string }; Returns: string }
+      check_rate_limit: {
+        Args: { p_action: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
     }
     Enums: {
       issue_severity: "low" | "medium" | "high" | "critical"

@@ -4,6 +4,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ACTIVE_ORG_COOKIE } from "@/lib/org-context";
+import { rateLimit } from "@/lib/rate-limit";
 import type { ProjectTemplate } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -65,6 +66,9 @@ export async function createOrganizationAndProject(
   if (!user) {
     return { error: "You must be logged in." };
   }
+
+  const limitError = await rateLimit("create_organization", 10, 86400);
+  if (limitError) return { error: limitError };
 
   const orgSlug = `${slugify(orgName)}-${Math.random().toString(36).slice(2, 7)}`;
 
