@@ -52,6 +52,44 @@ async function upsertTags(
   return ids;
 }
 
+/** Get-or-create a project's feature by name, returning its id. */
+async function upsertFeature(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  projectId: string,
+  name: string
+): Promise<string | null> {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+
+  const { data: existing } = await supabase
+    .from("test_case_features")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("name", trimmed)
+    .maybeSingle();
+
+  if (existing) return existing.id;
+
+  const { data: created } = await supabase
+    .from("test_case_features")
+    .insert({ project_id: projectId, name: trimmed })
+    .select("id")
+    .single();
+
+  return created?.id ?? null;
+}
+
+/** Resolves the "feature" form field: the `newFeature` text wins when the
+ * `feature` select is set to the "add new" sentinel, otherwise the selected
+ * existing feature name is used. */
+function resolveFeatureName(formData: FormData): string {
+  const selected = String(formData.get("feature") ?? "");
+  if (selected === "__new__") {
+    return String(formData.get("newFeature") ?? "").trim();
+  }
+  return selected.trim();
+}
+
 export async function createTestCase(
   projectId: string,
   _prevState: ActionState,
@@ -66,8 +104,10 @@ export async function createTestCase(
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
+  const featureName = resolveFeatureName(formData);
 
   if (!title) return { error: "Title is required." };
+  if (!featureName) return { error: "Feature is required." };
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
@@ -76,6 +116,9 @@ export async function createTestCase(
   if (limitError) return { error: limitError };
 
   const supabase = await createClient();
+
+  const featureId = await upsertFeature(supabase, projectId, featureName);
+  if (!featureId) return { error: "Could not resolve feature." };
 
   const { data: testCase, error } = await supabase
     .from("test_cases")
@@ -86,6 +129,7 @@ export async function createTestCase(
       priority,
       status,
       steps,
+      feature_id: featureId,
       created_by: ctx.userId,
     })
     .select()
@@ -102,7 +146,8 @@ export async function createTestCase(
     }
   }
 
-  redirect(`/projects/${projectId}/test-cases/${testCase.id}`);
+  revalidatePath(`/projects/${projectId}/test-cases`);
+  redirect(`/projects/${projectId}/test-cases`);
 }
 
 export async function updateTestCase(
@@ -120,8 +165,10 @@ export async function updateTestCase(
     .split(",")
     .map((t) => t.trim())
     .filter(Boolean);
+  const featureName = resolveFeatureName(formData);
 
   if (!title) return { error: "Title is required." };
+  if (!featureName) return { error: "Feature is required." };
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
@@ -135,6 +182,9 @@ export async function updateTestCase(
     .single();
 
   if (!existing) return { error: "Test case not found." };
+
+  const featureId = await upsertFeature(supabase, projectId, featureName);
+  if (!featureId) return { error: "Could not resolve feature." };
 
   await supabase.from("test_case_versions").insert({
     test_case_id: testCaseId,
@@ -151,6 +201,7 @@ export async function updateTestCase(
       priority,
       status,
       steps,
+      feature_id: featureId,
       version: existing.version + 1,
       updated_at: new Date().toISOString(),
     })
@@ -241,8 +292,12 @@ export async function bulkImportTestCases(
   const supabase = await createClient();
 
   for (const line of dataLines) {
-    const [title, preconditions, priority, status, tags, stepsRaw] = parseCsvLine(line);
+    const [title, preconditions, priority, status, tags, feature, stepsRaw] =
+      parseCsvLine(line);
     if (!title) continue;
+
+    const featureId = await upsertFeature(supabase, projectId, feature || "General");
+    if (!featureId) continue;
 
     const { data: testCase } = await supabase
       .from("test_cases")
@@ -253,6 +308,7 @@ export async function bulkImportTestCases(
         priority: (priority as TestCasePriority) || "medium",
         status: (status as TestCaseStatus) || "active",
         steps: decodeSteps(stepsRaw),
+        feature_id: featureId,
         created_by: ctx.userId,
       })
       .select("id")

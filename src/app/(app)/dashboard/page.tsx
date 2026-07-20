@@ -5,11 +5,18 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { Card, Badge } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
+import { DashboardProjectFilter } from "@/components/dashboard/project-filter";
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ project?: string }>;
+}) {
   const ctx = await getUserContext();
   if (!ctx) redirect("/login");
   if (!ctx.activeOrgId) redirect("/onboarding");
+
+  const { project: selectedProjectId } = await searchParams;
 
   const supabase = await createClient();
 
@@ -18,9 +25,16 @@ export default async function DashboardPage() {
     .select("id, name, key")
     .eq("org_id", ctx.activeOrgId);
 
-  const projectIds = (projects ?? []).map((p) => p.id);
+  const allProjectIds = (projects ?? []).map((p) => p.id);
+  const isValidSelection =
+    !!selectedProjectId && allProjectIds.includes(selectedProjectId);
+  const projectIds = isValidSelection ? [selectedProjectId] : allProjectIds;
 
-  if (projectIds.length === 0) {
+  const filterAction = (
+    <DashboardProjectFilter projects={(projects ?? []).map((p) => ({ id: p.id, name: p.name }))} />
+  );
+
+  if (allProjectIds.length === 0) {
     return (
       <div className="mx-auto max-w-[1400px]">
         <PageHeader title="Dashboard" />
@@ -98,9 +112,17 @@ export default async function DashboardPage() {
     return created >= weekAgo;
   }).length;
 
+  const scopedProjects = isValidSelection
+    ? (projects ?? []).filter((p) => p.id === selectedProjectId)
+    : projects ?? [];
+
   return (
     <div className="mx-auto max-w-[1400px]">
-      <PageHeader title="Dashboard" description="Cross-project view — no manual export needed." />
+      <PageHeader
+        title="Dashboard"
+        description="Cross-project view — no manual export needed."
+        action={filterAction}
+      />
 
       <div className="mb-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
         <StatTile icon={FolderKanban} label="Projects" value={projectIds.length} />
@@ -177,7 +199,7 @@ export default async function DashboardPage() {
           Coverage by project
         </h2>
         <Card className="divide-y divide-border-light">
-          {(projects ?? []).map((p) => (
+          {scopedProjects.map((p) => (
             <Link
               key={p.id}
               href={`/projects/${p.id}/test-cases`}

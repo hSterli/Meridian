@@ -8,10 +8,14 @@ import { rateLimit } from "@/lib/rate-limit";
 import type { ProjectTemplate } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
-const TEMPLATE_SEED_CASES: Record<ProjectTemplate, { title: string; steps: { step: string; expected: string }[] }[]> = {
+const TEMPLATE_SEED_CASES: Record<
+  ProjectTemplate,
+  { title: string; feature: string; steps: { step: string; expected: string }[] }[]
+> = {
   web: [
     {
       title: "User can log in with valid credentials",
+      feature: "Authentication",
       steps: [
         { step: "Navigate to the login page", expected: "Login form is visible" },
         { step: "Enter valid email and password, submit", expected: "User is redirected to the dashboard" },
@@ -19,18 +23,21 @@ const TEMPLATE_SEED_CASES: Record<ProjectTemplate, { title: string; steps: { ste
     },
     {
       title: "User sees validation error on invalid email",
+      feature: "Authentication",
       steps: [{ step: "Enter a malformed email and submit", expected: "Inline validation error is shown" }],
     },
   ],
   mobile: [
     {
       title: "App launches to onboarding on first install",
+      feature: "Onboarding",
       steps: [{ step: "Fresh install and open the app", expected: "Onboarding carousel is shown" }],
     },
   ],
   api: [
     {
       title: "GET /health returns 200",
+      feature: "Health Check",
       steps: [{ step: "Send GET request to /health", expected: "Response status is 200 with { status: \"ok\" }" }],
     },
   ],
@@ -105,13 +112,26 @@ export async function createOrganizationAndProject(
 
   const seedCases = TEMPLATE_SEED_CASES[template] ?? [];
   if (seedCases.length > 0) {
+    const featureIds = new Map<string, string>();
+    for (const featureName of new Set(seedCases.map((tc) => tc.feature))) {
+      const { data: feature } = await supabase
+        .from("test_case_features")
+        .insert({ project_id: project.id, name: featureName })
+        .select("id")
+        .single();
+      if (feature) featureIds.set(featureName, feature.id);
+    }
+
     await supabase.from("test_cases").insert(
-      seedCases.map((tc) => ({
-        project_id: project.id,
-        title: tc.title,
-        steps: tc.steps,
-        created_by: user.id,
-      }))
+      seedCases
+        .filter((tc) => featureIds.has(tc.feature))
+        .map((tc) => ({
+          project_id: project.id,
+          title: tc.title,
+          steps: tc.steps,
+          feature_id: featureIds.get(tc.feature)!,
+          created_by: user.id,
+        }))
     );
   }
 

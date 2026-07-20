@@ -18,7 +18,7 @@ export default async function TestCaseDetailPage({
 
   const { data: testCase } = await supabase
     .from("test_cases")
-    .select("*, test_case_tag_links(test_case_tags(name))")
+    .select("*, test_case_tag_links(test_case_tags(name)), test_case_features(name)")
     .eq("id", testCaseId)
     .single();
 
@@ -30,11 +30,21 @@ export default async function TestCaseDetailPage({
     .eq("test_case_id", testCaseId)
     .order("version", { ascending: false });
 
+  const { data: features } = await supabase
+    .from("test_case_features")
+    .select("name")
+    .eq("project_id", projectId)
+    .order("name");
+
   const updateAction = updateTestCase.bind(null, projectId, testCaseId);
   const deleteAction = deleteTestCase.bind(null, projectId, testCaseId);
   const tagNames = (testCase.test_case_tag_links ?? [])
     .map((l: { test_case_tags: { name: string } | null }) => l.test_case_tags?.name)
     .filter((n: string | undefined): n is string => Boolean(n));
+  const featureName = (
+    testCase.test_case_features as { name: string } | { name: string }[] | null
+  );
+  const feature = Array.isArray(featureName) ? featureName[0]?.name : featureName?.name;
 
   return (
     <div className="grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
@@ -55,6 +65,7 @@ export default async function TestCaseDetailPage({
           <TestCaseForm
             action={updateAction}
             submitLabel="Save changes"
+            features={(features ?? []).map((f) => f.name)}
             initialValues={{
               title: testCase.title,
               preconditions: testCase.preconditions,
@@ -62,6 +73,7 @@ export default async function TestCaseDetailPage({
               status: testCase.status,
               steps: testCase.steps as TestStep[],
               tags: tagNames,
+              feature,
             }}
           />
         </Card>

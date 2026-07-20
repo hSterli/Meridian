@@ -4,7 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 
-export function TestCaseFilters({ tags }: { tags: string[] }) {
+export function TestCaseFilters({ tags, features }: { tags: string[]; features: string[] }) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -31,6 +31,20 @@ export function TestCaseFilters({ tags }: { tags: string[] }) {
         }}
         className="max-w-xs"
       />
+      {features.length > 0 && (
+        <select
+          defaultValue={searchParams.get("feature") ?? ""}
+          onChange={(e) => updateParam("feature", e.target.value)}
+          className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
+        >
+          <option value="">All features</option>
+          {features.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+        </select>
+      )}
       <select
         defaultValue={searchParams.get("priority") ?? ""}
         onChange={(e) => updateParam("priority", e.target.value)}

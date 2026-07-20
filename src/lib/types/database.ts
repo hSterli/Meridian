@@ -1,6 +1,7 @@
 // Generated from the live Supabase project (meridian-qa / ucnfcsosbdgknmzyuqbw).
 // Regenerate after schema changes with:
 //   npx supabase gen types typescript --project-id ucnfcsosbdgknmzyuqbw > src/lib/types/database.generated.ts
+// (then re-add the hand-written convenience aliases at the bottom of this file)
 
 export type Json =
   | string
@@ -211,6 +212,53 @@ export type Database = {
           },
         ]
       }
+      rate_limit_buckets: {
+        Row: {
+          count: number
+          key: string
+          window_start: string
+        }
+        Insert: {
+          count?: number
+          key: string
+          window_start?: string
+        }
+        Update: {
+          count?: number
+          key?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
+      test_case_features: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_features_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_case_tag_links: {
         Row: {
           tag_id: string
@@ -310,6 +358,7 @@ export type Database = {
           created_at: string
           created_by: string
           custom_fields: Json
+          feature_id: string
           id: string
           preconditions: string | null
           priority: Database["public"]["Enums"]["test_case_priority"]
@@ -324,6 +373,7 @@ export type Database = {
           created_at?: string
           created_by: string
           custom_fields?: Json
+          feature_id: string
           id?: string
           preconditions?: string | null
           priority?: Database["public"]["Enums"]["test_case_priority"]
@@ -338,6 +388,7 @@ export type Database = {
           created_at?: string
           created_by?: string
           custom_fields?: Json
+          feature_id?: string
           id?: string
           preconditions?: string | null
           priority?: Database["public"]["Enums"]["test_case_priority"]
@@ -349,6 +400,13 @@ export type Database = {
           version?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "test_cases_feature_id_fkey"
+            columns: ["feature_id"]
+            isOneToOne: false
+            referencedRelation: "test_case_features"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "test_cases_project_id_fkey"
             columns: ["project_id"]
@@ -449,6 +507,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_rate_limit: {
+        Args: { p_action: string; p_limit: number; p_window_seconds: number }
+        Returns: boolean
+      }
       create_organization_with_owner: {
         Args: { org_name: string; org_slug: string }
         Returns: {
@@ -467,10 +529,6 @@ export type Database = {
           role: Database["public"]["Enums"]["org_role"]
           user_id: string
         }[]
-      }
-      check_rate_limit: {
-        Args: { p_action: string; p_limit: number; p_window_seconds: number }
-        Returns: boolean
       }
     }
     Enums: {

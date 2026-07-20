@@ -44,6 +44,7 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0005_create_org_rpc.sql` | `create_organization_with_owner` RPC — see note below |
 | `0006_private_schema_hardening.sql` | Moves `is_org_member`/`is_org_admin`/`project_org_id` into a non-exposed `private` schema so they can't be called directly via `/rest/v1/rpc/*` (they're SECURITY DEFINER and were previously callable by any authenticated user; `project_org_id` in particular would disclose the org_id of any project id) |
 | `0007_rate_limiting.sql` | `check_rate_limit(action, limit, window_seconds)` — a per-user sliding-window limiter backed by a `rate_limit_buckets` table, keyed by `auth.uid()` server-side so a caller can only ever exhaust their own bucket |
+| `0008_test_case_features.sql` | `test_case_features` — a required, structured "Feature" field per test case (distinct from free-form tags), managed per project; backfills existing test cases to a default "General" feature before making the column NOT NULL |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -58,10 +59,10 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 ## What's implemented (Phase 1 MVP / P0)
 
 - **Onboarding**: guided signup → create team → create first project from a starter template (web/mobile/API/blank), with seeded sample test cases
-- **Test case management**: CRUD, tags, priority/status, version history, dynamic filters, CSV import/export
+- **Test case management**: CRUD, a required structured Feature field (project-managed list, pick-existing-or-add-new from the form), free-form tags, priority/status, version history, dynamic filters (including by feature), CSV import/export
 - **Test execution**: run creation from a test-case picker, keyboard-driven execution UI (P/F/B/S shortcuts, arrow-key navigation), notes per result
 - **Issue tracking**: native lightweight tracker, linkable to a test case and/or a specific run result, status workflow (open → in progress → resolved → closed)
-- **Cross-project dashboard**: stat tiles, recent-run pass/fail trend, flaky-test tracker (tests with both a pass and a fail in history), coverage by project
+- **Cross-project dashboard**: stat tiles, recent-run pass/fail trend, flaky-test tracker (tests with both a pass and a fail in history), coverage by project, filterable to a single project via `?project=` (dropdown in the page header)
 - **RBAC**: owner/admin/member roles, invite-by-email (auto-joins on next login/onboarding if the email matches a pending invite), role changes, member removal
 
 ## Design system

@@ -21,11 +21,13 @@ export async function GET(
 
   const { data: testCases } = await supabase
     .from("test_cases")
-    .select("title, preconditions, priority, status, steps, test_case_tag_links(test_case_tags(name))")
+    .select(
+      "title, preconditions, priority, status, steps, test_case_tag_links(test_case_tags(name)), test_case_features(name)"
+    )
     .eq("project_id", projectId)
     .order("created_at");
 
-  const header = "title,preconditions,priority,status,tags,steps";
+  const header = "title,preconditions,priority,status,tags,feature,steps";
   const rows = (testCases ?? []).map((tc) => {
     const tags = (tc.test_case_tag_links ?? [])
       .map((l) => {
@@ -34,12 +36,18 @@ export async function GET(
       })
       .filter(Boolean)
       .join("|");
+    const linkedFeature = tc.test_case_features as unknown as
+      | { name: string }
+      | { name: string }[]
+      | null;
+    const feature = Array.isArray(linkedFeature) ? linkedFeature[0]?.name : linkedFeature?.name;
     return [
       tc.title,
       tc.preconditions ?? "",
       tc.priority,
       tc.status,
       tags,
+      feature ?? "",
       encodeSteps((tc.steps as TestStep[]) ?? []),
     ]
       .map((v) => csvEscape(String(v)))

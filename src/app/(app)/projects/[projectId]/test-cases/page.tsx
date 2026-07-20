@@ -19,22 +19,34 @@ export default async function TestCasesPage({
   searchParams,
 }: {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{ q?: string; priority?: string; status?: string; tag?: string }>;
+  searchParams: Promise<{ q?: string; priority?: string; status?: string; tag?: string; feature?: string }>;
 }) {
   const { projectId } = await params;
-  const { q, priority, status, tag } = await searchParams;
+  const { q, priority, status, tag, feature } = await searchParams;
 
   const supabase = await createClient();
 
+  const { data: features } = await supabase
+    .from("test_case_features")
+    .select("id, name")
+    .eq("project_id", projectId)
+    .order("name");
+
   let query = supabase
     .from("test_cases")
-    .select("id, title, priority, status, updated_at, test_case_tag_links(tag_id, test_case_tags(id, name, color))")
+    .select(
+      "id, title, priority, status, updated_at, test_case_tag_links(tag_id, test_case_tags(id, name, color)), test_case_features(name)"
+    )
     .eq("project_id", projectId)
     .order("updated_at", { ascending: false });
 
   if (q) query = query.ilike("title", `%${q}%`);
   if (priority) query = query.eq("priority", priority as TestCasePriority);
   if (status) query = query.eq("status", status as TestCaseStatus);
+  if (feature) {
+    const matched = (features ?? []).find((f) => f.name === feature);
+    query = query.eq("feature_id", matched?.id ?? "00000000-0000-0000-0000-000000000000");
+  }
 
   const { data: testCases } = await query;
 
@@ -46,6 +58,14 @@ export default async function TestCasesPage({
 
   function tagName(l: { test_case_tags: { name: string } | { name: string }[] | null }) {
     return Array.isArray(l.test_case_tags) ? l.test_case_tags[0]?.name : l.test_case_tags?.name;
+  }
+
+  function featureName(tc: {
+    test_case_features: { name: string } | { name: string }[] | null;
+  }) {
+    return Array.isArray(tc.test_case_features)
+      ? tc.test_case_features[0]?.name
+      : tc.test_case_features?.name;
   }
 
   const filtered = tag
@@ -69,13 +89,16 @@ export default async function TestCasesPage({
       />
 
       <div className="mb-4 flex items-center justify-between">
-        <TestCaseFilters tags={(tags ?? []).map((t) => t.name)} />
+        <TestCaseFilters
+          tags={(tags ?? []).map((t) => t.name)}
+          features={(features ?? []).map((f) => f.name)}
+        />
         <ImportCsvForm projectId={projectId} />
       </div>
 
       {filtered.length === 0 ? (
         <Card className="mt-4 p-8 text-center text-sm text-ink-secondary">
-          No test cases match. {q || priority || status || tag ? "Try clearing filters." : ""}
+          No test cases match. {q || priority || status || tag || feature ? "Try clearing filters." : ""}
         </Card>
       ) : (
         <Card className="mt-4 divide-y divide-border-light">
@@ -89,7 +112,8 @@ export default async function TestCasesPage({
                 <div className="truncate font-ui-label font-semibold text-ink-primary">
                   {tc.title}
                 </div>
-                <div className="mt-1 flex flex-wrap gap-1">
+                <div className="mt-1 flex flex-wrap items-center gap-1">
+                  {featureName(tc) && <Badge tone="indigo">{featureName(tc)}</Badge>}
                   {tc.test_case_tag_links?.map((l) =>
                     tagName(l) ? (
                       <Badge key={l.tag_id} tone="slate">
