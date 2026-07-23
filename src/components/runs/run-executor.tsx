@@ -18,6 +18,7 @@ export interface RunCaseItem {
     title: string;
     preconditions: string | null;
     steps: TestStep[];
+    feature: string | null;
   };
 }
 
@@ -144,6 +145,11 @@ export function RunExecutor({
       </div>
 
       <div>
+        {current.test_case.feature && (
+          <Badge tone="blue" className="mb-2 uppercase tracking-wide">
+            {current.test_case.feature}
+          </Badge>
+        )}
         <div className="mb-1 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <h2 className="font-headline-sm text-lg font-semibold text-ink-primary">

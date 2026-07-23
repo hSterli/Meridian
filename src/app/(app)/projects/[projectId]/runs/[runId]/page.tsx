@@ -24,7 +24,7 @@ export default async function RunDetailPage({
   const { data: runCases } = await supabase
     .from("test_run_cases")
     .select(
-      "id, status, notes, test_cases(id, title, preconditions, steps)"
+      "id, status, notes, test_cases(id, title, preconditions, steps, test_case_features(name))"
     )
     .eq("run_id", runId)
     .order("order_index");
@@ -34,6 +34,11 @@ export default async function RunDetailPage({
   // actually one row, so unwrap it.
   const items: RunCaseItem[] = (runCases ?? []).map((rc) => {
     const testCase = Array.isArray(rc.test_cases) ? rc.test_cases[0] : rc.test_cases;
+    const linkedFeature = testCase.test_case_features as
+      | { name: string }
+      | { name: string }[]
+      | null;
+    const feature = Array.isArray(linkedFeature) ? linkedFeature[0]?.name : linkedFeature?.name;
     return {
       id: rc.id,
       status: rc.status,
@@ -43,6 +48,7 @@ export default async function RunDetailPage({
         title: testCase.title,
         preconditions: testCase.preconditions,
         steps: testCase.steps as RunCaseItem["test_case"]["steps"],
+        feature: feature ?? null,
       },
     };
   });
