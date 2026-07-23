@@ -12,15 +12,20 @@ interface TestCaseOption {
   priority: string;
 }
 
+const NEW_FOLDER_VALUE = "__new__";
+
 export function NewRunForm({
   action,
   testCases,
+  folders,
 }: {
   action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
   testCases: TestCaseOption[];
+  folders: string[];
 }) {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(action, {});
   const [selected, setSelected] = useState<Set<string>>(new Set(testCases.map((t) => t.id)));
+  const [folderChoice, setFolderChoice] = useState<string>("");
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -36,6 +41,28 @@ export function NewRunForm({
       <div>
         <Label htmlFor="name">Run name</Label>
         <Input id="name" name="name" placeholder="Regression — Sprint 14" required />
+      </div>
+
+      <div>
+        <Label htmlFor="folder">Folder (optional)</Label>
+        <select
+          id="folder"
+          name="folder"
+          value={folderChoice}
+          onChange={(e) => setFolderChoice(e.target.value)}
+          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+        >
+          <option value="">No folder</option>
+          {folders.map((f) => (
+            <option key={f} value={f}>
+              {f}
+            </option>
+          ))}
+          <option value={NEW_FOLDER_VALUE}>+ Add new folder…</option>
+        </select>
+        {folderChoice === NEW_FOLDER_VALUE && (
+          <Input name="newFolder" placeholder="e.g. Release 2.4 regression" className="mt-2" />
+        )}
       </div>
 
       <div>

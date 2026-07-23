@@ -1,29 +1,76 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { Card, Badge } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { RunFolderSidebar } from "@/components/runs/run-folder-sidebar";
+import { RunsTable, type RunRow } from "@/components/runs/runs-table";
 import type { RunStatus } from "@/lib/types/database";
-
-const STATUS_TONE: Record<RunStatus, "slate" | "amber" | "green"> = {
-  planned: "slate",
-  in_progress: "amber",
-  completed: "green",
-};
 
 export default async function RunsPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ folder?: string; sort?: string; dir?: string }>;
 }) {
   const { projectId } = await params;
+  const { folder, sort = "updated", dir = "desc" } = await searchParams;
+
   const supabase = await createClient();
+
+  const { data: folders } = await supabase
+    .from("run_folders")
+    .select("id, name")
+    .eq("project_id", projectId)
+    .order("name");
 
   const { data: runs } = await supabase
     .from("test_runs")
-    .select("id, name, status, created_at, test_run_cases(id, status)")
+    .select("id, name, status, created_at, completed_at, folder_id, test_run_cases(id, status)")
     .eq("project_id", projectId)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
+
+  // Stable per-project display IDs, independent of the current sort/filter —
+  // assigned by creation order so they don't shuffle as you re-sort.
+  const displayIds = new Map<string, number>();
+  (runs ?? []).forEach((r, i) => displayIds.set(r.id, i + 1));
+
+  let rows: RunRow[] = (runs ?? []).map((run) => {
+    const cases = run.test_run_cases ?? [];
+    return {
+      id: run.id,
+      displayId: displayIds.get(run.id) ?? 0,
+      name: run.name,
+      status: run.status as RunStatus,
+      instances: cases.length,
+      updatedAt: run.completed_at ?? run.created_at,
+      folderId: run.folder_id,
+      segments: {
+        passed: cases.filter((c) => c.status === "passed").length,
+        failed: cases.filter((c) => c.status === "failed").length,
+        blocked: cases.filter((c) => c.status === "blocked").length,
+        skipped: cases.filter((c) => c.status === "skipped").length,
+        pending: cases.filter((c) => c.status === "pending").length,
+      },
+    };
+  });
+
+  if (folder) rows = rows.filter((r) => r.folderId === folder);
+
+  const sortDir = dir === "asc" ? 1 : -1;
+  rows = [...rows].sort((a, b) => {
+    switch (sort) {
+      case "name":
+        return a.name.localeCompare(b.name) * sortDir;
+      case "status":
+        return a.status.localeCompare(b.status) * sortDir;
+      case "instances":
+        return (a.instances - b.instances) * sortDir;
+      default:
+        return (new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime()) * sortDir;
+    }
+  });
 
   return (
     <div>
@@ -36,41 +83,23 @@ export default async function RunsPage({
         }
       />
 
-      {!runs || runs.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-ink-tertiary">
-          No runs yet.{" "}
-          <Link href={`/projects/${projectId}/runs/new`} className="font-medium text-primary">
-            Start one
-          </Link>
-          .
-        </Card>
-      ) : (
-        <Card className="divide-y divide-border-light">
-          {runs.map((run) => {
-            const total = run.test_run_cases?.length ?? 0;
-            const passed = run.test_run_cases?.filter((c) => c.status === "passed").length ?? 0;
-            const failed = run.test_run_cases?.filter((c) => c.status === "failed").length ?? 0;
-            return (
-              <Link
-                key={run.id}
-                href={`/projects/${projectId}/runs/${run.id}`}
-                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-paper-surface"
-              >
-                <div>
-                  <div className="font-medium text-ink-primary">{run.name}</div>
-                  <div className="text-xs text-ink-tertiary">
-                    {passed}/{total} passed
-                    {failed > 0 && `, ${failed} failed`}
-                  </div>
-                </div>
-                <Badge tone={STATUS_TONE[run.status as RunStatus]}>
-                  {run.status.replace("_", " ")}
-                </Badge>
+      <div className="flex gap-6">
+        <RunFolderSidebar projectId={projectId} folders={folders ?? []} />
+
+        <div className="flex-1">
+          {rows.length === 0 ? (
+            <Card className="p-8 text-center text-sm text-ink-tertiary">
+              No runs yet.{" "}
+              <Link href={`/projects/${projectId}/runs/new`} className="font-medium text-primary">
+                Start one
               </Link>
-            );
-          })}
-        </Card>
-      )}
+              .
+            </Card>
+          ) : (
+            <RunsTable projectId={projectId} folders={folders ?? []} rows={rows} />
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -8,6 +8,55 @@ import { rateLimit } from "@/lib/rate-limit";
 import type { RunCaseStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
+/** Get-or-create a project's run folder by name, returning its id. */
+async function upsertRunFolder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  projectId: string,
+  name: string
+): Promise<string | null> {
+  const trimmed = name.trim();
+  if (!trimmed) return null;
+
+  const { data: existing } = await supabase
+    .from("run_folders")
+    .select("id")
+    .eq("project_id", projectId)
+    .eq("name", trimmed)
+    .maybeSingle();
+
+  if (existing) return existing.id;
+
+  const { data: created } = await supabase
+    .from("run_folders")
+    .insert({ project_id: projectId, name: trimmed })
+    .select("id")
+    .single();
+
+  return created?.id ?? null;
+}
+
+export async function createRunFolder(
+  projectId: string,
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const name = String(formData.get("name") ?? "").trim();
+  if (!name) return { error: "Folder name is required." };
+
+  const ctx = await getUserContext();
+  if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("create_run_folder", 30, 3600);
+  if (limitError) return { error: limitError };
+
+  const supabase = await createClient();
+  const folderId = await upsertRunFolder(supabase, projectId, name);
+  if (!folderId) return { error: "Could not create folder." };
+
+  revalidatePath(`/projects/${projectId}/runs`);
+  return {};
+}
+
 export async function createRun(
   projectId: string,
   _prevState: ActionState,
@@ -15,6 +64,8 @@ export async function createRun(
 ): Promise<ActionState> {
   const name = String(formData.get("name") ?? "").trim();
   const testCaseIds = formData.getAll("testCaseIds").map(String);
+  const folderChoice = String(formData.get("folder") ?? "");
+  const newFolderName = String(formData.get("newFolder") ?? "").trim();
 
   if (!name) return { error: "Run name is required." };
   if (testCaseIds.length === 0) return { error: "Select at least one test case." };
@@ -27,9 +78,22 @@ export async function createRun(
 
   const supabase = await createClient();
 
+  let folderId: string | null = null;
+  if (folderChoice === "__new__") {
+    if (newFolderName) folderId = await upsertRunFolder(supabase, projectId, newFolderName);
+  } else if (folderChoice) {
+    folderId = await upsertRunFolder(supabase, projectId, folderChoice);
+  }
+
   const { data: run, error } = await supabase
     .from("test_runs")
-    .insert({ project_id: projectId, name, status: "planned", created_by: ctx.userId })
+    .insert({
+      project_id: projectId,
+      name,
+      status: "planned",
+      created_by: ctx.userId,
+      folder_id: folderId,
+    })
     .select()
     .single();
 
@@ -100,4 +164,32 @@ export async function deleteRun(projectId: string, runId: string) {
   await supabase.from("test_runs").delete().eq("id", runId);
   revalidatePath(`/projects/${projectId}/runs`);
   redirect(`/projects/${projectId}/runs`);
+}
+
+export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
+  const ctx = await getUserContext();
+  if (!ctx || runIds.length === 0) return;
+
+  const limitError = await rateLimit("bulk_run_action", 30, 60);
+  if (limitError) return;
+
+  const supabase = await createClient();
+  await supabase.from("test_runs").delete().in("id", runIds);
+  revalidatePath(`/projects/${projectId}/runs`);
+}
+
+export async function bulkMoveRunsToFolder(
+  projectId: string,
+  runIds: string[],
+  folderId: string | null
+) {
+  const ctx = await getUserContext();
+  if (!ctx || runIds.length === 0) return;
+
+  const limitError = await rateLimit("bulk_run_action", 30, 60);
+  if (limitError) return;
+
+  const supabase = await createClient();
+  await supabase.from("test_runs").update({ folder_id: folderId }).in("id", runIds);
+  revalidatePath(`/projects/${projectId}/runs`);
 }

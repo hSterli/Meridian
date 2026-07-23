@@ -19,13 +19,23 @@ export default async function NewRunPage({
     .eq("status", "active")
     .order("title");
 
+  const { data: folders } = await supabase
+    .from("run_folders")
+    .select("name")
+    .eq("project_id", projectId)
+    .order("name");
+
   const action = createRun.bind(null, projectId);
 
   return (
     <div className="max-w-2xl">
       <PageHeader title="New test run" description="Pick which test cases go into this run." />
       <Card className="p-6">
-        <NewRunForm action={action} testCases={testCases ?? []} />
+        <NewRunForm
+          action={action}
+          testCases={testCases ?? []}
+          folders={(folders ?? []).map((f) => f.name)}
+        />
       </Card>
     </div>
   );

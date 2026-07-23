@@ -230,6 +230,35 @@ export type Database = {
         }
         Relationships: []
       }
+      run_folders: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "run_folders_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_case_features: {
         Row: {
           created_at: string
@@ -469,6 +498,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string
+          folder_id: string | null
           id: string
           name: string
           project_id: string
@@ -478,6 +508,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by: string
+          folder_id?: string | null
           id?: string
           name: string
           project_id: string
@@ -487,12 +518,20 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string
+          folder_id?: string | null
           id?: string
           name?: string
           project_id?: string
           status?: Database["public"]["Enums"]["run_status"]
         }
         Relationships: [
+          {
+            foreignKeyName: "test_runs_folder_id_fkey"
+            columns: ["folder_id"]
+            isOneToOne: false
+            referencedRelation: "run_folders"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "test_runs_project_id_fkey"
             columns: ["project_id"]
