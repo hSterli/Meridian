@@ -11,6 +11,8 @@ import {
   ChevronDown,
   Plus,
   HelpCircle,
+  BarChart3,
+  Settings as SettingsIcon,
 } from "lucide-react";
 import { useState } from "react";
 import { signOut } from "@/lib/actions/auth";
@@ -20,6 +22,8 @@ import type { OrgRole } from "@/lib/types/database";
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/projects", label: "Projects", icon: FolderKanban },
+  { href: "/reports", label: "Reports", icon: BarChart3 },
+  { href: "/settings", label: "Settings", icon: SettingsIcon },
   { href: "/settings/members", label: "Team", icon: Users },
 ];
 
@@ -81,7 +85,10 @@ export function Sidebar({
 
       <nav className="flex-1 space-y-2">
         {NAV.map((item) => {
-          const active = pathname?.startsWith(item.href);
+          const active =
+            item.href === "/settings"
+              ? pathname === "/settings"
+              : pathname?.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
