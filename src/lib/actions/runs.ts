@@ -166,6 +166,49 @@ export async function deleteRun(projectId: string, runId: string) {
   redirect(`/projects/${projectId}/runs`);
 }
 
+export async function addTestCasesToRun(
+  projectId: string,
+  runId: string,
+  formData: FormData
+) {
+  const testCaseIds = formData.getAll("testCaseIds").map(String);
+  const ctx = await getUserContext();
+  if (!ctx || testCaseIds.length === 0) return;
+
+  const limitError = await rateLimit("edit_run_membership", 60, 60);
+  if (limitError) return;
+
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("test_run_cases")
+    .select("test_case_id, order_index")
+    .eq("run_id", runId);
+
+  const existingIds = new Set((existing ?? []).map((r) => r.test_case_id));
+  const toAdd = testCaseIds.filter((id) => !existingIds.has(id));
+  if (toAdd.length === 0) return;
+
+  const startIndex = (existing ?? []).reduce((max, r) => Math.max(max, r.order_index), -1) + 1;
+
+  await supabase.from("test_run_cases").insert(
+    toAdd.map((test_case_id, i) => ({
+      run_id: runId,
+      test_case_id,
+      order_index: startIndex + i,
+    }))
+  );
+
+  // A run marked completed is no longer "done" once new pending cases land in it.
+  await supabase
+    .from("test_runs")
+    .update({ status: "in_progress", completed_at: null })
+    .eq("id", runId)
+    .eq("status", "completed");
+
+  revalidatePath(`/projects/${projectId}/runs/${runId}`);
+}
+
 export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
   const ctx = await getUserContext();
   if (!ctx || runIds.length === 0) return;

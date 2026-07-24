@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
@@ -60,11 +61,16 @@ export default async function RunDetailPage({
       <PageHeader
         title={run.name}
         action={
-          <form action={deleteAction}>
-            <Button type="submit" variant="ghost">
-              Delete run
-            </Button>
-          </form>
+          <div className="flex items-center gap-2">
+            <Link href={`/projects/${projectId}/runs/${runId}/add-cases`}>
+              <Button variant="secondary">Add test cases</Button>
+            </Link>
+            <form action={deleteAction}>
+              <Button type="submit" variant="ghost">
+                Delete run
+              </Button>
+            </form>
+          </div>
         }
       />
       <RunExecutor projectId={projectId} runId={runId} cases={items} />

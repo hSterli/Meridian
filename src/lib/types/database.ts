@@ -503,6 +503,7 @@ export type Database = {
           name: string
           project_id: string
           status: Database["public"]["Enums"]["run_status"]
+          suite_id: string | null
         }
         Insert: {
           completed_at?: string | null
@@ -513,6 +514,7 @@ export type Database = {
           name: string
           project_id: string
           status?: Database["public"]["Enums"]["run_status"]
+          suite_id?: string | null
         }
         Update: {
           completed_at?: string | null
@@ -523,6 +525,7 @@ export type Database = {
           name?: string
           project_id?: string
           status?: Database["public"]["Enums"]["run_status"]
+          suite_id?: string | null
         }
         Relationships: [
           {
@@ -534,6 +537,78 @@ export type Database = {
           },
           {
             foreignKeyName: "test_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_runs_suite_id_fkey"
+            columns: ["suite_id"]
+            isOneToOne: false
+            referencedRelation: "test_suites"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_suite_cases: {
+        Row: {
+          added_at: string
+          suite_id: string
+          test_case_id: string
+        }
+        Insert: {
+          added_at?: string
+          suite_id: string
+          test_case_id: string
+        }
+        Update: {
+          added_at?: string
+          suite_id?: string
+          test_case_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_suite_cases_suite_id_fkey"
+            columns: ["suite_id"]
+            isOneToOne: false
+            referencedRelation: "test_suites"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "test_suite_cases_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      test_suites: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_suites_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"

@@ -1,0 +1,75 @@
+"use client";
+
+import { useState } from "react";
+
+interface TestCaseOption {
+  id: string;
+  title: string;
+  priority: string;
+}
+
+export function TestCasePicker({
+  name = "testCaseIds",
+  testCases,
+  initiallySelected = [],
+}: {
+  name?: string;
+  testCases: TestCaseOption[];
+  initiallySelected?: string[];
+}) {
+  const [selected, setSelected] = useState<Set<string>>(new Set(initiallySelected));
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
+
+  return (
+    <div>
+      <div className="mb-2 flex items-center justify-between">
+        <span className="text-sm font-ui-label font-semibold text-ink-secondary">
+          {selected.size} selected
+        </span>
+        <button
+          type="button"
+          className="text-xs font-medium text-primary"
+          onClick={() =>
+            setSelected(
+              selected.size === testCases.length ? new Set() : new Set(testCases.map((t) => t.id))
+            )
+          }
+        >
+          {selected.size === testCases.length ? "Deselect all" : "Select all"}
+        </button>
+      </div>
+      <div className="max-h-80 space-y-1 overflow-y-auto rounded-md border border-border-light p-2">
+        {testCases.map((tc) => (
+          <label
+            key={tc.id}
+            className="flex items-center gap-2 rounded px-2 py-1.5 text-sm hover:bg-paper-surface"
+          >
+            <input
+              type="checkbox"
+              name={name}
+              value={tc.id}
+              checked={selected.has(tc.id)}
+              onChange={() => toggle(tc.id)}
+              className="rounded border-border-medium"
+            />
+            <span className="flex-1 text-ink-secondary">{tc.title}</span>
+            <span className="text-xs text-ink-tertiary">{tc.priority}</span>
+          </label>
+        ))}
+        {testCases.length === 0 && (
+          <p className="px-2 py-4 text-center text-sm text-ink-tertiary">
+            No test cases available.
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}

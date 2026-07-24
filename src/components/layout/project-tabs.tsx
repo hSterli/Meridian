@@ -6,6 +6,7 @@ import { clsx } from "clsx";
 
 const TABS = [
   { segment: "test-cases", label: "Test Cases" },
+  { segment: "suites", label: "Suites" },
   { segment: "runs", label: "Runs" },
   { segment: "issues", label: "Issues" },
 ];
