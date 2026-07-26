@@ -192,6 +192,11 @@ export async function createTestCase(
   }
 
   revalidatePath(`/projects/${projectId}/test-cases`);
+
+  if (suiteId) {
+    revalidatePath(`/projects/${projectId}/suites/${suiteId}`);
+    redirect(`/projects/${projectId}/suites/${suiteId}`);
+  }
   redirect(`/projects/${projectId}/test-cases`);
 }
 
@@ -278,7 +283,8 @@ export async function updateTestCase(
   }
 
   revalidatePath(`/projects/${projectId}/test-cases/${testCaseId}`);
-  return {};
+  revalidatePath(`/projects/${projectId}/test-cases`);
+  redirect(`/projects/${projectId}/test-cases`);
 }
 
 export async function deleteTestCase(projectId: string, testCaseId: string) {

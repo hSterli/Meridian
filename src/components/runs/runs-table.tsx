@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/card";
+import { Select } from "@/components/ui/select";
 import { bulkDeleteRuns, bulkMoveRunsToFolder } from "@/lib/actions/runs";
 import type { RunStatus } from "@/lib/types/database";
 
@@ -100,11 +101,11 @@ export function RunsTable({
           <span className="text-sm font-ui-label font-semibold text-meridian-dark">
             {selected.size} selected
           </span>
-          <select
+          <Select
             defaultValue=""
             disabled={isPending}
             onChange={(e) => handleMove(e.target.value)}
-            className="rounded-lg border border-border-medium bg-white px-2 py-1 text-sm text-ink-secondary"
+            className="text-ink-secondary"
           >
             <option value="" disabled>
               Move to folder…
@@ -115,7 +116,7 @@ export function RunsTable({
                 {f.name}
               </option>
             ))}
-          </select>
+          </Select>
           <button
             type="button"
             disabled={isPending}

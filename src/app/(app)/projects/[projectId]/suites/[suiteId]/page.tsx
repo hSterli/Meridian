@@ -148,6 +148,14 @@ export default async function SuiteDetailPage({
                 Add to suite
               </Button>
             </form>
+            <div className="mt-3 border-t border-border-light pt-3 text-center">
+              <Link
+                href={`/projects/${projectId}/test-cases/new?suiteId=${suiteId}`}
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                + Create a new test case
+              </Link>
+            </div>
           </Card>
         </div>
       </div>

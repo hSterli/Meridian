@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import type { ActionState } from "@/lib/actions/auth";
 
 export function IssueForm({
@@ -46,17 +47,12 @@ export function IssueForm({
 
       <div>
         <Label htmlFor="severity">Severity</Label>
-        <select
-          id="severity"
-          name="severity"
-          defaultValue="medium"
-          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-        >
+        <Select id="severity" name="severity" defaultValue="medium" className="w-full">
           <option value="low">Low</option>
           <option value="medium">Medium</option>
           <option value="high">High</option>
           <option value="critical">Critical</option>
-        </select>
+        </Select>
       </div>
 
       {state.error && (

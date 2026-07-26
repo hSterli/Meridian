@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Select } from "@/components/ui/select";
 import type { ActionState } from "@/lib/actions/auth";
 
 interface TestCaseOption {
@@ -45,12 +46,12 @@ export function NewRunForm({
 
       <div>
         <Label htmlFor="folder">Folder (optional)</Label>
-        <select
+        <Select
           id="folder"
           name="folder"
           value={folderChoice}
           onChange={(e) => setFolderChoice(e.target.value)}
-          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full"
         >
           <option value="">No folder</option>
           {folders.map((f) => (
@@ -59,7 +60,7 @@ export function NewRunForm({
             </option>
           ))}
           <option value={NEW_FOLDER_VALUE}>+ Add new folder…</option>
-        </select>
+        </Select>
         {folderChoice === NEW_FOLDER_VALUE && (
           <Input name="newFolder" placeholder="e.g. Release 2.4 regression" className="mt-2" />
         )}

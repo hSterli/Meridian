@@ -4,6 +4,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { clsx } from "clsx";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 
 export function TestCaseFilters({ tags, features }: { tags: string[]; features: string[] }) {
   const router = useRouter();
@@ -33,10 +34,10 @@ export function TestCaseFilters({ tags, features }: { tags: string[]; features: 
         className="max-w-xs"
       />
       {features.length > 0 && (
-        <select
+        <Select
           defaultValue={searchParams.get("feature") ?? ""}
           onChange={(e) => updateParam("feature", e.target.value)}
-          className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
+          className="text-ink-secondary"
         >
           <option value="">All features</option>
           {features.map((f) => (
@@ -44,39 +45,39 @@ export function TestCaseFilters({ tags, features }: { tags: string[]; features: 
               {f}
             </option>
           ))}
-        </select>
+        </Select>
       )}
-      <select
+      <Select
         defaultValue={searchParams.get("priority") ?? ""}
         onChange={(e) => updateParam("priority", e.target.value)}
-        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
+        className="text-ink-secondary"
       >
         <option value="">All priorities</option>
         <option value="low">Low</option>
         <option value="medium">Medium</option>
         <option value="high">High</option>
         <option value="critical">Critical</option>
-      </select>
-      <select
+      </Select>
+      <Select
         defaultValue={searchParams.get("status") ?? ""}
         onChange={(e) => updateParam("status", e.target.value)}
-        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
+        className="text-ink-secondary"
       >
         <option value="">All statuses</option>
         <option value="active">Active</option>
         <option value="draft">Draft</option>
         <option value="deprecated">Deprecated</option>
-      </select>
+      </Select>
       <div className="h-6 w-px bg-border-light" />
-      <select
+      <Select
         defaultValue={searchParams.get("groupBy") ?? ""}
         onChange={(e) => updateParam("groupBy", e.target.value)}
-        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm font-ui-label font-semibold text-ink-secondary"
+        className="font-ui-label font-semibold text-ink-secondary"
       >
         <option value="">No grouping</option>
         <option value="feature">Group by feature</option>
         <option value="sprint">Group by sprint</option>
-      </select>
+      </Select>
 
       {tags.length > 0 && (
         <div className="flex flex-wrap items-center gap-1.5">

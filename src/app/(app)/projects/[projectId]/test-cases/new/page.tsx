@@ -6,10 +6,13 @@ import { createTestCase } from "@/lib/actions/test-cases";
 
 export default async function NewTestCasePage({
   params,
+  searchParams,
 }: {
   params: Promise<{ projectId: string }>;
+  searchParams: Promise<{ suiteId?: string }>;
 }) {
   const { projectId } = await params;
+  const { suiteId } = await searchParams;
   const action = createTestCase.bind(null, projectId);
 
   const supabase = await createClient();
@@ -45,6 +48,7 @@ export default async function NewTestCasePage({
           features={(features ?? []).map((f) => f.name)}
           orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
           suites={suites ?? []}
+          defaultSuiteId={suiteId}
         />
       </Card>
     </div>

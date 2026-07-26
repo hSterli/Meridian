@@ -4,6 +4,8 @@ import { useActionState, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NumberStepper } from "@/components/ui/number-stepper";
+import { Select } from "@/components/ui/select";
 import { StepsEditor } from "@/components/test-cases/steps-editor";
 import type { ActionState } from "@/lib/actions/auth";
 import type {
@@ -41,6 +43,7 @@ export function TestCaseForm({
   features,
   orgMembers = [],
   suites,
+  defaultSuiteId,
   submitLabel = "Save test case",
 }: {
   action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
@@ -48,6 +51,7 @@ export function TestCaseForm({
   features: string[];
   orgMembers?: OrgMemberOption[];
   suites?: { id: string; name: string }[];
+  defaultSuiteId?: string;
   submitLabel?: string;
 }) {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(action, {});
@@ -68,12 +72,12 @@ export function TestCaseForm({
 
       <div>
         <Label htmlFor="feature">Feature</Label>
-        <select
+        <Select
           id="feature"
           name="feature"
           value={featureChoice}
           onChange={(e) => setFeatureChoice(e.target.value)}
-          className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+          className="w-full"
         >
           {features.map((f) => (
             <option key={f} value={f}>
@@ -81,7 +85,7 @@ export function TestCaseForm({
             </option>
           ))}
           <option value={NEW_FEATURE_VALUE}>+ Add new feature…</option>
-        </select>
+        </Select>
         {featureChoice === NEW_FEATURE_VALUE && (
           <Input
             name="newFeature"
@@ -109,30 +113,30 @@ export function TestCaseForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="priority">Priority</Label>
-          <select
+          <Select
             id="priority"
             name="priority"
             defaultValue={initialValues?.priority ?? "medium"}
-            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full"
           >
             <option value="low">Low</option>
             <option value="medium">Medium</option>
             <option value="high">High</option>
             <option value="critical">Critical</option>
-          </select>
+          </Select>
         </div>
         <div>
           <Label htmlFor="status">Status</Label>
-          <select
+          <Select
             id="status"
             name="status"
             defaultValue={initialValues?.status ?? "active"}
-            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full"
           >
             <option value="active">Active</option>
             <option value="draft">Draft</option>
             <option value="deprecated">Deprecated</option>
-          </select>
+          </Select>
         </div>
       </div>
 
@@ -148,12 +152,11 @@ export function TestCaseForm({
         </div>
         <div>
           <Label htmlFor="sprintNumber">Sprint (optional)</Label>
-          <Input
+          <NumberStepper
             id="sprintNumber"
             name="sprintNumber"
-            type="number"
             min={0}
-            defaultValue={initialValues?.sprintNumber ?? ""}
+            defaultValue={initialValues?.sprintNumber}
             placeholder="e.g. 14"
           />
         </div>
@@ -162,11 +165,11 @@ export function TestCaseForm({
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label htmlFor="assignedTo">Owner</Label>
-          <select
+          <Select
             id="assignedTo"
             name="assignedTo"
             defaultValue={initialValues?.assignedTo ?? ""}
-            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            className="w-full"
           >
             <option value="">Unassigned</option>
             {orgMembers.map((m) => (
@@ -174,7 +177,7 @@ export function TestCaseForm({
                 {m.email}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
         <div>
           <Label htmlFor="referenceLink">Reference link (optional)</Label>
@@ -223,11 +226,11 @@ export function TestCaseForm({
       {suites && suites.length > 0 && (
         <div>
           <Label htmlFor="suiteId">Add to test suite (optional)</Label>
-          <select
+          <Select
             id="suiteId"
             name="suiteId"
-            defaultValue=""
-            className="block w-full rounded-md border border-border-medium px-3 py-2 text-sm text-ink-primary shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
+            defaultValue={defaultSuiteId ?? ""}
+            className="w-full"
           >
             <option value="">None</option>
             {suites.map((s) => (
@@ -235,7 +238,7 @@ export function TestCaseForm({
                 {s.name}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       )}
 

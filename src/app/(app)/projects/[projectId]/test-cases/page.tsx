@@ -218,12 +218,14 @@ export default async function TestCasesPage({
           </div>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span
-            title={ownerEmail ?? "Unassigned"}
-            className="flex h-6 w-6 items-center justify-center rounded-full bg-meridian-soft text-[10px] font-bold text-meridian-dark"
-          >
-            {ownerEmail ? ownerEmail.slice(0, 2).toUpperCase() : "—"}
-          </span>
+          {ownerEmail && (
+            <span
+              title={ownerEmail}
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-meridian-soft text-[10px] font-bold text-meridian-dark"
+            >
+              {ownerEmail.slice(0, 2).toUpperCase()}
+            </span>
+          )}
           <Badge tone={lastResult ? RESULT_TONE[lastResult] : "slate"}>
             {lastResult ?? "No runs"}
           </Badge>

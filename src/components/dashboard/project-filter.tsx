@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useTransition } from "react";
+import { Select } from "@/components/ui/select";
 
 export function DashboardProjectFilter({
   projects,
@@ -23,10 +24,10 @@ export function DashboardProjectFilter({
   }
 
   return (
-    <select
+    <Select
       defaultValue={searchParams.get("project") ?? ""}
       onChange={(e) => updateProject(e.target.value)}
-      className="rounded-lg border border-border-medium bg-white px-3 py-2 text-sm font-ui-label font-semibold text-ink-secondary"
+      className="font-ui-label font-semibold text-ink-secondary"
     >
       <option value="">All projects</option>
       {projects.map((p) => (
@@ -34,6 +35,6 @@ export function DashboardProjectFilter({
           {p.name}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }
