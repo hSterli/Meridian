@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
+import { clsx } from "clsx";
 import { Input } from "@/components/ui/input";
 
 export function TestCaseFilters({ tags, features }: { tags: string[]; features: string[] }) {
@@ -66,19 +67,38 @@ export function TestCaseFilters({ tags, features }: { tags: string[]; features: 
         <option value="draft">Draft</option>
         <option value="deprecated">Deprecated</option>
       </select>
+      <div className="h-6 w-px bg-border-light" />
+      <select
+        defaultValue={searchParams.get("groupBy") ?? ""}
+        onChange={(e) => updateParam("groupBy", e.target.value)}
+        className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm font-ui-label font-semibold text-ink-secondary"
+      >
+        <option value="">No grouping</option>
+        <option value="feature">Group by feature</option>
+        <option value="sprint">Group by sprint</option>
+      </select>
+
       {tags.length > 0 && (
-        <select
-          defaultValue={searchParams.get("tag") ?? ""}
-          onChange={(e) => updateParam("tag", e.target.value)}
-          className="rounded-lg border border-border-medium bg-white px-2 py-2 text-sm text-ink-secondary"
-        >
-          <option value="">All tags</option>
-          {tags.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {tags.map((t) => {
+            const active = searchParams.get("tag") === t;
+            return (
+              <button
+                key={t}
+                type="button"
+                onClick={() => updateParam("tag", active ? "" : t)}
+                className={clsx(
+                  "rounded-full px-2.5 py-1 text-[11px] font-ui-label font-bold transition-colors",
+                  active
+                    ? "bg-meridian-soft text-meridian-dark"
+                    : "bg-surface-container-highest text-ink-secondary hover:bg-paper-muted"
+                )}
+              >
+                {t}
+              </button>
+            );
+          })}
+        </div>
       )}
     </div>
   );

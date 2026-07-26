@@ -47,6 +47,9 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0008_test_case_features.sql` | `test_case_features` — a required, structured "Feature" field per test case (distinct from free-form tags), managed per project; backfills existing test cases to a default "General" feature before making the column NOT NULL |
 | `0009_run_folders.sql` | `run_folders` — optional folders to organize test runs within a project; `test_runs.folder_id` is nullable (an unfiled run is a normal state, not required like Feature) |
 | `0010_test_suites.sql` | `test_suites` + `test_suite_cases` — a reusable, named set of test cases (e.g. "Regression") that can be re-run repeatedly; `test_runs.suite_id` links each execution back to the suite that spawned it, snapshotting membership at run time so past results don't shift when the suite's membership changes later |
+| `0011_test_case_sprint.sql` | `test_cases.sprint_number` — optional, nullable integer so the library can be grouped by sprint as well as by feature; not a full sprint/milestone entity (that's the PRD's Phase 2 scope) |
+| `0012_test_case_ownership_automation.sql` | `test_cases.assigned_to` (a real owner, distinct from `created_by` and reassignable), `automation_status` (manual only / to be automated / automated) + `automation_script_ref`, and an optional `reference_link` (e.g. a Jira ticket URL) |
+| `0013_test_case_attachments.sql` | `test_case_attachments` table + a private `test-case-attachments` Storage bucket for real file uploads on a test case; objects are stored at `${projectId}/${testCaseId}/${filename}` so Storage RLS can gate access purely from the path via `storage.foldername()`, with no join needed |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -61,7 +64,9 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 ## What's implemented (Phase 1 MVP / P0)
 
 - **Onboarding**: guided signup → create team → create first project from a starter template (web/mobile/API/blank), with seeded sample test cases
-- **Test case management**: CRUD, a required structured Feature field (project-managed list, pick-existing-or-add-new from the form), free-form tags, priority/status, version history, dynamic filters (including by feature), CSV import/export
+- **Test case management**: CRUD, a required structured Feature field (project-managed list, pick-existing-or-add-new from the form), an optional sprint number, free-form tags, priority/status, version history, dynamic filters (including by feature), pill-style tag filtering, CSV import/export, and grouping the library by feature or by sprint
+- **Test case ownership & automation tracking**: an assignable owner (separate from the creator), automation status (manual only / to be automated / automated) with an optional script reference, an optional external reference link, real file attachments (upload/download/delete via private Storage), native drag-and-drop step reordering, and optionally adding a new test case straight into an existing suite at creation time
+- **Test Cases list**: stable per-project display IDs (`{PROJECT_KEY}-{n}`), an owner avatar and last-execution-result column per row (most recent result across any run the case has appeared in), and a Suites sidebar filter
 - **Test execution**: run creation from a test-case picker with optional folder/suite assignment, keyboard-driven execution UI (P/F/B/S shortcuts, arrow-key navigation), notes per result, and "Add test cases" to append more cases to an already-created run
 - **Runs list**: sortable table (name, status, instances, last updated), a per-run segmented pass/fail/blocked/skipped status bar, folder sidebar for organizing runs, multi-select with bulk delete/move-to-folder
 - **Suites**: a reusable, named set of test cases (e.g. "Regression") you can re-run on demand — "Run now" snapshots current membership into a fresh run; the suite tracks last-run date and pass rate plus full run history, and membership can be edited anytime (add a new feature's test cases without touching past results)

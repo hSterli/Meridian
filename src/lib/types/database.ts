@@ -259,6 +259,44 @@ export type Database = {
           },
         ]
       }
+      test_case_attachments: {
+        Row: {
+          file_name: string
+          file_size: number | null
+          id: string
+          storage_path: string
+          test_case_id: string
+          uploaded_at: string
+          uploaded_by: string
+        }
+        Insert: {
+          file_name: string
+          file_size?: number | null
+          id?: string
+          storage_path: string
+          test_case_id: string
+          uploaded_at?: string
+          uploaded_by: string
+        }
+        Update: {
+          file_name?: string
+          file_size?: number | null
+          id?: string
+          storage_path?: string
+          test_case_id?: string
+          uploaded_at?: string
+          uploaded_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_attachments_test_case_id_fkey"
+            columns: ["test_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_cases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_case_features: {
         Row: {
           created_at: string
@@ -384,6 +422,9 @@ export type Database = {
       }
       test_cases: {
         Row: {
+          assigned_to: string | null
+          automation_script_ref: string | null
+          automation_status: Database["public"]["Enums"]["test_case_automation_status"]
           created_at: string
           created_by: string
           custom_fields: Json
@@ -392,6 +433,8 @@ export type Database = {
           preconditions: string | null
           priority: Database["public"]["Enums"]["test_case_priority"]
           project_id: string
+          reference_link: string | null
+          sprint_number: number | null
           status: Database["public"]["Enums"]["test_case_status"]
           steps: Json
           title: string
@@ -399,6 +442,9 @@ export type Database = {
           version: number
         }
         Insert: {
+          assigned_to?: string | null
+          automation_script_ref?: string | null
+          automation_status?: Database["public"]["Enums"]["test_case_automation_status"]
           created_at?: string
           created_by: string
           custom_fields?: Json
@@ -407,6 +453,8 @@ export type Database = {
           preconditions?: string | null
           priority?: Database["public"]["Enums"]["test_case_priority"]
           project_id: string
+          reference_link?: string | null
+          sprint_number?: number | null
           status?: Database["public"]["Enums"]["test_case_status"]
           steps?: Json
           title: string
@@ -414,6 +462,9 @@ export type Database = {
           version?: number
         }
         Update: {
+          assigned_to?: string | null
+          automation_script_ref?: string | null
+          automation_status?: Database["public"]["Enums"]["test_case_automation_status"]
           created_at?: string
           created_by?: string
           custom_fields?: Json
@@ -422,6 +473,8 @@ export type Database = {
           preconditions?: string | null
           priority?: Database["public"]["Enums"]["test_case_priority"]
           project_id?: string
+          reference_link?: string | null
+          sprint_number?: number | null
           status?: Database["public"]["Enums"]["test_case_status"]
           steps?: Json
           title?: string
@@ -651,6 +704,10 @@ export type Database = {
       org_role: "owner" | "admin" | "member"
       run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
       run_status: "planned" | "in_progress" | "completed"
+      test_case_automation_status:
+        | "manual_only"
+        | "to_be_automated"
+        | "automated"
       test_case_priority: "low" | "medium" | "high" | "critical"
       test_case_status: "active" | "draft" | "deprecated"
     }
@@ -785,6 +842,11 @@ export const Constants = {
       org_role: ["owner", "admin", "member"],
       run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],
       run_status: ["planned", "in_progress", "completed"],
+      test_case_automation_status: [
+        "manual_only",
+        "to_be_automated",
+        "automated",
+      ],
       test_case_priority: ["low", "medium", "high", "critical"],
       test_case_status: ["active", "draft", "deprecated"],
     },
@@ -800,6 +862,7 @@ export type RunStatus = Enums<"run_status">;
 export type RunCaseStatus = Enums<"run_case_status">;
 export type IssueStatus = Enums<"issue_status">;
 export type IssueSeverity = Enums<"issue_severity">;
+export type TestCaseAutomationStatus = Enums<"test_case_automation_status">;
 export type ProjectTemplate = "web" | "mobile" | "api" | "blank";
 
 // The extra index signature keeps this structurally assignable to/from the

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { GripVertical, Plus, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ export function StepsEditor({ initialSteps = [] }: { initialSteps?: TestStep[] }
   const [steps, setSteps] = useState<TestStep[]>(
     initialSteps.length > 0 ? initialSteps : [{ step: "", expected: "" }]
   );
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [overIndex, setOverIndex] = useState<number | null>(null);
 
   function update(index: number, field: keyof TestStep, value: string) {
     setSteps((prev) => prev.map((s, i) => (i === index ? { ...s, [field]: value } : s)));
@@ -24,12 +26,51 @@ export function StepsEditor({ initialSteps = [] }: { initialSteps?: TestStep[] }
     setSteps((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function reorder(from: number, to: number) {
+    setSteps((prev) => {
+      if (from === to) return prev;
+      const next = [...prev];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  }
+
   return (
     <div>
       <Label>Steps</Label>
       <div className="space-y-2">
         {steps.map((s, i) => (
-          <div key={i} className="flex items-start gap-2">
+          <div
+            key={i}
+            draggable
+            onDragStart={() => setDragIndex(i)}
+            onDragOver={(e) => {
+              e.preventDefault();
+              if (i !== overIndex) setOverIndex(i);
+            }}
+            onDrop={(e) => {
+              e.preventDefault();
+              if (dragIndex !== null) reorder(dragIndex, i);
+              setDragIndex(null);
+              setOverIndex(null);
+            }}
+            onDragEnd={() => {
+              setDragIndex(null);
+              setOverIndex(null);
+            }}
+            className={`flex items-start gap-2 rounded-md ${
+              overIndex === i && dragIndex !== null && dragIndex !== i
+                ? "bg-paper-surface ring-1 ring-primary"
+                : ""
+            } ${dragIndex === i ? "opacity-50" : ""}`}
+          >
+            <span
+              className="mt-2 cursor-grab text-ink-tertiary active:cursor-grabbing"
+              aria-label="Drag to reorder"
+            >
+              <GripVertical size={16} />
+            </span>
             <span className="mt-2.5 w-5 shrink-0 text-xs text-ink-tertiary">{i + 1}.</span>
             <Input
               placeholder="Action"

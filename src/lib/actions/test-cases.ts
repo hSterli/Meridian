@@ -5,8 +5,26 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
-import type { TestCasePriority, TestCaseStatus, TestStep } from "@/lib/types/database";
+import type {
+  TestCaseAutomationStatus,
+  TestCasePriority,
+  TestCaseStatus,
+  TestStep,
+} from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
+
+const AUTOMATION_STATUSES: TestCaseAutomationStatus[] = [
+  "manual_only",
+  "to_be_automated",
+  "automated",
+];
+
+function parseAutomationStatus(formData: FormData): TestCaseAutomationStatus {
+  const raw = String(formData.get("automationStatus") ?? "manual_only");
+  return (AUTOMATION_STATUSES as string[]).includes(raw)
+    ? (raw as TestCaseAutomationStatus)
+    : "manual_only";
+}
 
 function parseSteps(raw: string): TestStep[] {
   try {
@@ -90,6 +108,13 @@ function resolveFeatureName(formData: FormData): string {
   return selected.trim();
 }
 
+function parseSprintNumber(formData: FormData): number | null {
+  const raw = String(formData.get("sprintNumber") ?? "").trim();
+  if (!raw) return null;
+  const parsed = Number.parseInt(raw, 10);
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
+}
+
 export async function createTestCase(
   projectId: string,
   _prevState: ActionState,
@@ -105,6 +130,15 @@ export async function createTestCase(
     .map((t) => t.trim())
     .filter(Boolean);
   const featureName = resolveFeatureName(formData);
+  const sprintNumber = parseSprintNumber(formData);
+  const assignedTo = String(formData.get("assignedTo") ?? "").trim() || null;
+  const automationStatus = parseAutomationStatus(formData);
+  const automationScriptRef =
+    automationStatus === "manual_only"
+      ? null
+      : String(formData.get("automationScriptRef") ?? "").trim() || null;
+  const referenceLink = String(formData.get("referenceLink") ?? "").trim() || null;
+  const suiteId = String(formData.get("suiteId") ?? "").trim() || null;
 
   if (!title) return { error: "Title is required." };
   if (!featureName) return { error: "Feature is required." };
@@ -130,6 +164,11 @@ export async function createTestCase(
       status,
       steps,
       feature_id: featureId,
+      sprint_number: sprintNumber,
+      assigned_to: assignedTo,
+      automation_status: automationStatus,
+      automation_script_ref: automationScriptRef,
+      reference_link: referenceLink,
       created_by: ctx.userId,
     })
     .select()
@@ -144,6 +183,12 @@ export async function createTestCase(
         .from("test_case_tag_links")
         .insert(tagIds.map((tag_id) => ({ test_case_id: testCase.id, tag_id })));
     }
+  }
+
+  if (suiteId) {
+    await supabase
+      .from("test_suite_cases")
+      .insert({ suite_id: suiteId, test_case_id: testCase.id });
   }
 
   revalidatePath(`/projects/${projectId}/test-cases`);
@@ -166,6 +211,14 @@ export async function updateTestCase(
     .map((t) => t.trim())
     .filter(Boolean);
   const featureName = resolveFeatureName(formData);
+  const sprintNumber = parseSprintNumber(formData);
+  const assignedTo = String(formData.get("assignedTo") ?? "").trim() || null;
+  const automationStatus = parseAutomationStatus(formData);
+  const automationScriptRef =
+    automationStatus === "manual_only"
+      ? null
+      : String(formData.get("automationScriptRef") ?? "").trim() || null;
+  const referenceLink = String(formData.get("referenceLink") ?? "").trim() || null;
 
   if (!title) return { error: "Title is required." };
   if (!featureName) return { error: "Feature is required." };
@@ -202,6 +255,11 @@ export async function updateTestCase(
       status,
       steps,
       feature_id: featureId,
+      sprint_number: sprintNumber,
+      assigned_to: assignedTo,
+      automation_status: automationStatus,
+      automation_script_ref: automationScriptRef,
+      reference_link: referenceLink,
       version: existing.version + 1,
       updated_at: new Date().toISOString(),
     })
@@ -292,12 +350,15 @@ export async function bulkImportTestCases(
   const supabase = await createClient();
 
   for (const line of dataLines) {
-    const [title, preconditions, priority, status, tags, feature, stepsRaw] =
+    const [title, preconditions, priority, status, tags, feature, sprintRaw, stepsRaw] =
       parseCsvLine(line);
     if (!title) continue;
 
     const featureId = await upsertFeature(supabase, projectId, feature || "General");
     if (!featureId) continue;
+
+    const parsedSprint = Number.parseInt(sprintRaw, 10);
+    const sprintNumber = Number.isFinite(parsedSprint) && parsedSprint >= 0 ? parsedSprint : null;
 
     const { data: testCase } = await supabase
       .from("test_cases")
@@ -309,6 +370,7 @@ export async function bulkImportTestCases(
         status: (status as TestCaseStatus) || "active",
         steps: decodeSteps(stepsRaw),
         feature_id: featureId,
+        sprint_number: sprintNumber,
         created_by: ctx.userId,
       })
       .select("id")

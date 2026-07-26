@@ -22,6 +22,36 @@ advisor, and a documented rationale for why the remaining advisor warnings
 (a few SECURITY DEFINER RPCs callable by authenticated users) are
 intentional and individually safe — see `README.md` → Security notes.
 
+## 2026-07-26: ownership, automation tracking, real attachments (Phase 10)
+
+Driven by two Stitch-AI-generated mockups (Test Case Management list, New
+Test Case creation) the user shared mid-session. Not yet committed as of
+writing — will get a commit hash once the user asks for it.
+
+- `0012_test_case_ownership_automation.sql` / `0013_test_case_attachments.sql`
+  — an assignable **owner** distinct from the creator, **automation status**
+  (manual only / to be automated / automated) with an optional script
+  reference, an optional external **reference link**, and real **file
+  attachments** on test cases via a private Storage bucket, gated the same
+  path-prefix way as everything else in this app (no join needed).
+- Test case form: native HTML5 drag-and-drop for reordering steps (chose
+  this over adding a DnD library dependency), plus an optional "add to
+  suite" picker at creation time.
+- Test Cases list: stable per-project display IDs (`{PROJECT_KEY}-{n}`,
+  same creation-order-Map pattern as the Runs list), owner + last-result
+  columns, a Suites sidebar filter, and pill-style tag filtering (replacing
+  the old tag dropdown).
+- User's choices were consistently the higher-fidelity option over my
+  recommendation: real attachments over skipping them, real drag-and-drop
+  over up/down buttons — worth defaulting to full fidelity on this project
+  rather than the minimal-effort option going forward.
+
+This partially answers the "Evidence-heavy documentation" section below —
+file storage/upload now exists for **test cases**, though not yet for
+**test run results** (`test_run_cases` still has no evidence attachment
+path). The Storage bucket and RLS pattern established here would extend
+directly to that if/when it's prioritized.
+
 ## Manual follow-ups (not automatable from here)
 
 - Enable **Leaked Password Protection** in Supabase Dashboard → Authentication

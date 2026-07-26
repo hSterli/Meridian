@@ -19,6 +19,22 @@ export default async function NewTestCasePage({
     .eq("project_id", projectId)
     .order("name");
 
+  const { data: project } = await supabase
+    .from("projects")
+    .select("org_id")
+    .eq("id", projectId)
+    .single();
+
+  const { data: orgMembers } = project
+    ? await supabase.rpc("get_org_members", { check_org_id: project.org_id })
+    : { data: [] };
+
+  const { data: suites } = await supabase
+    .from("test_suites")
+    .select("id, name")
+    .eq("project_id", projectId)
+    .order("name");
+
   return (
     <div className="max-w-2xl">
       <PageHeader title="New test case" />
@@ -27,6 +43,8 @@ export default async function NewTestCasePage({
           action={action}
           submitLabel="Create test case"
           features={(features ?? []).map((f) => f.name)}
+          orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
+          suites={suites ?? []}
         />
       </Card>
     </div>

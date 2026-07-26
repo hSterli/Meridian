@@ -22,12 +22,12 @@ export async function GET(
   const { data: testCases } = await supabase
     .from("test_cases")
     .select(
-      "title, preconditions, priority, status, steps, test_case_tag_links(test_case_tags(name)), test_case_features(name)"
+      "title, preconditions, priority, status, steps, sprint_number, test_case_tag_links(test_case_tags(name)), test_case_features(name)"
     )
     .eq("project_id", projectId)
     .order("created_at");
 
-  const header = "title,preconditions,priority,status,tags,feature,steps";
+  const header = "title,preconditions,priority,status,tags,feature,sprint,steps";
   const rows = (testCases ?? []).map((tc) => {
     const tags = (tc.test_case_tag_links ?? [])
       .map((l) => {
@@ -48,6 +48,7 @@ export async function GET(
       tc.status,
       tags,
       feature ?? "",
+      tc.sprint_number ?? "",
       encodeSteps((tc.steps as TestStep[]) ?? []),
     ]
       .map((v) => csvEscape(String(v)))
