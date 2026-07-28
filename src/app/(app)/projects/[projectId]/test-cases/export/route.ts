@@ -1,11 +1,16 @@
 import { createClient } from "@/lib/supabase/server";
 import type { TestStep } from "@/lib/types/database";
 
+// Prefix values that a spreadsheet app would interpret as a formula (leading
+// =, +, -, @) with an apostrophe — the standard CSV-injection mitigation.
+// Excel/Sheets treat a leading apostrophe as "force text" and don't display
+// it, so this is invisible for legitimate content and neutralizes the rest.
 function csvEscape(value: string) {
-  if (/[",\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  const withFormulaGuard = /^[=+\-@]/.test(value) ? `'${value}` : value;
+  if (/[",\n]/.test(withFormulaGuard)) {
+    return `"${withFormulaGuard.replace(/"/g, '""')}"`;
   }
-  return value;
+  return withFormulaGuard;
 }
 
 function encodeSteps(steps: TestStep[]) {

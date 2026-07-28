@@ -59,13 +59,28 @@ async function upsertTags(
       continue;
     }
 
-    const { data: created } = await supabase
+    const { data: created, error } = await supabase
       .from("test_case_tags")
       .insert({ project_id: projectId, name: trimmed })
       .select("id")
       .single();
 
-    if (created) ids.push(created.id);
+    if (created) {
+      ids.push(created.id);
+      continue;
+    }
+
+    // Lost a race with a concurrent insert of the same (project_id, name) —
+    // the row exists now, so fetch it instead of dropping the tag silently.
+    if (error?.code === "23505") {
+      const { data: winner } = await supabase
+        .from("test_case_tags")
+        .select("id")
+        .eq("project_id", projectId)
+        .eq("name", trimmed)
+        .maybeSingle();
+      if (winner) ids.push(winner.id);
+    }
   }
   return ids;
 }
@@ -88,13 +103,28 @@ async function upsertFeature(
 
   if (existing) return existing.id;
 
-  const { data: created } = await supabase
+  const { data: created, error } = await supabase
     .from("test_case_features")
     .insert({ project_id: projectId, name: trimmed })
     .select("id")
     .single();
 
-  return created?.id ?? null;
+  if (created) return created.id;
+
+  // Lost a race with a concurrent insert of the same (project_id, name) —
+  // the row exists now, so fetch it instead of failing "Could not resolve
+  // feature" on a name that does, in fact, now exist.
+  if (error?.code === "23505") {
+    const { data: winner } = await supabase
+      .from("test_case_features")
+      .select("id")
+      .eq("project_id", projectId)
+      .eq("name", trimmed)
+      .maybeSingle();
+    return winner?.id ?? null;
+  }
+
+  return null;
 }
 
 /** Resolves the "feature" form field: the `newFeature` text wins when the
@@ -230,6 +260,9 @@ export async function updateTestCase(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("update_test_case", 120, 60);
+  if (limitError) return { error: limitError };
 
   const supabase = await createClient();
 
