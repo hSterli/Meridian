@@ -103,7 +103,7 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
-- Full custom-field engine (test cases have a `custom_fields` jsonb column reserved for this, unused in the UI for now)
+- Richer custom fields beyond text/number/select (checkbox, date types), org-wide (cross-project) field definitions, and a "manage visible columns" control for projects with many fields — the core text/number/select engine itself now ships (see "Custom fields" above)
 
 ## Notes for further development
 

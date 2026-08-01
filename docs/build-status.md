@@ -90,9 +90,9 @@ Carried forward from README, still accurate:
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
-- Full custom-field engine
+- Richer custom fields beyond text/number/select (checkbox, date types), org-wide (cross-project) field definitions, and a "manage visible columns" control — the core custom-field engine itself shipped this session (see §1)
 
-**Why**: the PRD's own strategic positioning explicitly defers this depth to a Phase 3 enterprise tier, to avoid recreating the complexity PractiTest is criticized for. Not started, not partially started.
+**Why**: the PRD's own strategic positioning explicitly defers this depth to a Phase 3 enterprise tier, to avoid recreating the complexity PractiTest is criticized for. Everything above is genuinely not started, except the custom-field engine noted above, which shipped in a deliberately narrower first version.
 
 ---
 
