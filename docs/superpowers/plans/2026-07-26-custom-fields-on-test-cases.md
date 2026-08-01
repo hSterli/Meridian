@@ -314,7 +314,7 @@ git commit -m "Add Server Actions for custom field definitions"
 - Create: `src/components/test-cases/custom-fields-manager.tsx`
 - Create: `src/app/(app)/projects/[projectId]/test-cases/custom-fields/page.tsx`
 
-- [ ] **Step 1: Write the manager component**
+- [x] **Step 1: Write the manager component**
 
 ```tsx
 "use client";
@@ -469,7 +469,7 @@ function NewCustomFieldForm({
 }
 ```
 
-- [ ] **Step 2: Write the management page**
+- [x] **Step 2: Write the management page**
 
 ```tsx
 import Link from "next/link";
@@ -528,7 +528,7 @@ export default async function CustomFieldsPage({
 }
 ```
 
-- [ ] **Step 3: Verify types and lint**
+- [x] **Step 3: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -536,7 +536,7 @@ Expected: no output.
 Run: `npx eslint src/components/test-cases/custom-fields-manager.tsx "src/app/(app)/projects/[projectId]/test-cases/custom-fields/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/test-cases/custom-fields-manager.tsx "src/app/(app)/projects/[projectId]/test-cases/custom-fields/page.tsx"
