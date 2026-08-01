@@ -866,7 +866,7 @@ git commit -m "Render custom fields in the test case form"
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/new/page.tsx`
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx`
 
-- [ ] **Step 1: Update the "new" page**
+- [x] **Step 1: Update the "new" page**
 
 In `new/page.tsx`, change the import line:
 
@@ -934,7 +934,7 @@ to:
         />
 ```
 
-- [ ] **Step 2: Update the detail/edit page**
+- [x] **Step 2: Update the detail/edit page**
 
 In `[testCaseId]/page.tsx`, change the import line:
 
@@ -1024,12 +1024,12 @@ to:
           />
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/new/page.tsx" "src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx"
