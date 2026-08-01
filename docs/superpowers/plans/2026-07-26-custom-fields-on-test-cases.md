@@ -1435,7 +1435,7 @@ git commit -m "Show custom field values as badges on the Test Cases list"
 - Modify: `src/components/test-cases/test-case-filters.tsx`
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/page.tsx`
 
-- [ ] **Step 1: Add the prop and render loop to `TestCaseFilters`**
+- [x] **Step 1: Add the prop and render loop to `TestCaseFilters`**
 
 Change the function signature:
 
@@ -1510,7 +1510,7 @@ becomes:
       <div className="h-6 w-px bg-border-light" />
 ```
 
-- [ ] **Step 2: Change the page's `searchParams` type to accept arbitrary keys**
+- [x] **Step 2: Change the page's `searchParams` type to accept arbitrary keys**
 
 In `test-cases/page.tsx`, change:
 
@@ -1551,7 +1551,7 @@ export default async function TestCasesPage({
 
 (Every other later reference to `q`, `priority`, `status`, `tag`, `feature`, `groupBy`, `suite` in this file keeps working unchanged — they're now destructured from `resolvedSearchParams` instead of directly from `searchParams`.)
 
-- [ ] **Step 3: Apply the custom-field filters to the query and pass definitions to `TestCaseFilters`**
+- [x] **Step 3: Apply the custom-field filters to the query and pass definitions to `TestCaseFilters`**
 
 Change:
 
@@ -1606,7 +1606,7 @@ to:
             />
 ```
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1614,7 +1614,7 @@ Expected: no output.
 Run: `npx eslint src/components/test-cases/test-case-filters.tsx "src/app/(app)/projects/[projectId]/test-cases/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/test-cases/test-case-filters.tsx "src/app/(app)/projects/[projectId]/test-cases/page.tsx"
