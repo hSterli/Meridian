@@ -1283,7 +1283,7 @@ git commit -m "Parse, validate, and persist custom field values on create/update
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/page.tsx`
 
-- [ ] **Step 1: Add `custom_fields` to the `TestCaseRow` interface**
+- [x] **Step 1: Add `custom_fields` to the `TestCaseRow` interface**
 
 Change:
 
@@ -1316,7 +1316,7 @@ interface TestCaseRow {
 }
 ```
 
-- [ ] **Step 2: Fetch the project's custom field definitions**
+- [x] **Step 2: Fetch the project's custom field definitions**
 
 After the existing `suites` query:
 
@@ -1339,7 +1339,7 @@ add:
     .order("created_at");
 ```
 
-- [ ] **Step 3: Add `custom_fields` to the main query's `select`**
+- [x] **Step 3: Add `custom_fields` to the main query's `select`**
 
 Change:
 
@@ -1365,7 +1365,7 @@ to:
     .order("updated_at", { ascending: false });
 ```
 
-- [ ] **Step 4: Render badges per row**
+- [x] **Step 4: Render badges per row**
 
 Find the badge row inside `TestCaseRowItem`:
 
@@ -1415,12 +1415,12 @@ to:
           </div>
 ```
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/page.tsx"
