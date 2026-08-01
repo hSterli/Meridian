@@ -1628,7 +1628,7 @@ git commit -m "Add dropdown filters for select-type custom fields"
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/export/route.ts`
 
-- [ ] **Step 1: Fetch field definitions and add `custom_fields` to the select**
+- [x] **Step 1: Fetch field definitions and add `custom_fields` to the select**
 
 Change:
 
@@ -1676,7 +1676,7 @@ to:
   ].join(",");
 ```
 
-- [ ] **Step 2: Append custom field values to each row**
+- [x] **Step 2: Append custom field values to each row**
 
 Change:
 
@@ -1716,7 +1716,7 @@ to:
       .join(",");
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1724,7 +1724,7 @@ Expected: no output.
 Run: `npx eslint "src/app/(app)/projects/[projectId]/test-cases/export/route.ts"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/export/route.ts"
