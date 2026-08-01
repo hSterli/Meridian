@@ -24,15 +24,33 @@ export async function GET(
   const { projectId } = await context.params;
   const supabase = await createClient();
 
+  const { data: customFieldDefs } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name")
+    .eq("project_id", projectId)
+    .order("display_order")
+    .order("created_at");
+
   const { data: testCases } = await supabase
     .from("test_cases")
     .select(
-      "title, preconditions, priority, status, steps, sprint_number, test_case_tag_links(test_case_tags(name)), test_case_features(name)"
+      "title, preconditions, priority, status, steps, sprint_number, custom_fields, test_case_tag_links(test_case_tags(name)), test_case_features(name)"
     )
     .eq("project_id", projectId)
     .order("created_at");
 
-  const header = "title,preconditions,priority,status,tags,feature,sprint,steps";
+  const customFieldColumns = customFieldDefs ?? [];
+  const header = [
+    "title",
+    "preconditions",
+    "priority",
+    "status",
+    "tags",
+    "feature",
+    "sprint",
+    "steps",
+    ...customFieldColumns.map((f) => f.name),
+  ].join(",");
   const rows = (testCases ?? []).map((tc) => {
     const tags = (tc.test_case_tag_links ?? [])
       .map((l) => {
@@ -46,6 +64,9 @@ export async function GET(
       | { name: string }[]
       | null;
     const feature = Array.isArray(linkedFeature) ? linkedFeature[0]?.name : linkedFeature?.name;
+    const customValues = customFieldColumns.map(
+      (f) => (tc.custom_fields as Record<string, string> | null)?.[f.id] ?? ""
+    );
     return [
       tc.title,
       tc.preconditions ?? "",
@@ -55,6 +76,7 @@ export async function GET(
       feature ?? "",
       tc.sprint_number ?? "",
       encodeSteps((tc.steps as TestStep[]) ?? []),
+      ...customValues,
     ]
       .map((v) => csvEscape(String(v)))
       .join(",");
