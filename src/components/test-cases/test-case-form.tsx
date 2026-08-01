@@ -10,6 +10,7 @@ import { StepsEditor } from "@/components/test-cases/steps-editor";
 import type { ActionState } from "@/lib/actions/auth";
 import type {
   TestCaseAutomationStatus,
+  TestCaseCustomFieldType,
   TestCasePriority,
   TestCaseStatus,
   TestStep,
@@ -20,6 +21,13 @@ const NEW_FEATURE_VALUE = "__new__";
 export interface OrgMemberOption {
   user_id: string;
   email: string;
+}
+
+export interface CustomFieldDefinition {
+  id: string;
+  name: string;
+  field_type: TestCaseCustomFieldType;
+  options: string[];
 }
 
 export interface TestCaseFormValues {
@@ -35,6 +43,7 @@ export interface TestCaseFormValues {
   automationStatus?: TestCaseAutomationStatus;
   automationScriptRef?: string | null;
   referenceLink?: string | null;
+  customFieldValues?: Record<string, string>;
 }
 
 export function TestCaseForm({
@@ -44,6 +53,7 @@ export function TestCaseForm({
   orgMembers = [],
   suites,
   defaultSuiteId,
+  customFields = [],
   submitLabel = "Save test case",
 }: {
   action: (prevState: ActionState, formData: FormData) => Promise<ActionState>;
@@ -52,6 +62,7 @@ export function TestCaseForm({
   orgMembers?: OrgMemberOption[];
   suites?: { id: string; name: string }[];
   defaultSuiteId?: string;
+  customFields?: CustomFieldDefinition[];
   submitLabel?: string;
 }) {
   const [state, formAction, isPending] = useActionState<ActionState, FormData>(action, {});
@@ -239,6 +250,44 @@ export function TestCaseForm({
               </option>
             ))}
           </Select>
+        </div>
+      )}
+
+      {customFields.length > 0 && (
+        <div className="grid grid-cols-2 gap-4">
+          {customFields.map((field) => (
+            <div key={field.id}>
+              <Label htmlFor={`customField_${field.id}`}>{field.name}</Label>
+              {field.field_type === "select" ? (
+                <Select
+                  id={`customField_${field.id}`}
+                  name={`customField_${field.id}`}
+                  defaultValue={initialValues?.customFieldValues?.[field.id] ?? ""}
+                  className="w-full"
+                >
+                  <option value="">—</option>
+                  {field.options.map((opt) => (
+                    <option key={opt} value={opt}>
+                      {opt}
+                    </option>
+                  ))}
+                </Select>
+              ) : field.field_type === "number" ? (
+                <Input
+                  id={`customField_${field.id}`}
+                  name={`customField_${field.id}`}
+                  type="number"
+                  defaultValue={initialValues?.customFieldValues?.[field.id] ?? ""}
+                />
+              ) : (
+                <Input
+                  id={`customField_${field.id}`}
+                  name={`customField_${field.id}`}
+                  defaultValue={initialValues?.customFieldValues?.[field.id] ?? ""}
+                />
+              )}
+            </div>
+          ))}
         </div>
       )}
 
