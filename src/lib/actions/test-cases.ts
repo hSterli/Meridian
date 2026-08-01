@@ -418,6 +418,18 @@ function decodeSteps(raw: string): TestStep[] {
     });
 }
 
+function parseHeader(headerLine: string): Map<string, number> {
+  const cols = parseCsvLine(headerLine);
+  const map = new Map<string, number>();
+  cols.forEach((c, i) => map.set(c.trim(), i));
+  return map;
+}
+
+function col(fields: string[], headerIndex: Map<string, number>, name: string): string {
+  const idx = headerIndex.get(name);
+  return idx != null ? (fields[idx] ?? "") : "";
+}
+
 export async function bulkImportTestCases(
   projectId: string,
   _prevState: ActionState,
@@ -430,7 +442,8 @@ export async function bulkImportTestCases(
   const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
   if (lines.length < 2) return { error: "CSV file has no rows to import." };
 
-  const [, ...dataLines] = lines; // skip header
+  const [headerLine, ...dataLines] = lines;
+  const headerIndex = parseHeader(headerLine);
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
@@ -440,16 +453,41 @@ export async function bulkImportTestCases(
 
   const supabase = await createClient();
 
+  const { data: customFieldDefs } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name, field_type, options")
+    .eq("project_id", projectId);
+
   for (const line of dataLines) {
-    const [title, preconditions, priority, status, tags, feature, sprintRaw, stepsRaw] =
-      parseCsvLine(line);
+    const fields = parseCsvLine(line);
+    const title = col(fields, headerIndex, "title");
     if (!title) continue;
+
+    const preconditions = col(fields, headerIndex, "preconditions");
+    const priority = col(fields, headerIndex, "priority");
+    const status = col(fields, headerIndex, "status");
+    const tags = col(fields, headerIndex, "tags");
+    const feature = col(fields, headerIndex, "feature");
+    const sprintRaw = col(fields, headerIndex, "sprint");
+    const stepsRaw = col(fields, headerIndex, "steps");
 
     const featureId = await upsertFeature(supabase, projectId, feature || "General");
     if (!featureId) continue;
 
     const parsedSprint = Number.parseInt(sprintRaw, 10);
     const sprintNumber = Number.isFinite(parsedSprint) && parsedSprint >= 0 ? parsedSprint : null;
+
+    // Invalid custom-field values are silently skipped rather than failing
+    // the whole row, matching how this import already defaults invalid
+    // priority/status instead of rejecting the row outright.
+    const customFieldValues: Record<string, string> = {};
+    for (const cf of customFieldDefs ?? []) {
+      const raw = col(fields, headerIndex, cf.name).trim();
+      if (!raw) continue;
+      if (cf.field_type === "number" && !Number.isFinite(Number(raw))) continue;
+      if (cf.field_type === "select" && !((cf.options as string[]) ?? []).includes(raw)) continue;
+      customFieldValues[cf.id] = raw;
+    }
 
     const { data: testCase } = await supabase
       .from("test_cases")
@@ -462,6 +500,7 @@ export async function bulkImportTestCases(
         steps: decodeSteps(stepsRaw),
         feature_id: featureId,
         sprint_number: sprintNumber,
+        custom_fields: customFieldValues,
         created_by: ctx.userId,
       })
       .select("id")
