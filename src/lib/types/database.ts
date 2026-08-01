@@ -297,6 +297,44 @@ export type Database = {
           },
         ]
       }
+      test_case_custom_fields: {
+        Row: {
+          created_at: string
+          display_order: number
+          field_type: Database["public"]["Enums"]["test_case_custom_field_type"]
+          id: string
+          name: string
+          options: Json
+          project_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_order?: number
+          field_type: Database["public"]["Enums"]["test_case_custom_field_type"]
+          id?: string
+          name: string
+          options?: Json
+          project_id: string
+        }
+        Update: {
+          created_at?: string
+          display_order?: number
+          field_type?: Database["public"]["Enums"]["test_case_custom_field_type"]
+          id?: string
+          name?: string
+          options?: Json
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "test_case_custom_fields_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_case_features: {
         Row: {
           created_at: string
@@ -708,6 +746,7 @@ export type Database = {
         | "manual_only"
         | "to_be_automated"
         | "automated"
+      test_case_custom_field_type: "text" | "number" | "select"
       test_case_priority: "low" | "medium" | "high" | "critical"
       test_case_status: "active" | "draft" | "deprecated"
     }
@@ -847,6 +886,7 @@ export const Constants = {
         "to_be_automated",
         "automated",
       ],
+      test_case_custom_field_type: ["text", "number", "select"],
       test_case_priority: ["low", "medium", "high", "critical"],
       test_case_status: ["active", "draft", "deprecated"],
     },
@@ -863,6 +903,7 @@ export type RunCaseStatus = Enums<"run_case_status">;
 export type IssueStatus = Enums<"issue_status">;
 export type IssueSeverity = Enums<"issue_severity">;
 export type TestCaseAutomationStatus = Enums<"test_case_automation_status">;
+export type TestCaseCustomFieldType = Enums<"test_case_custom_field_type">;
 export type ProjectTemplate = "web" | "mobile" | "api" | "blank";
 
 // The extra index signature keeps this structurally assignable to/from the
