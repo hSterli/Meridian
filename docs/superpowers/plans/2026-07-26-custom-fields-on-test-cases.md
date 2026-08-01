@@ -1740,7 +1740,7 @@ git commit -m "Add custom field columns to CSV export"
 
 This is a required behavior change, not just an addition: `bulkImportTestCases` today discards the header row (`const [, ...dataLines] = lines; // skip header`) and destructures columns by fixed position. That breaks the moment column count varies by project. This task switches to reading the header and mapping columns by name.
 
-- [ ] **Step 1: Add header-mapping helpers**
+- [x] **Step 1: Add header-mapping helpers**
 
 Before `export async function bulkImportTestCases`, add (after the existing `decodeSteps` function):
 
@@ -1758,7 +1758,7 @@ function col(fields: string[], headerIndex: Map<string, number>, name: string): 
 }
 ```
 
-- [ ] **Step 2: Replace the header-skip and fixed-position destructuring**
+- [x] **Step 2: Replace the header-skip and fixed-position destructuring**
 
 Change:
 
@@ -1923,7 +1923,7 @@ export async function bulkImportTestCases(
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1931,7 +1931,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/test-cases.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/test-cases.ts
