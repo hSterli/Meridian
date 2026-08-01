@@ -50,6 +50,8 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0011_test_case_sprint.sql` | `test_cases.sprint_number` — optional, nullable integer so the library can be grouped by sprint as well as by feature; not a full sprint/milestone entity (that's the PRD's Phase 2 scope) |
 | `0012_test_case_ownership_automation.sql` | `test_cases.assigned_to` (a real owner, distinct from `created_by` and reassignable), `automation_status` (manual only / to be automated / automated) + `automation_script_ref`, and an optional `reference_link` (e.g. a Jira ticket URL) |
 | `0013_test_case_attachments.sql` | `test_case_attachments` table + a private `test-case-attachments` Storage bucket for real file uploads on a test case; objects are stored at `${projectId}/${testCaseId}/${filename}` so Storage RLS can gate access purely from the path via `storage.foldername()`, with no join needed |
+| `0014_test_run_cases_test_case_id_index.sql` | Adds an index on `test_run_cases.test_case_id` (previously only indexed by `run_id`), fixing a full-table scan for "this test case's execution history across all runs" |
+| `0015_test_case_custom_fields.sql` | `test_case_custom_fields` — per-project custom field definitions (text/number/select); values stored id-keyed in the pre-existing `test_cases.custom_fields` jsonb column |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -65,6 +67,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 
 - **Onboarding**: guided signup → create team → create first project from a starter template (web/mobile/API/blank), with seeded sample test cases
 - **Test case management**: CRUD, a required structured Feature field (project-managed list, pick-existing-or-add-new from the form), an optional sprint number, free-form tags, priority/status, version history, dynamic filters (including by feature), pill-style tag filtering, CSV import/export, and grouping the library by feature or by sprint
+- **Custom fields**: project-managed text/number/select fields on test cases, shown as list badges, select-type fields filterable, and fully round-tripped through CSV import/export
 - **Test case ownership & automation tracking**: an assignable owner (separate from the creator), automation status (manual only / to be automated / automated) with an optional script reference, an optional external reference link, real file attachments (upload/download/delete via private Storage), native drag-and-drop step reordering, and optionally adding a new test case straight into an existing suite at creation time
 - **Test Cases list**: stable per-project display IDs (`{PROJECT_KEY}-{n}`), an owner avatar and last-execution-result column per row (most recent result across any run the case has appeared in), and a Suites sidebar filter
 - **Test execution**: run creation from a test-case picker with optional folder/suite assignment, keyboard-driven execution UI (P/F/B/S shortcuts, arrow-key navigation), notes per result, and "Add test cases" to append more cases to an already-created run

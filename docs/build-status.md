@@ -28,6 +28,7 @@ Everything below is implemented, RLS-secured, and passes `tsc`/`eslint`/`build`.
 - Dynamic filters (search, feature, priority, status, tag), grouping the library by feature or by sprint
 - Stable per-project display IDs (`{PROJECT_KEY}-{n}`), owner avatar + last-execution-result column, Suites sidebar filter, pill-style tag filters
 - CSV import/export (round-trips all fields including sprint number)
+- **Custom fields** (added this session): project-managed text/number/select field definitions, values shown as badges on the list, select-type fields filterable, fully round-tripped through CSV import/export
 - All native `<select>` dropdowns replaced with a shared, custom-styled `Select` component; sprint number uses a custom stepper instead of the browser-default number spinner
 
 ### Test execution
@@ -75,7 +76,6 @@ These render in the app today but don't do anything — visible "Coming soon" ba
 | `/settings` | Organization settings, Integrations (Jira/GitHub/GitLab/Slack/CI), Billing — all placeholder rows |
 | Test Cases sidebar | "Coverage" card (requirement coverage metrics) — placeholder |
 | Test Cases sidebar | "AI Case Generation" — placeholder Pro-tier upsell card, disabled button |
-| `test_cases.custom_fields` | jsonb column exists in schema, reserved for a future custom-field engine, unused in any UI |
 
 None of these have backing logic. They exist so the nav/IA reads correctly and so upgrade paths are visible, not because anything is half-wired.
 
