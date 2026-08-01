@@ -41,18 +41,11 @@ export default async function TestCasesPage({
   searchParams,
 }: {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{
-    q?: string;
-    priority?: string;
-    status?: string;
-    tag?: string;
-    feature?: string;
-    groupBy?: string;
-    suite?: string;
-  }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { projectId } = await params;
-  const { q, priority, status, tag, feature, groupBy, suite } = await searchParams;
+  const resolvedSearchParams = await searchParams;
+  const { q, priority, status, tag, feature, groupBy, suite } = resolvedSearchParams;
 
   const supabase = await createClient();
 
@@ -104,6 +97,12 @@ export default async function TestCasesPage({
   if (feature) {
     const matched = (features ?? []).find((f) => f.name === feature);
     query = query.eq("feature_id", matched?.id ?? "00000000-0000-0000-0000-000000000000");
+  }
+  for (const field of customFieldDefs ?? []) {
+    const filterValue = resolvedSearchParams[`cf_${field.id}`];
+    if (filterValue) {
+      query = query.eq(`custom_fields->>${field.id}`, filterValue);
+    }
   }
 
   const { data: testCases } = await query;
@@ -333,6 +332,9 @@ export default async function TestCasesPage({
             <TestCaseFilters
               tags={(tags ?? []).map((t) => t.name)}
               features={(features ?? []).map((f) => f.name)}
+              selectCustomFields={(customFieldDefs ?? [])
+                .filter((f) => f.field_type === "select")
+                .map((f) => ({ id: f.id, name: f.name, options: (f.options as string[]) ?? [] }))}
             />
             <ImportCsvForm projectId={projectId} />
           </div>

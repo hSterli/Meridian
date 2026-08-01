@@ -6,7 +6,21 @@ import { clsx } from "clsx";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
-export function TestCaseFilters({ tags, features }: { tags: string[]; features: string[] }) {
+export interface SelectCustomFieldFilter {
+  id: string;
+  name: string;
+  options: string[];
+}
+
+export function TestCaseFilters({
+  tags,
+  features,
+  selectCustomFields = [],
+}: {
+  tags: string[];
+  features: string[];
+  selectCustomFields?: SelectCustomFieldFilter[];
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -68,6 +82,21 @@ export function TestCaseFilters({ tags, features }: { tags: string[]; features: 
         <option value="draft">Draft</option>
         <option value="deprecated">Deprecated</option>
       </Select>
+      {selectCustomFields.map((field) => (
+        <Select
+          key={field.id}
+          defaultValue={searchParams.get(`cf_${field.id}`) ?? ""}
+          onChange={(e) => updateParam(`cf_${field.id}`, e.target.value)}
+          className="text-ink-secondary"
+        >
+          <option value="">All {field.name}</option>
+          {field.options.map((opt) => (
+            <option key={opt} value={opt}>
+              {opt}
+            </option>
+          ))}
+        </Select>
+      ))}
       <div className="h-6 w-px bg-border-light" />
       <Select
         defaultValue={searchParams.get("groupBy") ?? ""}
