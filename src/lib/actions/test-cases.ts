@@ -145,6 +145,42 @@ function parseSprintNumber(formData: FormData): number | null {
   return Number.isFinite(parsed) && parsed >= 0 ? parsed : null;
 }
 
+/** Reads customField_<id> values from the form, validated against this
+ * project's current field definitions (fetched fresh here — never trust
+ * field ids/types supplied by the client). Returns either the validated
+ * values (keyed by field id, ready to store in test_cases.custom_fields)
+ * or an error to surface to the user. */
+async function parseCustomFieldValues(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  projectId: string,
+  formData: FormData
+): Promise<{ values: Record<string, string>; error?: string }> {
+  const { data: fields } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name, field_type, options")
+    .eq("project_id", projectId);
+
+  const values: Record<string, string> = {};
+  for (const field of fields ?? []) {
+    const raw = formData.get(`customField_${field.id}`);
+    if (raw == null) continue;
+    const value = String(raw).trim();
+    if (!value) continue;
+
+    if (field.field_type === "number" && !Number.isFinite(Number(value))) {
+      return { values: {}, error: `"${field.name}" must be a number.` };
+    }
+    if (field.field_type === "select") {
+      const options = (field.options as string[]) ?? [];
+      if (!options.includes(value)) {
+        return { values: {}, error: `"${value}" is not a valid option for "${field.name}".` };
+      }
+    }
+    values[field.id] = value;
+  }
+  return { values };
+}
+
 export async function createTestCase(
   projectId: string,
   _prevState: ActionState,
@@ -181,6 +217,13 @@ export async function createTestCase(
 
   const supabase = await createClient();
 
+  const { values: customFieldValues, error: customFieldError } = await parseCustomFieldValues(
+    supabase,
+    projectId,
+    formData
+  );
+  if (customFieldError) return { error: customFieldError };
+
   const featureId = await upsertFeature(supabase, projectId, featureName);
   if (!featureId) return { error: "Could not resolve feature." };
 
@@ -199,6 +242,7 @@ export async function createTestCase(
       automation_status: automationStatus,
       automation_script_ref: automationScriptRef,
       reference_link: referenceLink,
+      custom_fields: customFieldValues,
       created_by: ctx.userId,
     })
     .select()
@@ -266,6 +310,13 @@ export async function updateTestCase(
 
   const supabase = await createClient();
 
+  const { values: customFieldValues, error: customFieldError } = await parseCustomFieldValues(
+    supabase,
+    projectId,
+    formData
+  );
+  if (customFieldError) return { error: customFieldError };
+
   const { data: existing } = await supabase
     .from("test_cases")
     .select("*")
@@ -298,6 +349,7 @@ export async function updateTestCase(
       automation_status: automationStatus,
       automation_script_ref: automationScriptRef,
       reference_link: referenceLink,
+      custom_fields: customFieldValues,
       version: existing.version + 1,
       updated_at: new Date().toISOString(),
     })
