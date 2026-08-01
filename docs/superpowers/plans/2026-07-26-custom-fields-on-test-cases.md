@@ -82,11 +82,11 @@ git commit -m "Add test_case_custom_fields table for custom field definitions"
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Add the new table type to `database.ts`**
+- [x] **Step 2: Add the new table type to `database.ts`**
 
 In the `Tables` block, insert alphabetically (before `test_case_features`, matching the existing alphabetical ordering of table keys):
 
@@ -131,7 +131,7 @@ In the `Tables` block, insert alphabetically (before `test_case_features`, match
       }
 ```
 
-- [ ] **Step 3: Add the new enum**
+- [x] **Step 3: Add the new enum**
 
 In the `Enums` block (inside `Database["public"]["Enums"]`), add alphabetically before `test_case_priority`:
 
@@ -139,7 +139,7 @@ In the `Enums` block (inside `Database["public"]["Enums"]`), add alphabetically 
       test_case_custom_field_type: "text" | "number" | "select"
 ```
 
-- [ ] **Step 4: Add the enum to the `Constants` block**
+- [x] **Step 4: Add the enum to the `Constants` block**
 
 In `export const Constants = { public: { Enums: { ... } } }`, add before `test_case_priority`:
 
@@ -147,7 +147,7 @@ In `export const Constants = { public: { Enums: { ... } } }`, add before `test_c
       test_case_custom_field_type: ["text", "number", "select"],
 ```
 
-- [ ] **Step 5: Add a convenience alias**
+- [x] **Step 5: Add a convenience alias**
 
 At the bottom of the file, in the "App-level convenience aliases" section, add after `TestCaseAutomationStatus`:
 
@@ -155,12 +155,12 @@ At the bottom of the file, in the "App-level convenience aliases" section, add a
 export type TestCaseCustomFieldType = Enums<"test_case_custom_field_type">;
 ```
 
-- [ ] **Step 6: Verify the file compiles**
+- [x] **Step 6: Verify the file compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output (clean).
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/types/database.ts
