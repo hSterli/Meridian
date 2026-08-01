@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, PieChart, Download } from "lucide-react";
+import { Sparkles, PieChart, Download, SlidersHorizontal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -282,6 +282,13 @@ export default async function TestCasesPage({
               <Download size={14} />
               Export as CSV
             </a>
+            <Link
+              href={`/projects/${projectId}/test-cases/custom-fields`}
+              className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink-secondary transition-colors hover:bg-paper-muted hover:text-ink-primary"
+            >
+              <SlidersHorizontal size={14} />
+              Manage custom fields
+            </Link>
           </Card>
 
           <Card className="border-primary/30 bg-meridian-soft/40 p-3">
