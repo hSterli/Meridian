@@ -1043,7 +1043,7 @@ git commit -m "Pass custom field definitions and values into the test case form"
 **Files:**
 - Modify: `src/lib/actions/test-cases.ts`
 
-- [ ] **Step 1: Add the shared parse/validate helper**
+- [x] **Step 1: Add the shared parse/validate helper**
 
 After the existing `parseSprintNumber` function (before `export async function createTestCase`), add:
 
@@ -1085,7 +1085,7 @@ async function parseCustomFieldValues(
 }
 ```
 
-- [ ] **Step 2: Wire it into `createTestCase`**
+- [x] **Step 2: Wire it into `createTestCase`**
 
 Change:
 
@@ -1159,7 +1159,7 @@ to:
     .single();
 ```
 
-- [ ] **Step 3: Wire it into `updateTestCase`**
+- [x] **Step 3: Wire it into `updateTestCase`**
 
 Change:
 
@@ -1261,7 +1261,7 @@ to:
     .eq("id", testCaseId);
 ```
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1269,7 +1269,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/test-cases.ts`
 Expected: no output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/actions/test-cases.ts
