@@ -174,7 +174,7 @@ git commit -m "Regenerate types for test_case_custom_fields"
 **Files:**
 - Create: `src/lib/actions/custom-fields.ts`
 
-- [ ] **Step 1: Write the actions**
+- [x] **Step 1: Write the actions**
 
 ```ts
 "use server";
@@ -291,7 +291,7 @@ export async function deleteCustomField(projectId: string, fieldId: string) {
 
 Note: `deleteCustomField` doesn't show a confirmation dialog before deleting, matching this app's existing (if inconsistent) convention — every single-item delete in this codebase today (test case, suite, attachment) skips confirmation; only bulk-delete-runs has one. Not fixing that inconsistency here — it's a separate, already-tracked issue.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -299,7 +299,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/custom-fields.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/custom-fields.ts
