@@ -628,7 +628,7 @@ git commit -m "Link to custom fields management from the Test Cases screen"
 **Files:**
 - Modify: `src/components/test-cases/test-case-form.tsx`
 
-- [ ] **Step 1: Add the type import and a definition interface**
+- [x] **Step 1: Add the type import and a definition interface**
 
 Change:
 
@@ -664,7 +664,7 @@ export interface CustomFieldDefinition {
 }
 ```
 
-- [ ] **Step 2: Add `customFieldValues` to `TestCaseFormValues`**
+- [x] **Step 2: Add `customFieldValues` to `TestCaseFormValues`**
 
 Change:
 
@@ -705,7 +705,7 @@ export interface TestCaseFormValues {
 }
 ```
 
-- [ ] **Step 3: Add the `customFields` prop**
+- [x] **Step 3: Add the `customFields` prop**
 
 Change the `TestCaseForm` function signature from:
 
@@ -753,7 +753,7 @@ export function TestCaseForm({
 }) {
 ```
 
-- [ ] **Step 4: Render the fields**
+- [x] **Step 4: Render the fields**
 
 Find the block that renders the suite picker (immediately before the `state.error` block):
 
@@ -843,7 +843,7 @@ Insert a new block between them:
       {state.error && (
 ```
 
-- [ ] **Step 5: Verify**
+- [x] **Step 5: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -851,7 +851,7 @@ Expected: no output.
 Run: `npx eslint src/components/test-cases/test-case-form.tsx`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/test-cases/test-case-form.tsx
