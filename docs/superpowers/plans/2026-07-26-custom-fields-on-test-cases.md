@@ -550,7 +550,7 @@ git commit -m "Add custom fields management page"
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/page.tsx:1-9` (imports), `:274-285` (Quick actions card)
 
-- [ ] **Step 1: Add the icon import**
+- [x] **Step 1: Add the icon import**
 
 In the top import block, change:
 
@@ -564,7 +564,7 @@ to:
 import { Sparkles, PieChart, Download, SlidersHorizontal } from "lucide-react";
 ```
 
-- [ ] **Step 2: Add the link inside the existing "Quick actions" card**
+- [x] **Step 2: Add the link inside the existing "Quick actions" card**
 
 Find:
 
@@ -609,12 +609,12 @@ Replace with:
 
 (`Link` from `next/link` is already imported at the top of this file — no new import needed for it.)
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/page.tsx"
