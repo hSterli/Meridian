@@ -8,7 +8,7 @@ import { TestCaseForm } from "@/components/test-cases/test-case-form";
 import { updateTestCase, deleteTestCase } from "@/lib/actions/test-cases";
 import { AttachmentsPanel } from "@/components/test-cases/attachments-panel";
 import { uploadAttachment, deleteAttachment } from "@/lib/actions/attachments";
-import type { TestStep } from "@/lib/types/database";
+import type { TestCaseCustomFieldType, TestStep } from "@/lib/types/database";
 
 export default async function TestCaseDetailPage({
   params,
@@ -47,6 +47,13 @@ export default async function TestCaseDetailPage({
   const { data: orgMembers } = project
     ? await supabase.rpc("get_org_members", { check_org_id: project.org_id })
     : { data: [] };
+
+  const { data: customFieldDefs } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name, field_type, options")
+    .eq("project_id", projectId)
+    .order("display_order")
+    .order("created_at");
 
   const { data: attachmentRows } = await supabase
     .from("test_case_attachments")
@@ -103,6 +110,12 @@ export default async function TestCaseDetailPage({
             submitLabel="Save changes"
             features={(features ?? []).map((f) => f.name)}
             orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
+            customFields={(customFieldDefs ?? []).map((f) => ({
+              id: f.id,
+              name: f.name,
+              field_type: f.field_type as TestCaseCustomFieldType,
+              options: (f.options as string[]) ?? [],
+            }))}
             initialValues={{
               title: testCase.title,
               preconditions: testCase.preconditions,
@@ -116,6 +129,7 @@ export default async function TestCaseDetailPage({
               automationStatus: testCase.automation_status,
               automationScriptRef: testCase.automation_script_ref,
               referenceLink: testCase.reference_link,
+              customFieldValues: (testCase.custom_fields as Record<string, string>) ?? {},
             }}
           />
         </Card>

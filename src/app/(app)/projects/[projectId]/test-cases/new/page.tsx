@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { TestCaseForm } from "@/components/test-cases/test-case-form";
 import { createTestCase } from "@/lib/actions/test-cases";
+import type { TestCaseCustomFieldType } from "@/lib/types/database";
 
 export default async function NewTestCasePage({
   params,
@@ -38,6 +39,13 @@ export default async function NewTestCasePage({
     .eq("project_id", projectId)
     .order("name");
 
+  const { data: customFieldDefs } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name, field_type, options")
+    .eq("project_id", projectId)
+    .order("display_order")
+    .order("created_at");
+
   return (
     <div className="max-w-2xl">
       <PageHeader title="New test case" />
@@ -49,6 +57,12 @@ export default async function NewTestCasePage({
           orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
           suites={suites ?? []}
           defaultSuiteId={suiteId}
+          customFields={(customFieldDefs ?? []).map((f) => ({
+            id: f.id,
+            name: f.name,
+            field_type: f.field_type as TestCaseCustomFieldType,
+            options: (f.options as string[]) ?? [],
+          }))}
         />
       </Card>
     </div>
