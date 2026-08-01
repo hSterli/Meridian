@@ -31,6 +31,7 @@ interface TestCaseRow {
   status: string;
   sprint_number: number | null;
   assigned_to: string | null;
+  custom_fields: Record<string, string> | null;
   test_case_tag_links?: { tag_id: string; test_case_tags: { name: string } | { name: string }[] | null }[];
   test_case_features?: { name: string } | { name: string }[] | null;
 }
@@ -73,6 +74,13 @@ export default async function TestCasesPage({
     .eq("project_id", projectId)
     .order("name");
 
+  const { data: customFieldDefs } = await supabase
+    .from("test_case_custom_fields")
+    .select("id, name, field_type, options")
+    .eq("project_id", projectId)
+    .order("display_order")
+    .order("created_at");
+
   let suiteCaseIds: Set<string> | null = null;
   if (suite) {
     const { data: suiteCases } = await supabase
@@ -85,7 +93,7 @@ export default async function TestCasesPage({
   let query = supabase
     .from("test_cases")
     .select(
-      "id, title, priority, status, updated_at, sprint_number, assigned_to, test_case_tag_links(tag_id, test_case_tags(id, name, color)), test_case_features(name)"
+      "id, title, priority, status, updated_at, sprint_number, assigned_to, custom_fields, test_case_tag_links(tag_id, test_case_tags(id, name, color)), test_case_features(name)"
     )
     .eq("project_id", projectId)
     .order("updated_at", { ascending: false });
@@ -145,8 +153,10 @@ export default async function TestCasesPage({
   }
 
   let filtered: TestCaseRow[] = tag
-    ? (testCases ?? []).filter((tc) => tc.test_case_tag_links?.some((l) => tagName(l) === tag))
-    : (testCases ?? []);
+    ? ((testCases ?? []) as unknown as TestCaseRow[]).filter((tc) =>
+        tc.test_case_tag_links?.some((l) => tagName(l) === tag)
+      )
+    : ((testCases ?? []) as unknown as TestCaseRow[]);
 
   if (suiteCaseIds) {
     filtered = filtered.filter((tc) => suiteCaseIds!.has(tc.id));
@@ -208,6 +218,14 @@ export default async function TestCasesPage({
             {groupBy !== "sprint" && tc.sprint_number != null && (
               <Badge tone="blue">Sprint {tc.sprint_number}</Badge>
             )}
+            {(customFieldDefs ?? []).map((field) => {
+              const value = tc.custom_fields?.[field.id];
+              return value ? (
+                <Badge key={field.id} tone="slate">
+                  {field.name}: {value}
+                </Badge>
+              ) : null;
+            })}
             {tc.test_case_tag_links?.map((l) =>
               tagName(l) ? (
                 <Badge key={l.tag_id} tone="slate">
