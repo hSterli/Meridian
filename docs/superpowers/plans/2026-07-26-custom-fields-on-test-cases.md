@@ -1977,17 +1977,17 @@ git commit -m "Document custom fields on test cases"
 
 ### Task 14: Full verification pass
 
-- [ ] **Step 1: Type check**
+- [x] **Step 1: Type check**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 2: Lint the whole repo**
+- [x] **Step 2: Lint the whole repo**
 
 Run: `npx eslint .`
 Expected: no output.
 
-- [ ] **Step 3: Production build**
+- [x] **Step 3: Production build**
 
 First check for a leftover `next-server` process from a prior build (a recurring issue in this repo):
 
@@ -1998,18 +1998,18 @@ If a PID is returned, run `ps -p <pid> -o pid,command` to confirm it's a Meridia
 Then run: `npm run build`
 Expected: `✓ Compiled successfully`, all routes listed including the new `/projects/[projectId]/test-cases/custom-fields` route.
 
-- [ ] **Step 4: Supabase security advisor check**
+- [x] **Step 4: Supabase security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`.
 Expected: the same four pre-existing items only, nothing new.
 
-- [ ] **Step 5: Browser smoke test**
+- [x] **Step 5: Browser smoke test**
 
 Use `preview_start` with `{name: "meridian-dev"}` (check `.claude/launch.json` for the exact config name used earlier this session), then navigate to `/projects/x/test-cases` and to `/projects/x/test-cases/custom-fields`.
 Expected: both redirect cleanly to `/login` (unauthenticated), no console errors, no server errors in `preview_logs`. This is the same limited smoke-test scope used throughout this session, since logging in interactively is out of bounds (credentials are never entered on the user's behalf).
 
 Stop the preview server with `preview_stop` when done, and kill any leftover `next-server` process afterward (check `lsof -i :3000 -sTCP:LISTEN -t` again).
 
-- [ ] **Step 6: Final commit if any verification step required fixes**
+- [x] **Step 6: Final commit if any verification step required fixes**
 
 If any of the above steps required code changes, commit them now with a message describing what was fixed. If everything passed clean, there's nothing to commit here — the tree should already be clean from Task 13.
