@@ -19,6 +19,47 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          key_hash: string
+          last_used_at: string | null
+          name: string
+          org_id: string
+          revoked_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          key_hash: string
+          last_used_at?: string | null
+          name: string
+          org_id: string
+          revoked_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          key_hash?: string
+          last_used_at?: string | null
+          name?: string
+          org_id?: string
+          revoked_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_keys_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           assignee_id: string | null
@@ -707,11 +748,181 @@ export type Database = {
           },
         ]
       }
+      webhook_events: {
+        Row: {
+          id: string
+          org_id: string | null
+          payload: Json
+          processed_at: string | null
+          received_at: string
+          signature_valid: boolean
+          source: string
+        }
+        Insert: {
+          id?: string
+          org_id?: string | null
+          payload: Json
+          processed_at?: string | null
+          received_at?: string
+          signature_valid: boolean
+          source: string
+        }
+        Update: {
+          id?: string
+          org_id?: string | null
+          payload?: Json
+          processed_at?: string | null
+          received_at?: string
+          signature_valid?: boolean
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_events_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      api_create_run_result: {
+        Args: {
+          p_notes?: string
+          p_org_id: string
+          p_run_id: string
+          p_status: Database["public"]["Enums"]["run_case_status"]
+          p_test_case_id: string
+        }
+        Returns: {
+          executed_at: string | null
+          executed_by: string | null
+          id: string
+          notes: string | null
+          order_index: number
+          run_id: string
+          status: Database["public"]["Enums"]["run_case_status"]
+          test_case_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "test_run_cases"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      api_get_run: {
+        Args: { p_org_id: string; p_run_id: string }
+        Returns: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          folder_id: string | null
+          id: string
+          name: string
+          project_id: string
+          status: Database["public"]["Enums"]["run_status"]
+          suite_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "test_runs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      api_get_test_case: {
+        Args: { p_org_id: string; p_test_case_id: string }
+        Returns: {
+          assigned_to: string | null
+          automation_script_ref: string | null
+          automation_status: Database["public"]["Enums"]["test_case_automation_status"]
+          created_at: string
+          created_by: string
+          custom_fields: Json
+          feature_id: string
+          id: string
+          preconditions: string | null
+          priority: Database["public"]["Enums"]["test_case_priority"]
+          project_id: string
+          reference_link: string | null
+          sprint_number: number | null
+          status: Database["public"]["Enums"]["test_case_status"]
+          steps: Json
+          title: string
+          updated_at: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "test_cases"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      api_list_runs: {
+        Args: { p_org_id: string; p_project_id: string }
+        Returns: {
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          folder_id: string | null
+          id: string
+          name: string
+          project_id: string
+          status: Database["public"]["Enums"]["run_status"]
+          suite_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "test_runs"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      api_list_test_cases: {
+        Args: { p_org_id: string; p_project_id: string }
+        Returns: {
+          assigned_to: string | null
+          automation_script_ref: string | null
+          automation_status: Database["public"]["Enums"]["test_case_automation_status"]
+          created_at: string
+          created_by: string
+          custom_fields: Json
+          feature_id: string
+          id: string
+          preconditions: string | null
+          priority: Database["public"]["Enums"]["test_case_priority"]
+          project_id: string
+          reference_link: string | null
+          sprint_number: number | null
+          status: Database["public"]["Enums"]["test_case_status"]
+          steps: Json
+          title: string
+          updated_at: string
+          version: number
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "test_cases"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      check_api_key_rate_limit: {
+        Args: {
+          p_action: string
+          p_key_id: string
+          p_limit: number
+          p_window_seconds: number
+        }
+        Returns: boolean
+      }
       check_rate_limit: {
         Args: { p_action: string; p_limit: number; p_window_seconds: number }
         Returns: boolean
@@ -733,6 +944,13 @@ export type Database = {
           email: string
           role: Database["public"]["Enums"]["org_role"]
           user_id: string
+        }[]
+      }
+      validate_api_key: {
+        Args: { p_key: string }
+        Returns: {
+          key_id: string
+          org_id: string
         }[]
       }
     }
