@@ -65,6 +65,13 @@ Everything below is implemented, RLS-secured, and passes `tsc`/`eslint`/`build`.
 - Its own rate-limit bucket namespace (`api:<key_id>:<action>`), keyed off the resolved API key rather than `auth.uid()`, so it can't collide with or be starved by a user's own session-based rate limits
 - Generic inbound webhook receiver (`/api/v1/webhooks/[source]`, backed by `webhook_events`): validates signatures and stores events; no source-specific parsing yet (CI results, Jira/GitHub payloads are separate future work — see §3)
 
+### Two-way Jira issue sync
+- One Jira connection per org (`issue_tracker_connections`), configured from Settings > Integrations > Jira; API token stored in Supabase Vault (reversible encryption, not hashed like `api_keys`) since it must be retrievable to call Jira's API on the org's behalf
+- Sending a Meridian issue to Jira creates a linked external issue (`issue_tracker_links`) and shows a "Synced to Jira: PROJ-XXX" link on the issue detail page
+- Meridian-side status changes attempt a matching Jira transition (candidate status names in `src/lib/jira/client.ts`); failures surface inline as a "Last sync failed" message rather than failing silently
+- Inbound sync via a per-connection signed webhook (`/api/v1/webhooks/jira`, reusing the `webhook_events` scaffolding from the public API project) so Jira-side status/field changes flow back into Meridian
+- Authorization for the Vault-backed connection functions (`create_jira_connection`, `get_jira_api_token`, `delete_jira_connection`) is done inside each SECURITY DEFINER function (`is_org_admin`/`is_org_member`) since Vault access bypasses RLS; `0018_lock_down_jira_functions.sql` closed a same-session gap where these were left callable by `anon`/`public`
+
 ### Security & rate limiting
 - RLS on every table; helper functions (`is_org_member`, `is_org_admin`, `project_org_id`) live in a non-exposed `private` schema so they can't be called directly via REST
 - Per-user Postgres-backed rate limiting (`check_rate_limit`) on all authenticated writes, bucket key always derived server-side from `auth.uid()`
@@ -80,7 +87,7 @@ These render in the app today but don't do anything — visible "Coming soon" ba
 | Location | What's stubbed |
 |---|---|
 | `/reports` | Pass/fail trend, coverage-by-requirement, team velocity, flaky-test deep dive — all placeholder cards |
-| `/settings` | Organization settings, Integrations (Jira/GitHub/GitLab/Slack/CI), Billing — all placeholder rows |
+| `/settings` | Organization settings, Integrations (GitHub/GitLab/Slack/CI — Jira now has a real settings page, see §1), Billing — all placeholder rows |
 | Test Cases sidebar | "Coverage" card (requirement coverage metrics) — placeholder |
 | Test Cases sidebar | "AI Case Generation" — placeholder Pro-tier upsell card, disabled button |
 
@@ -92,7 +99,7 @@ None of these have backing logic. They exist so the nav/IA reads correctly and s
 
 Carried forward from README, still accurate:
 
-- Jira/GitHub/GitLab two-way issue sync
+- GitHub/GitLab two-way issue sync (Jira now works — see §1 "Two-way Jira issue sync")
 - CI-triggered automated run ingestion via webhook
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)

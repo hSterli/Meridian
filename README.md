@@ -53,6 +53,8 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0014_test_run_cases_test_case_id_index.sql` | Adds an index on `test_run_cases.test_case_id` (previously only indexed by `run_id`), fixing a full-table scan for "this test case's execution history across all runs" |
 | `0015_test_case_custom_fields.sql` | `test_case_custom_fields` — per-project custom field definitions (text/number/select); values stored id-keyed in the pre-existing `test_cases.custom_fields` jsonb column |
 | `0016_api_keys_and_webhooks.sql` | `api_keys` (org-scoped, owner/admin-managed, hashed tokens shown once) and `webhook_events` (generic inbound webhook scaffolding); `validate_api_key`/`check_api_key_rate_limit`/`api_*` SECURITY DEFINER functions centralize API authorization instead of a service-role client with scattered checks |
+| `0017_issue_tracker_jira_sync.sql` | `issue_tracker_connections` (one Jira connection per org, API token stored in Supabase Vault, not hashed, since it must be retrievable to call Jira's API) and `issue_tracker_links` (maps a Meridian issue to its external Jira key/id); `create_jira_connection`/`get_jira_api_token`/`delete_jira_connection` SECURITY DEFINER functions do their own admin/member checks since Vault access bypasses RLS |
+| `0018_lock_down_jira_functions.sql` | Fixes 0017's Jira connection functions being left callable by `anon`/`public` via the default execute grant (same class of gap `0004` closed for the RLS helpers) — revokes and re-grants to `authenticated` only |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -78,6 +80,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **Cross-project dashboard**: stat tiles, recent-run pass/fail trend, flaky-test tracker (tests with both a pass and a fail in history), coverage by project, filterable to a single project via `?project=` (dropdown in the page header)
 - **RBAC**: owner/admin/member roles, invite-by-email (auto-joins on next login/onboarding if the email matches a pending invite), role changes, member removal
 - **Public REST API**: versioned `/api/v1` endpoints (list/get test cases, list/get runs, record a run result) authenticated via a `Bearer` API key instead of a Supabase Auth session; org-scoped, admin-managed key issuance/revocation from Settings > API Keys (plaintext key shown once, at creation); plus a generic signed inbound webhook receiver (`/api/v1/webhooks/[source]`) that validates and stores events for future source-specific processing
+- **Two-way Jira issue sync**: one Jira connection per org (Settings > Integrations > Jira), API token stored in Supabase Vault; send a Meridian issue to Jira and it creates a linked Jira issue, status changes on the Meridian side push a transition attempt to Jira, and Jira-side changes flow back in via a per-connection inbound webhook (`/api/v1/webhooks/jira`)
 
 ## Design system
 
@@ -102,7 +105,7 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 
 ## Explicitly deferred (Phase 2/3 per the PRD)
 
-- Jira/GitHub/GitLab two-way issue sync, CI-triggered automated run ingestion via webhook
+- GitHub/GitLab two-way issue sync (Jira now works — see "What's implemented" above), CI-triggered automated run ingestion via webhook
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
