@@ -295,11 +295,11 @@ git commit -m "Add api_keys, webhook_events, and API authorization functions"
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Add the two new table types**
+- [x] **Step 2: Add the two new table types**
 
 In the `Tables` block, insert `api_keys` alphabetically (after `Enums`'s sibling `and` before... — concretely, insert immediately before the existing `issues` entry, since `api_keys` sorts first alphabetically among current table keys):
 
@@ -390,7 +390,7 @@ Insert `webhook_events` alphabetically as well — it sorts after `test_suites` 
       }
 ```
 
-- [ ] **Step 3: Add the seven new function entries to the `Functions` block**
+- [x] **Step 3: Add the seven new function entries to the `Functions` block**
 
 Add these entries to `Database["public"]["Functions"]`, alongside the existing `check_rate_limit`/`create_organization_with_owner`/`get_org_members` entries (alphabetical placement isn't load-bearing here since this block isn't sorted the same way `Tables` is in the existing file — add them in the order below, after the three existing entries):
 
@@ -508,12 +508,12 @@ Add these entries to `Database["public"]["Functions"]`, alongside the existing `
 
 **Important**: the actual `generate_typescript_types` output from Step 1 is the source of truth — the blocks above are a careful hand-prediction of what it should produce (matching the exact `Row` shapes of `test_cases`/`test_runs`/`test_run_cases` as they exist after the custom-fields project, and the `Returns: {...}[]`-vs-`Returns: {...}` + `SetofOptions` pattern already visible in this file's existing `get_org_members`/`create_organization_with_owner` entries). Compare the real tool output against what's written here before committing — if the generator emits a `SetofOptions` block for the `setof <table>`-returning functions (`api_list_test_cases`, `api_get_test_case`, `api_list_runs`, `api_get_run`, `api_create_run_result`) the way it already does for `create_organization_with_owner`, include it (e.g. `SetofOptions: { from: "*", to: "test_cases", isOneToOne: false, isSetofReturn: true }`) rather than dropping it, since removing metadata the generator actually produces isn't the point of hand-merging — the point is preserving the hand-written convenience aliases at the bottom of the file that a raw overwrite would destroy.
 
-- [ ] **Step 4: Verify the file compiles**
+- [x] **Step 4: Verify the file compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output (clean).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/types/database.ts
