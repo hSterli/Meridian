@@ -20,27 +20,27 @@
 
 **Files:** none (system-level installation)
 
-- [ ] **Step 1: Verify current state**
+- [x] **Step 1: Verify current state**
 
 Run: `which docker colima`
 Expected: both `not found` (confirmed during planning — re-verify in case time has passed since then).
 
-- [ ] **Step 2: Install via Homebrew**
+- [x] **Step 2: Install via Homebrew**
 
 Run: `brew install colima docker`
 Expected: both install successfully. This is a real, user-visible system change (installing software via Homebrew) — if running this plan interactively rather than via a pre-authorized agent, confirm with the user before running Step 2, the same way any other install step in this project would need confirmation.
 
-- [ ] **Step 3: Start colima**
+- [x] **Step 3: Start colima**
 
 Run: `colima start`
 Expected: takes a minute or two on first run (downloads a VM image). Succeeds with output ending in something like `INFO[0100] done`.
 
-- [ ] **Step 4: Verify Docker works**
+- [x] **Step 4: Verify Docker works**
 
 Run: `docker info`
 Expected: no "Cannot connect to the Docker daemon" error — prints real daemon info (containers, images, server version).
 
-- [ ] **Step 5: No commit needed**
+- [x] **Step 5: No commit needed**
 
 This task has no repo file changes — nothing to commit. Proceed to Task 2.
 
