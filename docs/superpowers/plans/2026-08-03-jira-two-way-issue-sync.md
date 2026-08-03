@@ -1118,7 +1118,7 @@ git commit -m "Make Integrations a real link to Jira settings"
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/issues/[issueId]/page.tsx`
 
-- [ ] **Step 1: Fetch the org's Jira connection and this issue's link**
+- [x] **Step 1: Fetch the org's Jira connection and this issue's link**
 
 Change:
 ```tsx
@@ -1209,7 +1209,7 @@ export default async function IssueDetailPage({
     : null;
 ```
 
-- [ ] **Step 2: Render the Jira status/action block**
+- [x] **Step 2: Render the Jira status/action block**
 
 Insert a new block right after the "Linked test case" paragraph and before the "Status" heading:
 
@@ -1265,7 +1265,7 @@ to:
         <div className="mb-2 text-sm font-medium text-ink-secondary">Status</div>
 ```
 
-- [ ] **Step 3: Write the small client component `SendToJiraForm`**
+- [x] **Step 3: Write the small client component `SendToJiraForm`**
 
 A separate tiny client component is needed because `useActionState` requires a Client Component, but the issue detail page itself is a Server Component.
 
@@ -1296,7 +1296,7 @@ export function SendToJiraForm({
 }
 ```
 
-- [ ] **Step 4: Verify**
+- [x] **Step 4: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1304,7 +1304,7 @@ Expected: no output.
 Run: `npx eslint src/components/issues/send-to-jira-form.tsx "src/app/(app)/projects/[projectId]/issues/[issueId]/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/issues/send-to-jira-form.tsx "src/app/(app)/projects/[projectId]/issues/[issueId]/page.tsx"
