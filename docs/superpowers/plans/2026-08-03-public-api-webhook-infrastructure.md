@@ -645,7 +645,7 @@ git commit -m "Add API key authentication helper for API routes"
 **Files:**
 - Modify: `src/lib/rate-limit.ts`
 
-- [ ] **Step 1: Add the new exported function**
+- [x] **Step 1: Add the new exported function**
 
 Append to the end of `src/lib/rate-limit.ts` (after the existing `rateLimit` function), and add the new import at the top:
 
@@ -695,7 +695,7 @@ export async function rateLimitApiKey(
 }
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -703,7 +703,7 @@ Expected: no output.
 Run: `npx eslint src/lib/rate-limit.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/rate-limit.ts
