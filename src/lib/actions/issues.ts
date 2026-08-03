@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
+import { transitionJiraIssueStatus } from "@/lib/jira/client";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -53,6 +54,52 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
     .from("issues")
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", issueId);
+
+  // If this issue is linked to Jira, push the status change there too.
+  // Meridian's own save above already succeeded regardless of what
+  // happens next — a Jira-side failure is recorded, not allowed to fail
+  // the Meridian update.
+  const { data: link } = await supabase
+    .from("issue_tracker_links")
+    .select(
+      "id, external_issue_key, connection_id, issue_tracker_connections(jira_base_url, jira_email, jira_project_key)"
+    )
+    .eq("issue_id", issueId)
+    .maybeSingle();
+
+  if (link) {
+    const connection = Array.isArray(link.issue_tracker_connections)
+      ? link.issue_tracker_connections[0]
+      : link.issue_tracker_connections;
+
+    if (connection) {
+      const { data: apiToken } = await supabase.rpc("get_jira_api_token", {
+        p_connection_id: link.connection_id,
+      });
+
+      if (apiToken) {
+        const result = await transitionJiraIssueStatus(
+          {
+            baseUrl: connection.jira_base_url,
+            email: connection.jira_email,
+            apiToken,
+            projectKey: connection.jira_project_key,
+          },
+          link.external_issue_key,
+          status
+        );
+
+        await supabase
+          .from("issue_tracker_links")
+          .update({
+            last_sync_error: result.error ?? null,
+            external_updated_at: new Date().toISOString(),
+          })
+          .eq("id", link.id);
+      }
+    }
+  }
+
   revalidatePath(`/projects/${projectId}/issues/${issueId}`);
   revalidatePath(`/projects/${projectId}/issues`);
 }
