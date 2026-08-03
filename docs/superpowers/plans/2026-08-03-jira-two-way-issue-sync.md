@@ -1014,7 +1014,7 @@ git commit -m "Add Jira connection settings page"
 **Files:**
 - Modify: `src/app/(app)/settings/page.tsx`
 
-- [ ] **Step 1: Move "Integrations" out of the stub array into a real link**
+- [x] **Step 1: Move "Integrations" out of the stub array into a real link**
 
 Change:
 ```tsx
@@ -1096,7 +1096,7 @@ to:
 
 (`Plug` is already imported at the top of this file from the stub-array days — no import change needed, just check it's still used after this edit, which it is.)
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1104,7 +1104,7 @@ Expected: no output.
 Run: `npx eslint "src/app/(app)/settings/page.tsx"`
 Expected: no output — specifically confirm no "unused import" warning for `Plug` (it's still used in the new Link).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/(app)/settings/page.tsx"
