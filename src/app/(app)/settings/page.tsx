@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Users, Building2, Plug, CreditCard, ChevronRight } from "lucide-react";
+import { Users, Key, Building2, Plug, CreditCard, ChevronRight } from "lucide-react";
 import { getUserContext } from "@/lib/org-context";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
@@ -24,6 +24,20 @@ export default async function SettingsPage() {
           <div className="flex-1">
             <p className="font-ui-label font-semibold text-ink-primary">Team</p>
             <p className="text-sm text-ink-secondary">Manage members, roles, and invites.</p>
+          </div>
+          <ChevronRight size={18} className="text-ink-tertiary" />
+        </Link>
+
+        <Link
+          href="/settings/api"
+          className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"
+        >
+          <div className="rounded-lg bg-meridian-soft p-2 text-primary">
+            <Key size={18} />
+          </div>
+          <div className="flex-1">
+            <p className="font-ui-label font-semibold text-ink-primary">API Keys</p>
+            <p className="text-sm text-ink-secondary">Create and revoke keys for the public API.</p>
           </div>
           <ChevronRight size={18} className="text-ink-tertiary" />
         </Link>
