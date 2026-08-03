@@ -52,6 +52,7 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0013_test_case_attachments.sql` | `test_case_attachments` table + a private `test-case-attachments` Storage bucket for real file uploads on a test case; objects are stored at `${projectId}/${testCaseId}/${filename}` so Storage RLS can gate access purely from the path via `storage.foldername()`, with no join needed |
 | `0014_test_run_cases_test_case_id_index.sql` | Adds an index on `test_run_cases.test_case_id` (previously only indexed by `run_id`), fixing a full-table scan for "this test case's execution history across all runs" |
 | `0015_test_case_custom_fields.sql` | `test_case_custom_fields` — per-project custom field definitions (text/number/select); values stored id-keyed in the pre-existing `test_cases.custom_fields` jsonb column |
+| `0016_api_keys_and_webhooks.sql` | `api_keys` (org-scoped, owner/admin-managed, hashed tokens shown once) and `webhook_events` (generic inbound webhook scaffolding); `validate_api_key`/`check_api_key_rate_limit`/`api_*` SECURITY DEFINER functions centralize API authorization instead of a service-role client with scattered checks |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -76,6 +77,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **Issue tracking**: native lightweight tracker, linkable to a test case and/or a specific run result, status workflow (open → in progress → resolved → closed)
 - **Cross-project dashboard**: stat tiles, recent-run pass/fail trend, flaky-test tracker (tests with both a pass and a fail in history), coverage by project, filterable to a single project via `?project=` (dropdown in the page header)
 - **RBAC**: owner/admin/member roles, invite-by-email (auto-joins on next login/onboarding if the email matches a pending invite), role changes, member removal
+- **Public REST API**: versioned `/api/v1` endpoints (list/get test cases, list/get runs, record a run result) authenticated via a `Bearer` API key instead of a Supabase Auth session; org-scoped, admin-managed key issuance/revocation from Settings > API Keys (plaintext key shown once, at creation); plus a generic signed inbound webhook receiver (`/api/v1/webhooks/[source]`) that validates and stores events for future source-specific processing
 
 ## Design system
 
@@ -85,6 +87,7 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 
 - **Login/signup**: covered by Supabase Auth's own built-in per-IP rate limits (Dashboard → Authentication → Rate Limits) — this runs ahead of application code and can't be bypassed by it, so it isn't reimplemented here.
 - **Authenticated writes** (invites, test case creation, CSV import, run creation, run-case execution, org creation): gated by `rateLimit()` in `src/lib/rate-limit.ts`, calling the `check_rate_limit` RPC. See `supabase/migrations/0007_rate_limiting.sql` for why the bucket key is always derived from `auth.uid()` server-side rather than accepted as a parameter — that's what stops one user from being able to lock out another's bucket.
+- **Public API requests** (`/api/v1/*`): a separate bucket namespace, gated by `rateLimitApiKey()` in `src/lib/rate-limit.ts` calling the `check_api_key_rate_limit` RPC. It reuses the same `rate_limit_buckets` table as `check_rate_limit`, but the key is `api:<key_id>:<action>` — keyed off the API key resolved by `validate_api_key`, not `auth.uid()` (there is no Supabase Auth session on an API-key request) — so a session-based bucket and an API-key-based bucket for the same person never collide, and one API key can never be throttled by (or throttle) another.
 
 ## Security notes
 
@@ -104,6 +107,8 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
 - Richer custom fields beyond text/number/select (checkbox, date types), org-wide (cross-project) field definitions, and a "manage visible columns" control for projects with many fields — the core text/number/select engine itself now ships (see "Custom fields" above)
+- Outbound webhook delivery (Meridian-initiated notifications to third-party URLs)
+- Source-specific webhook processing (CI results, Jira/GitHub payloads) — the receiving/signature scaffold exists, specific integrations are separate future projects
 
 ## Notes for further development
 

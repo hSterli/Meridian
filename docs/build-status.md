@@ -58,6 +58,13 @@ Everything below is implemented, RLS-secured, and passes `tsc`/`eslint`/`build`.
 - Full "Paper/Ink" token set (colors, fonts via `next/font/google`, no CDN) applied consistently via Tailwind v4 `@theme`
 - Shared primitives (`Card`, `Badge`, `Button`, `Input`, `Select`, `NumberStepper`, `Label`) so new pages inherit the look for free
 
+### Public API & webhooks
+- Versioned `/api/v1` REST API (list/get test cases, list/get runs, record a run result), authenticated via a `Bearer` API key instead of a Supabase Auth session
+- Org-scoped API keys (`api_keys` table): admin-managed create/revoke from Settings > API Keys, hashed at rest, plaintext key shown exactly once at creation
+- Authorization centralized in SECURITY DEFINER Postgres functions (`validate_api_key`, `check_api_key_rate_limit`, `api_*` data-access functions) rather than a service-role client with scattered manual checks
+- Its own rate-limit bucket namespace (`api:<key_id>:<action>`), keyed off the resolved API key rather than `auth.uid()`, so it can't collide with or be starved by a user's own session-based rate limits
+- Generic inbound webhook receiver (`/api/v1/webhooks/[source]`, backed by `webhook_events`): validates signatures and stores events; no source-specific parsing yet (CI results, Jira/GitHub payloads are separate future work — see §3)
+
 ### Security & rate limiting
 - RLS on every table; helper functions (`is_org_member`, `is_org_admin`, `project_org_id`) live in a non-exposed `private` schema so they can't be called directly via REST
 - Per-user Postgres-backed rate limiting (`check_rate_limit`) on all authenticated writes, bucket key always derived server-side from `auth.uid()`
