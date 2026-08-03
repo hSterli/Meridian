@@ -842,7 +842,7 @@ git commit -m "Add dedicated Jira webhook receiver"
 - Create: `src/components/settings/jira-connection-manager.tsx`
 - Create: `src/app/(app)/settings/integrations/jira/page.tsx`
 
-- [ ] **Step 1: Write the manager component**
+- [x] **Step 1: Write the manager component**
 
 ```tsx
 "use client";
@@ -948,7 +948,7 @@ export function JiraConnectionManager({
 }
 ```
 
-- [ ] **Step 2: Write the page**
+- [x] **Step 2: Write the page**
 
 ```tsx
 import { redirect } from "next/navigation";
@@ -992,7 +992,7 @@ export default async function JiraIntegrationPage() {
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1000,7 +1000,7 @@ Expected: no output.
 Run: `npx eslint src/components/settings/jira-connection-manager.tsx "src/app/(app)/settings/integrations/jira/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/settings/jira-connection-manager.tsx "src/app/(app)/settings/integrations/jira/page.tsx"
