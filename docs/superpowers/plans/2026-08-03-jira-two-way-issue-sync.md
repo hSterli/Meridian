@@ -593,7 +593,7 @@ git commit -m "Add Server Actions for Jira connection management and sending iss
 **Files:**
 - Modify: `src/lib/actions/issues.ts`
 
-- [ ] **Step 1: Add the import**
+- [x] **Step 1: Add the import**
 
 Change:
 ```ts
@@ -607,7 +607,7 @@ import { transitionJiraIssueStatus } from "@/lib/jira/client";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 ```
 
-- [ ] **Step 2: Extend `updateIssueStatus`**
+- [x] **Step 2: Extend `updateIssueStatus`**
 
 Change:
 ```ts
@@ -682,7 +682,7 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
 
 This is the only Meridian-side mutation that needs to trigger an outbound Jira sync — `createIssue` deliberately doesn't push to Jira automatically (linking is opt-in via "Send to Jira" on an existing issue, built in Task 4/7), and there's no generic "edit issue title/description" action in this app yet to also wire up.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -690,7 +690,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/issues.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/issues.ts
