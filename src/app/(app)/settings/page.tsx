@@ -42,16 +42,25 @@ export default async function SettingsPage() {
           <ChevronRight size={18} className="text-ink-tertiary" />
         </Link>
 
+        <Link
+          href="/settings/integrations/jira"
+          className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"
+        >
+          <div className="rounded-lg bg-meridian-soft p-2 text-primary">
+            <Plug size={18} />
+          </div>
+          <div className="flex-1">
+            <p className="font-ui-label font-semibold text-ink-primary">Integrations</p>
+            <p className="text-sm text-ink-secondary">Jira, GitHub, GitLab, Slack, and CI runner connections.</p>
+          </div>
+          <ChevronRight size={18} className="text-ink-tertiary" />
+        </Link>
+
         {[
           {
             icon: Building2,
             title: "Organization",
             description: "Name, slug, and workspace-wide defaults.",
-          },
-          {
-            icon: Plug,
-            title: "Integrations",
-            description: "Jira, GitHub, GitLab, Slack, and CI runner connections.",
           },
           {
             icon: CreditCard,
