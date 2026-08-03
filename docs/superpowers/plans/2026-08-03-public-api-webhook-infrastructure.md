@@ -1407,32 +1407,32 @@ git commit -m "Document the public API and webhook infrastructure"
 
 ### Task 14: Full verification pass + manual testing instructions
 
-- [ ] **Step 1: Type check**
+- [x] **Step 1: Type check**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 2: Lint the whole repo**
+- [x] **Step 2: Lint the whole repo**
 
 Run: `npx eslint .`
 Expected: no output.
 
-- [ ] **Step 3: Production build**
+- [x] **Step 3: Production build**
 
 Check for a leftover `next-server` process first: `lsof -i :3000 -sTCP:LISTEN -t`. If a PID is returned, confirm with `ps -p <pid> -o pid,command` that it's a Meridian `next-server`, then kill it.
 
 Then run: `npm run build`
 Expected: `✓ Compiled successfully`, with all new routes listed — `/api/v1/test-cases`, `/api/v1/test-cases/[id]`, `/api/v1/runs`, `/api/v1/runs/[id]`, `/api/v1/runs/[id]/results`, `/api/v1/webhooks/[source]`, `/settings/api`.
 
-- [ ] **Step 4: Supabase security advisor check**
+- [x] **Step 4: Supabase security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same baseline items as Task 1 Step 4 confirmed — nothing new since then.
 
-- [ ] **Step 5: Browser smoke test (unauthenticated routes only)**
+- [x] **Step 5: Browser smoke test (unauthenticated routes only)**
 
 Use `preview_start` with `{name: "meridian-dev"}`, navigate to `/settings/api`. Expected: clean redirect to `/login`, no console errors, no server errors in `preview_logs` — this is the limit of what can be verified without logging in (credentials are never entered on the user's behalf). Stop the preview server and kill any leftover `next-server` process afterward.
 
-- [ ] **Step 6: Write out manual API testing instructions for the user**
+- [x] **Step 6: Write out manual API testing instructions for the user**
 
 This project's API can't be fully exercised without a real, signed-in-created API key — something only the user can produce, since it requires logging into the app. Produce (in the final report to the user, not as a file) a concrete sequence like:
 
