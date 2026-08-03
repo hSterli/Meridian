@@ -889,7 +889,7 @@ git commit -m "Add GET /api/v1/runs and GET /api/v1/runs/:id"
 **Files:**
 - Create: `src/app/api/v1/runs/[id]/results/route.ts`
 
-- [ ] **Step 1: Write the endpoint**
+- [x] **Step 1: Write the endpoint**
 
 ```ts
 import { authenticateApiRequest } from "@/lib/api/auth";
@@ -949,7 +949,7 @@ export async function POST(
 
 Validating `status` against `VALID_STATUSES` before calling the RPC avoids surfacing a raw Postgres enum-cast error to API consumers, and the RPC's own "Run not found"/"Test case not found" exceptions (raised when the ids don't resolve to `p_org_id`) come back as `error.message` with a 400, not a 500 — they're caller mistakes (wrong id, wrong org's key), not server failures.
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -957,7 +957,7 @@ Expected: no output.
 Run: `npx eslint "src/app/api/v1/runs/[id]/results/route.ts"`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/api/v1/runs/[id]/results/route.ts"
