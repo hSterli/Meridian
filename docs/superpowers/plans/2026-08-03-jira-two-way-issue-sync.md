@@ -260,7 +260,7 @@ git commit -m "Regenerate types for issue_tracker_connections, issue_tracker_lin
 **Files:**
 - Create: `src/lib/jira/client.ts`
 
-- [ ] **Step 1: Write the client**
+- [x] **Step 1: Write the client**
 
 ```ts
 import "server-only";
@@ -418,7 +418,7 @@ export async function transitionJiraIssueStatus(
 }
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -426,7 +426,7 @@ Expected: no output.
 Run: `npx eslint src/lib/jira/client.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/jira/client.ts
