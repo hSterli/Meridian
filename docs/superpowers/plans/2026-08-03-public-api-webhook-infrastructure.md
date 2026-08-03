@@ -17,7 +17,7 @@
 **Files:**
 - Create: `supabase/migrations/0016_api_keys_and_webhooks.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 -- Public API foundation: org-scoped API keys and a generic inbound webhook
@@ -257,11 +257,11 @@ revoke all on function api_get_run(uuid, uuid) from public, anon, authenticated;
 revoke all on function api_create_run_result(uuid, uuid, uuid, run_case_status, text) from public, anon, authenticated;
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "api_keys_and_webhooks"`, and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the tables and functions exist**
+- [x] **Step 3: Verify the tables and functions exist**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -275,13 +275,13 @@ select proname from pg_proc where proname in (
 
 Expected: two rows for the first query, both `relrowsecurity = true`; seven rows for the second query.
 
-- [ ] **Step 4: Run the security advisor check**
+- [x] **Step 4: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same known pre-existing items as before (`rate_limit_buckets` RLS-no-policy, SECURITY DEFINER warnings for `check_rate_limit`/`create_organization_with_owner`/`get_org_members`, leaked-password-protection) — plus new, *expected* "signed-in users can execute" warnings only if any of the new functions were accidentally left grantable to `authenticated`. If any of `validate_api_key`, `check_api_key_rate_limit`, `api_list_test_cases`, `api_get_test_case`, `api_list_runs`, `api_get_run`, or `api_create_run_result` show up in that warning category, the `revoke` statements in Step 1 need fixing before continuing — this is a hard stop, not a note-and-continue.
 
 Also expected: a new `rls_enabled_no_policy` INFO item for `webhook_events`, matching the same pattern already accepted for `rate_limit_buckets` (RLS on, no policies, intentional).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0016_api_keys_and_webhooks.sql
