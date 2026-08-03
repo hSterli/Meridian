@@ -1065,7 +1065,7 @@ git commit -m "Add generic signed inbound webhook receiver"
 **Files:**
 - Create: `src/lib/actions/api-keys.ts`
 
-- [ ] **Step 1: Write the actions**
+- [x] **Step 1: Write the actions**
 
 ```ts
 "use server";
@@ -1133,7 +1133,7 @@ export async function revokeApiKey(orgId: string, keyId: string) {
 
 Note: this uses the normal cookie-based `createClient()`, not the service-role client — `api_keys`' own RLS policies (`is_org_admin(org_id)`, written in Task 1) are the real enforcement here, the same way every other admin-only action in this app already works. The `ctx.activeRole` check above is a fast, friendly early exit, not the security boundary — consistent with how `members/page.tsx`'s `isAdmin` check works today.
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1141,7 +1141,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/api-keys.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/api-keys.ts
