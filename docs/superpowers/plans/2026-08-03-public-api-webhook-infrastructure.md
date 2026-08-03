@@ -718,7 +718,7 @@ git commit -m "Add rate limiting for API-key-authenticated requests"
 - Create: `src/app/api/v1/test-cases/route.ts`
 - Create: `src/app/api/v1/test-cases/[id]/route.ts`
 
-- [ ] **Step 1: Write the list endpoint**
+- [x] **Step 1: Write the list endpoint**
 
 ```ts
 import { authenticateApiRequest } from "@/lib/api/auth";
@@ -749,7 +749,7 @@ export async function GET(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Write the single-resource endpoint**
+- [x] **Step 2: Write the single-resource endpoint**
 
 ```ts
 import { authenticateApiRequest } from "@/lib/api/auth";
@@ -781,7 +781,7 @@ export async function GET(
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -789,7 +789,7 @@ Expected: no output.
 Run: `npx eslint src/app/api/v1/test-cases/route.ts "src/app/api/v1/test-cases/[id]/route.ts"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/v1/test-cases
