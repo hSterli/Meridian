@@ -582,7 +582,7 @@ git commit -m "Add service-role Supabase client for API routes"
 **Files:**
 - Create: `src/lib/api/auth.ts`
 
-- [ ] **Step 1: Write the helper**
+- [x] **Step 1: Write the helper**
 
 ```ts
 import "server-only";
@@ -623,7 +623,7 @@ export async function authenticateApiRequest(
 }
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -631,7 +631,7 @@ Expected: no output.
 Run: `npx eslint src/lib/api/auth.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/api/auth.ts
