@@ -704,7 +704,7 @@ git commit -m "Push status changes to a linked Jira issue"
 **Files:**
 - Create: `src/app/api/v1/webhooks/jira/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 ```ts
 import { createServiceClient } from "@/lib/supabase/service";
@@ -819,7 +819,7 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -827,7 +827,7 @@ Expected: no output.
 Run: `npx eslint "src/app/api/v1/webhooks/jira/route.ts"`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/api/v1/webhooks/jira/route.ts"
