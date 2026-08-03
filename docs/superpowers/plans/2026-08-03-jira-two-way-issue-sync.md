@@ -21,7 +21,7 @@
 **Files:**
 - Create: `supabase/migrations/0017_issue_tracker_jira_sync.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 -- Two-way Jira issue sync, per
@@ -188,11 +188,11 @@ $$;
 grant execute on function delete_jira_connection(uuid) to authenticated;
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "issue_tracker_jira_sync"`, and the SQL above as `query`.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -211,11 +211,11 @@ select vault.create_secret('test-value', 'plan-verification-test');
 
 Expected: succeeds, returns a UUID. (No need to clean this up — it's a throwaway verification secret with no `issue_tracker_connections` row referencing it.)
 
-- [ ] **Step 4: Run the security advisor check**
+- [x] **Step 4: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same baseline as before (`rate_limit_buckets`/`webhook_events` RLS-no-policy INFOs, three pre-existing SECURITY DEFINER WARNs, leaked-password-protection WARN) — **plus new, expected** warnings that `create_jira_connection`, `get_jira_api_token`, and `delete_jira_connection` are "signed-in users can execute" SECURITY DEFINER functions. Unlike Task 1 of the prior API/webhook plan, **this is expected and correct here**, not a hard stop — these three functions are deliberately granted to `authenticated` because they serve real logged-in admin/member users, not API-key requests, and each does its own internal `is_org_admin`/`is_org_member` check precisely because it bypasses RLS via Vault access.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0017_issue_tracker_jira_sync.sql
