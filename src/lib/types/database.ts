@@ -60,6 +60,101 @@ export type Database = {
           },
         ]
       }
+      issue_tracker_connections: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          jira_base_url: string
+          jira_email: string
+          jira_project_key: string
+          org_id: string
+          provider: Database["public"]["Enums"]["issue_tracker_provider"]
+          vault_secret_id: string
+          webhook_token: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          jira_base_url: string
+          jira_email: string
+          jira_project_key: string
+          org_id: string
+          provider: Database["public"]["Enums"]["issue_tracker_provider"]
+          vault_secret_id: string
+          webhook_token: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          jira_base_url?: string
+          jira_email?: string
+          jira_project_key?: string
+          org_id?: string
+          provider?: Database["public"]["Enums"]["issue_tracker_provider"]
+          vault_secret_id?: string
+          webhook_token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_tracker_connections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      issue_tracker_links: {
+        Row: {
+          connection_id: string
+          created_at: string
+          external_issue_id: string
+          external_issue_key: string
+          external_updated_at: string | null
+          id: string
+          issue_id: string
+          last_sync_error: string | null
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          external_issue_id: string
+          external_issue_key: string
+          external_updated_at?: string | null
+          id?: string
+          issue_id: string
+          last_sync_error?: string | null
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          external_issue_id?: string
+          external_issue_key?: string
+          external_updated_at?: string | null
+          id?: string
+          issue_id?: string
+          last_sync_error?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "issue_tracker_links_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "issue_tracker_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issue_tracker_links_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: true
+            referencedRelation: "issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       issues: {
         Row: {
           assignee_id: string | null
@@ -927,6 +1022,17 @@ export type Database = {
         Args: { p_action: string; p_limit: number; p_window_seconds: number }
         Returns: boolean
       }
+      create_jira_connection: {
+        Args: {
+          p_base_url: string
+          p_email: string
+          p_org_id: string
+          p_project_key: string
+          p_token: string
+          p_webhook_token: string
+        }
+        Returns: string
+      }
       create_organization_with_owner: {
         Args: { org_name: string; org_slug: string }
         Returns: {
@@ -936,7 +1042,18 @@ export type Database = {
           name: string
           slug: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "organizations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
+      delete_jira_connection: {
+        Args: { p_connection_id: string }
+        Returns: undefined
+      }
+      get_jira_api_token: { Args: { p_connection_id: string }; Returns: string }
       get_org_members: {
         Args: { check_org_id: string }
         Returns: {
@@ -957,6 +1074,7 @@ export type Database = {
     Enums: {
       issue_severity: "low" | "medium" | "high" | "critical"
       issue_status: "open" | "in_progress" | "resolved" | "closed"
+      issue_tracker_provider: "jira"
       org_role: "owner" | "admin" | "member"
       run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
       run_status: "planned" | "in_progress" | "completed"
@@ -1096,6 +1214,7 @@ export const Constants = {
     Enums: {
       issue_severity: ["low", "medium", "high", "critical"],
       issue_status: ["open", "in_progress", "resolved", "closed"],
+      issue_tracker_provider: ["jira"],
       org_role: ["owner", "admin", "member"],
       run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],
       run_status: ["planned", "in_progress", "completed"],
