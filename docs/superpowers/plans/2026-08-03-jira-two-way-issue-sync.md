@@ -440,7 +440,7 @@ git commit -m "Add Jira REST API client (create/update issue, status transitions
 **Files:**
 - Create: `src/lib/actions/issue-tracker.ts`
 
-- [ ] **Step 1: Write the actions**
+- [x] **Step 1: Write the actions**
 
 ```ts
 "use server";
@@ -571,7 +571,7 @@ export async function sendIssueToJira(
 
 Note: `disconnectJiraTracker` doesn't take an `orgId` parameter (unlike the plan's earlier drafts of similar actions) — `delete_jira_connection` already does its own `is_org_admin` check internally against the connection's own `org_id`, so there's nothing left for the caller to additionally scope by.
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -579,7 +579,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/issue-tracker.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/issue-tracker.ts
