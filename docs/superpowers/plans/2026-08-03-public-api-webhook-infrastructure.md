@@ -1156,7 +1156,7 @@ git commit -m "Add Server Actions for API key creation and revocation"
 - Create: `src/components/settings/api-key-manager.tsx`
 - Create: `src/app/(app)/settings/api/page.tsx`
 
-- [ ] **Step 1: Write the manager component**
+- [x] **Step 1: Write the manager component**
 
 ```tsx
 "use client";
@@ -1251,7 +1251,7 @@ export function ApiKeyManager({
 }
 ```
 
-- [ ] **Step 2: Write the page**
+- [x] **Step 2: Write the page**
 
 ```tsx
 import { redirect } from "next/navigation";
@@ -1295,7 +1295,7 @@ export default async function ApiSettingsPage() {
 }
 ```
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1303,7 +1303,7 @@ Expected: no output.
 Run: `npx eslint src/components/settings/api-key-manager.tsx "src/app/(app)/settings/api/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/settings/api-key-manager.tsx "src/app/(app)/settings/api/page.tsx"
