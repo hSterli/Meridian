@@ -972,7 +972,7 @@ git commit -m "Add POST /api/v1/runs/:id/results"
 - Create: `src/lib/api/webhook-signature.ts`
 - Create: `src/app/api/v1/webhooks/[source]/route.ts`
 
-- [ ] **Step 1: Write the signature validator**
+- [x] **Step 1: Write the signature validator**
 
 ```ts
 import "server-only";
@@ -1002,7 +1002,7 @@ export function isValidWebhookSignature(
 }
 ```
 
-- [ ] **Step 2: Write the receiver route**
+- [x] **Step 2: Write the receiver route**
 
 ```ts
 import { isValidWebhookSignature } from "@/lib/api/webhook-signature";
@@ -1043,7 +1043,7 @@ export async function POST(
 
 Every event is stored regardless of signature validity — invalid attempts are auditable in `webhook_events`, not silently dropped — but a bad signature still returns 401 to the caller after being recorded.
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1051,7 +1051,7 @@ Expected: no output.
 Run: `npx eslint src/lib/api/webhook-signature.ts "src/app/api/v1/webhooks/[source]/route.ts"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/api/webhook-signature.ts "src/app/api/v1/webhooks/[source]/route.ts"
