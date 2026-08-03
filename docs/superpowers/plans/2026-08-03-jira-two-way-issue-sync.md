@@ -1338,32 +1338,32 @@ git commit -m "Document two-way Jira issue sync"
 
 ### Task 11: Full verification pass
 
-- [ ] **Step 1: Type check**
+- [x] **Step 1: Type check**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 2: Lint the whole repo**
+- [x] **Step 2: Lint the whole repo**
 
 Run: `npx eslint .`
 Expected: no output.
 
-- [ ] **Step 3: Production build**
+- [x] **Step 3: Production build**
 
 Check for and kill any leftover `next-server` process on port 3000 first (`lsof -i :3000 -sTCP:LISTEN -t`, confirm with `ps -p <pid> -o pid,command`, then kill).
 
 Run: `npm run build`
 Expected: `✓ Compiled successfully`, with `/settings/integrations/jira` and `/api/v1/webhooks/jira` listed among the routes.
 
-- [ ] **Step 4: Supabase security advisor check**
+- [x] **Step 4: Supabase security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the baseline confirmed in Task 1 Step 4 (including the three *expected* new SECURITY DEFINER warnings for the Jira connection functions) — nothing beyond that.
 
-- [ ] **Step 5: Browser smoke test**
+- [x] **Step 5: Browser smoke test**
 
 `preview_start` with `{name: "meridian-dev"}`, navigate to `/settings/integrations/jira`. Expected: clean redirect to `/login`, no console errors, no server errors in `preview_logs`. Stop the preview server and kill any leftover `next-server` process afterward.
 
-- [ ] **Step 6: Write out manual testing instructions**
+- [x] **Step 6: Write out manual testing instructions**
 
 This needs a real Jira Cloud site to test against, which only the user has. Produce (in the final report, not a file) instructions along these lines:
 
