@@ -231,20 +231,22 @@ git commit -m "Add issue_tracker_connections/links and Vault-backed Jira token f
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types**
+- [x] **Step 1: Regenerate types**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Hand-merge the two new table types and the enum**
+- [x] **Step 2: Hand-merge the two new table types and the enum**
 
 Following the exact process used in the two prior plans this session (do not blindly overwrite — preserve the hand-written convenience aliases at the bottom of the file): add `issue_tracker_connections` and `issue_tracker_links` to the `Tables` block (alphabetical position: both sort before `issues`), add `issue_tracker_provider: "jira"` to the `Enums` block and to `Constants`, and add the three new function entries (`create_jira_connection`, `get_jira_api_token`, `delete_jira_connection`) to the `Functions` block. Compare against the real `generate_typescript_types` output rather than hand-guessing exact shapes — the prior plan's Task 2 found the generator alphabetizes `Functions` entries and their `Args` keys, and adds `SetofOptions` for `setof`-returning functions; apply the same fidelity here.
 
-- [ ] **Step 3: Verify**
+**Found during execution:** `delete_jira_connection` returns `void` in SQL but the real generator types that as `Returns: undefined`, not `Returns: void` — matched the real output. Also, the live generator now emits a `SetofOptions` block for the pre-existing `create_organization_with_owner` function (`isOneToOne: true, isSetofReturn: false`, since it returns a single row) that the previously-committed file was missing; added it for fidelity with the real output even though it's outside this task's stated table/enum/function additions.
+
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/types/database.ts
