@@ -222,6 +222,8 @@ git add supabase/migrations/0017_issue_tracker_jira_sync.sql
 git commit -m "Add issue_tracker_connections/links and Vault-backed Jira token functions"
 ```
 
+**Post-Task-1 fix (found during execution, not anticipated by this plan):** the advisor check also surfaced `anon_security_definer_function_executable` warnings for all three new functions — 0017 granted `authenticated` but never explicitly revoked the default `PUBLIC` execute grant, leaving `anon` with access too. Functionally inert (each function's internal `is_org_admin`/`is_org_member` check fails closed when `auth.uid()` is null), but fixed anyway via a follow-up `0018_lock_down_jira_functions.sql` migration (`revoke all ... from public, anon` before re-granting to `authenticated`), matching this codebase's established defense-in-depth convention (see `0004_lock_down_function_execute.sql`). Re-ran `get_advisors` afterward and confirmed the `anon_*` warnings are gone, leaving only the expected `authenticated_*` ones. Committed as `dd9601e`.
+
 ---
 
 ### Task 2: Regenerate and merge TypeScript types
