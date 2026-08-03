@@ -527,7 +527,7 @@ git commit -m "Regenerate types for api_keys, webhook_events, and API functions"
 **Files:**
 - Create: `src/lib/supabase/service.ts`
 
-- [ ] **Step 1: Write the client factory**
+- [x] **Step 1: Write the client factory**
 
 ```ts
 import "server-only";
@@ -552,7 +552,7 @@ export function createServiceClient() {
 }
 ```
 
-- [ ] **Step 2: Add the new required env var**
+- [x] **Step 2: Add the new required env var**
 
 Read the current contents of `.env.local.example`, then append (it currently has just `NEXT_PUBLIC_SUPABASE_URL=` and `NEXT_PUBLIC_SUPABASE_ANON_KEY=`):
 
@@ -563,12 +563,12 @@ WEBHOOK_SHARED_SECRET=
 
 (`WEBHOOK_SHARED_SECRET` is added here even though it's used starting Task 7, so both new env vars land in one place — avoids a second partial edit to this file later.)
 
-- [ ] **Step 3: Verify**
+- [x] **Step 3: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output. (This won't catch a missing runtime env var — that's a Task 14 concern, covered in the manual testing instructions.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/supabase/service.ts .env.local.example
