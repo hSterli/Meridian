@@ -1317,7 +1317,7 @@ git commit -m "Add Settings > API Keys page"
 **Files:**
 - Modify: `src/app/(app)/settings/page.tsx`
 
-- [ ] **Step 1: Add the icon import and a new real row**
+- [x] **Step 1: Add the icon import and a new real row**
 
 Change:
 ```tsx
@@ -1362,12 +1362,12 @@ Then, immediately after the existing "Team" `<Link>` block and before the stub-a
         {[
 ```
 
-- [ ] **Step 2: Verify**
+- [x] **Step 2: Verify**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/\(app\)/settings/page.tsx
