@@ -52,12 +52,12 @@ This task has no repo file changes — nothing to commit. Proceed to Task 2.
 - Create: `supabase/config.toml` (via `supabase init`)
 - Modify: `.gitignore`
 
-- [ ] **Step 1: Initialize the Supabase CLI project config**
+- [x] **Step 1: Initialize the Supabase CLI project config**
 
 Run: `npx supabase init`
 Expected: creates `supabase/config.toml` (and possibly `supabase/.gitignore`, `supabase/seed.sql` if not present). Since `supabase/migrations/` already exists with 18 files, the CLI should detect and preserve it — if prompted about an existing migrations directory, keep it as-is.
 
-- [ ] **Step 2: Add Supabase CLI local artifacts to `.gitignore`**
+- [x] **Step 2: Add Supabase CLI local artifacts to `.gitignore`**
 
 Add to the end of `.gitignore`:
 
@@ -68,12 +68,12 @@ Add to the end of `.gitignore`:
 /supabase/.temp
 ```
 
-- [ ] **Step 3: Start the local stack**
+- [x] **Step 3: Start the local stack**
 
 Run: `npx supabase start`
 Expected: takes a while on first run (pulls Postgres/GoTrue/Storage/etc. Docker images). Succeeds with output listing local URLs — `API URL`, `DB URL`, `Studio URL`, `anon key`, `service_role key`. **Save this output** — Task 5 needs these values.
 
-- [ ] **Step 4: Verify all 18 migrations applied**
+- [x] **Step 4: Verify all 18 migrations applied**
 
 Run: `npx supabase status -o json | grep -c "public\." || true` (a loose sanity check) — better: connect directly:
 
@@ -81,7 +81,7 @@ Run: `PGPASSWORD=postgres psql -h 127.0.0.1 -p 54322 -U postgres -d postgres -c 
 
 Expected: `18` (one row per applied migration file). If `psql` isn't installed locally, instead run: `npx supabase migration list` and confirm all 18 files show as applied locally (not just remotely).
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/config.toml .gitignore
