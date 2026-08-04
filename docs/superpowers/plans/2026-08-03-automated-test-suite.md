@@ -98,11 +98,11 @@ git commit -m "Initialize local Supabase CLI project config"
 - Modify: `package.json`
 - Create: `vitest.config.ts`
 
-- [ ] **Step 1: Install Vitest**
+- [x] **Step 1: Install Vitest**
 
 Run: `npm install --save-dev vitest`
 
-- [ ] **Step 2: Write the Vitest config**
+- [x] **Step 2: Write the Vitest config**
 
 Create `vitest.config.ts`:
 
@@ -142,7 +142,7 @@ export default defineConfig({
 
 The `resolve.alias` entry mirrors `tsconfig.json`'s `"@/*": ["./src/*"]` mapping exactly — Vitest doesn't read `tsconfig.json` path mappings automatically, so this needs to be declared here too. (`tests/integration/global-setup.ts` doesn't exist yet — that's Task 6 — but it's fine to reference it now; Vitest only errors if you actually run the `integration` project before that file exists, and this task only runs the `unit` project.)
 
-- [ ] **Step 3: Add the `test` script**
+- [x] **Step 3: Add the `test` script**
 
 In `package.json`, change:
 ```json
@@ -164,12 +164,12 @@ to:
   },
 ```
 
-- [ ] **Step 4: Verify Vitest runs (even with zero test files yet)**
+- [x] **Step 4: Verify Vitest runs (even with zero test files yet)**
 
 Run: `npm test`
 Expected: Vitest starts, reports "No test files found" for the `unit` project — this confirms the config itself is valid before any test files exist. (Task 4 adds the first real test file.)
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json package-lock.json vitest.config.ts
