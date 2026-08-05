@@ -23,12 +23,12 @@
 **Files:**
 - Create: `supabase/migrations/0020_weekly_status_reports.sql`
 
-- [ ] **Step 1: Confirm the next free migration number**
+- [x] **Step 1: Confirm the next free migration number**
 
 Run: `ls supabase/migrations/ | tail -5`
 Expected per the note above: `0020` is free. If not, adjust the filename and every reference to it in this task before continuing, and note the deviation when reporting back.
 
-- [ ] **Step 2: Write the migration**
+- [x] **Step 2: Write the migration**
 
 Create `supabase/migrations/0020_weekly_status_reports.sql`:
 
@@ -112,11 +112,11 @@ create policy "members can edit snapshot editorial fields" on weekly_report_snap
   for update using (private.is_org_member(private.project_org_id(project_id)));
 ```
 
-- [ ] **Step 3: Apply the migration to the live project**
+- [x] **Step 3: Apply the migration to the live project**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "weekly_status_reports"`, and the SQL above as `query`.
 
-- [ ] **Step 4: Verify the tables exist and RLS is on**
+- [x] **Step 4: Verify the tables exist and RLS is on**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -128,11 +128,11 @@ where relname in ('weekly_report_drafts', 'weekly_report_daily_plans', 'weekly_r
 
 Expected: three rows, all `relrowsecurity = true`.
 
-- [ ] **Step 5: Run the security advisor check**
+- [x] **Step 5: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same pre-existing, already-reviewed items as before this migration (rate_limit_buckets RLS-no-policy, SECURITY DEFINER warnings, leaked-password-protection) — no new items, since every new table here has RLS enabled with real policies.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/0020_weekly_status_reports.sql
