@@ -757,7 +757,7 @@ git commit -m "Add computeWeeklyReportMetrics query wrapper"
 **Files:**
 - Create: `src/lib/actions/weekly-reports.ts`
 
-- [ ] **Step 1: Write the actions**
+- [x] **Step 1: Write the actions**
 
 Create `src/lib/actions/weekly-reports.ts`:
 
@@ -838,7 +838,7 @@ Check for the stray `</content>` line: `tail -3 src/lib/actions/weekly-reports.t
 
 `updateWeeklyReportDraft` follows the form-bound `ActionState` shape (matching `uploadAttachment`); `updateDailyPlan` follows the fire-and-forget shape (matching `deleteAttachment`), since a single field edit doesn't need `useActionState` wiring in the UI (Task 9 wires it directly).
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -846,7 +846,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/weekly-reports.ts`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/weekly-reports.ts
