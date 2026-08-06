@@ -129,3 +129,70 @@ export function getWeekdayRange(referenceDate: Date): string[] {
   }
   return dates;
 }
+
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/lib/types/database";
+
+export async function computeWeeklyReportMetrics(
+  supabase: SupabaseClient<Database>,
+  projectId: string,
+  weekDates: string[]
+): Promise<WeeklyMetrics> {
+  const { data: testCaseRows } = await supabase
+    .from("test_cases")
+    .select("id, test_case_features(name)")
+    .eq("project_id", projectId);
+
+  const testCases: RawTestCaseRow[] = (testCaseRows ?? []).map((tc) => {
+    const linkedFeature = tc.test_case_features as { name: string } | { name: string }[] | null;
+    const feature = Array.isArray(linkedFeature) ? linkedFeature[0]?.name : linkedFeature?.name;
+    return { id: tc.id, featureName: feature ?? null };
+  });
+
+  const { data: runRows } = await supabase.from("test_runs").select("id").eq("project_id", projectId);
+  const runIds = (runRows ?? []).map((r) => r.id);
+
+  let runCases: RawRunCaseRow[] = [];
+  if (runIds.length > 0) {
+    const { data: runCaseRows } = await supabase
+      .from("test_run_cases")
+      .select("test_case_id, status, executed_at")
+      .in("run_id", runIds);
+    runCases = (runCaseRows ?? []).map((rc) => ({
+      testCaseId: rc.test_case_id,
+      status: rc.status,
+      executedAt: rc.executed_at,
+    }));
+  }
+
+  const { data: openIssues } = await supabase
+    .from("issues")
+    .select("severity")
+    .eq("project_id", projectId)
+    .in("status", ["open", "in_progress"]);
+
+  const openDefects = openIssues?.length ?? 0;
+  const criticalHighOpen = (openIssues ?? []).filter(
+    (i) => i.severity === "critical" || i.severity === "high"
+  ).length;
+
+  const { data: planRows } = await supabase
+    .from("weekly_report_daily_plans")
+    .select("plan_date, planned_count")
+    .eq("project_id", projectId)
+    .in("plan_date", weekDates);
+
+  const plannedByDate: Record<string, number> = {};
+  for (const p of planRows ?? []) {
+    plannedByDate[p.plan_date] = p.planned_count;
+  }
+
+  return aggregateWeeklyMetrics({
+    testCases,
+    runCases,
+    openDefects,
+    criticalHighOpen,
+    weekDates,
+    plannedByDate,
+  });
+}
