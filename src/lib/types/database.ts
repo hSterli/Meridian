@@ -881,6 +881,117 @@ export type Database = {
           },
         ]
       }
+      weekly_report_daily_plans: {
+        Row: {
+          id: string
+          plan_date: string
+          planned_count: number
+          project_id: string
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          id?: string
+          plan_date: string
+          planned_count?: number
+          project_id: string
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          id?: string
+          plan_date?: string
+          planned_count?: number
+          project_id?: string
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_report_daily_plans_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_report_drafts: {
+        Row: {
+          highlights: string
+          project_id: string
+          rag_status: Database["public"]["Enums"]["report_rag_status"]
+          updated_at: string
+          updated_by: string
+        }
+        Insert: {
+          highlights?: string
+          project_id: string
+          rag_status?: Database["public"]["Enums"]["report_rag_status"]
+          updated_at?: string
+          updated_by: string
+        }
+        Update: {
+          highlights?: string
+          project_id?: string
+          rag_status?: Database["public"]["Enums"]["report_rag_status"]
+          updated_at?: string
+          updated_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_report_drafts_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_report_snapshots: {
+        Row: {
+          created_at: string
+          created_by: string
+          daily_planned: Json
+          highlights: string
+          id: string
+          metrics: Json
+          project_id: string
+          rag_status: Database["public"]["Enums"]["report_rag_status"]
+          week_ending: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          daily_planned: Json
+          highlights: string
+          id?: string
+          metrics: Json
+          project_id: string
+          rag_status: Database["public"]["Enums"]["report_rag_status"]
+          week_ending: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          daily_planned?: Json
+          highlights?: string
+          id?: string
+          metrics?: Json
+          project_id?: string
+          rag_status?: Database["public"]["Enums"]["report_rag_status"]
+          week_ending?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_report_snapshots_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1076,6 +1187,7 @@ export type Database = {
       issue_status: "open" | "in_progress" | "resolved" | "closed"
       issue_tracker_provider: "jira"
       org_role: "owner" | "admin" | "member"
+      report_rag_status: "red" | "amber" | "green"
       run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
       run_status: "planned" | "in_progress" | "completed"
       test_case_automation_status:
@@ -1216,6 +1328,7 @@ export const Constants = {
       issue_status: ["open", "in_progress", "resolved", "closed"],
       issue_tracker_provider: ["jira"],
       org_role: ["owner", "admin", "member"],
+      report_rag_status: ["red", "amber", "green"],
       run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],
       run_status: ["planned", "in_progress", "completed"],
       test_case_automation_status: [
@@ -1237,6 +1350,7 @@ export type TestCasePriority = Enums<"test_case_priority">;
 export type TestCaseStatus = Enums<"test_case_status">;
 export type RunStatus = Enums<"run_status">;
 export type RunCaseStatus = Enums<"run_case_status">;
+export type ReportRagStatus = Enums<"report_rag_status">;
 export type IssueStatus = Enums<"issue_status">;
 export type IssueSeverity = Enums<"issue_severity">;
 export type TestCaseAutomationStatus = Enums<"test_case_automation_status">;
