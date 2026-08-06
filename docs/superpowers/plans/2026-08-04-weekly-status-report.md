@@ -655,7 +655,7 @@ git commit -m "Add pure weekly report metrics aggregation with unit tests"
 **Files:**
 - Modify: `src/lib/weekly-report-metrics.ts`
 
-- [ ] **Step 1: Add the Supabase-querying wrapper**
+- [x] **Step 1: Add the Supabase-querying wrapper**
 
 Append to `src/lib/weekly-report-metrics.ts` (same file — this function calls the pure `aggregateWeeklyMetrics` above, but itself does real queries, so it isn't unit-testable the same way; it stays in this file rather than the actions file so it has no `"use server"` directive and can be called freely from Server Components):
 
@@ -730,7 +730,7 @@ export async function computeWeeklyReportMetrics(
 
 (Same array-unwrap idiom for `test_case_features` already used twice elsewhere in this codebase — see the comment in `runs/[runId]/page.tsx`.)
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -738,12 +738,12 @@ Expected: no output.
 Run: `npx eslint src/lib/weekly-report-metrics.ts`
 Expected: no output.
 
-- [ ] **Step 3: Manual verification that this file has no `"use server"` surface-area problem**
+- [x] **Step 3: Manual verification that this file has no `"use server"` surface-area problem**
 
 Run: `npm run build`
 Expected: build succeeds. This file is imported by both a Server Component (Task 8) and a `"use server"` actions file (Task 6) in later tasks — if this step fails only once those imports exist, come back and re-run it after Task 6, but it should already succeed now since this file itself has no directive at all.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/weekly-report-metrics.ts
