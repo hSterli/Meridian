@@ -146,11 +146,11 @@ git commit -m "Add weekly status report tables (drafts, daily plans, snapshots)"
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Add the three new table blocks to `database.ts`**
+- [x] **Step 2: Add the three new table blocks to `database.ts`**
 
 In the `Tables` block, insert each new table alphabetically among the existing entries (matching this file's existing alphabetical ordering of table keys):
 
@@ -268,7 +268,7 @@ In the `Tables` block, insert each new table alphabetically among the existing e
       }
 ```
 
-- [ ] **Step 3: Add the new enum**
+- [x] **Step 3: Add the new enum**
 
 In the `Enums` block (alongside `issue_severity`, `run_status`, etc.), add:
 
@@ -282,7 +282,7 @@ And in the `Constants` block at the bottom of the file (where enum value arrays 
       report_rag_status: ["red", "amber", "green"],
 ```
 
-- [ ] **Step 4: Add the convenience type export**
+- [x] **Step 4: Add the convenience type export**
 
 Near the bottom of the file, alongside `export type RunCaseStatus = Enums<"run_case_status">;`, add:
 
@@ -290,12 +290,12 @@ Near the bottom of the file, alongside `export type RunCaseStatus = Enums<"run_c
 export type ReportRagStatus = Enums<"report_rag_status">;
 ```
 
-- [ ] **Step 5: Verify the type compiles**
+- [x] **Step 5: Verify the type compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/types/database.ts
