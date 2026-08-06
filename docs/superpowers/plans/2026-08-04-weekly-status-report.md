@@ -310,7 +310,7 @@ git commit -m "Regenerate types for weekly report tables"
 - Create: `src/lib/weekly-report-metrics.ts`
 - Test: `src/lib/weekly-report-metrics.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/weekly-report-metrics.test.ts`:
 
@@ -481,12 +481,12 @@ describe("aggregateWeeklyMetrics", () => {
 
 Check for the stray `</content>` line: `tail -3 src/lib/weekly-report-metrics.test.ts`.
 
-- [ ] **Step 2: Run the tests to confirm they fail**
+- [x] **Step 2: Run the tests to confirm they fail**
 
 Run: `npm test`
 Expected: FAIL — `src/lib/weekly-report-metrics.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/lib/weekly-report-metrics.ts`:
 
@@ -628,12 +628,12 @@ Check for the stray `</content>` line: `tail -3 src/lib/weekly-report-metrics.ts
 
 `latestExecutedStatusByTestCase` and the module/daily aggregation deliberately don't distinguish *which run* a status came from — only the most recent `executedAt` timestamp across all of a project's runs wins, matching how the source spec's sample data reads (cumulative progress toward the whole test cycle, not scoped to one run). `dailyExecution`, by contrast, counts every execution event whose date falls in the target week, even if the same test case was run more than once that week — it's a log of daily activity, not a deduped per-case status.
 
-- [ ] **Step 4: Run the tests to confirm they pass**
+- [x] **Step 4: Run the tests to confirm they pass**
 
 Run: `npm test`
 Expected: PASS — all tests in `src/lib/weekly-report-metrics.test.ts` green.
 
-- [ ] **Step 5: Verify nothing else broke**
+- [x] **Step 5: Verify nothing else broke**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -641,7 +641,7 @@ Expected: no output.
 Run: `npx eslint src/lib/weekly-report-metrics.ts src/lib/weekly-report-metrics.test.ts`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/weekly-report-metrics.ts src/lib/weekly-report-metrics.test.ts
