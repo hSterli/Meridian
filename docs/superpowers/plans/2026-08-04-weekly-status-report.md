@@ -860,7 +860,7 @@ git commit -m "Add updateWeeklyReportDraft and updateDailyPlan Server Actions"
 **Files:**
 - Modify: `src/lib/actions/weekly-reports.ts`
 
-- [ ] **Step 1: Add the snapshot actions**
+- [x] **Step 1: Add the snapshot actions**
 
 Append to `src/lib/actions/weekly-reports.ts`:
 
@@ -945,7 +945,7 @@ Move the new `import { computeWeeklyReportMetrics, getWeekdayRange } from "@/lib
 
 `updateSnapshotEditorialFields` only ever sets `rag_status`/`highlights` in its update payload, which is what actually enforces the "frozen numbers, editable editorial fields" rule described in the spec — the RLS `update` policy itself permits updating any column, exactly like `uploadAttachment`'s ownership check is enforced at the Server Action layer rather than in SQL.
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -956,7 +956,9 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds — this is the point where `weekly-report-metrics.ts` is imported from a `"use server"` file; confirms there's no directive conflict.
 
-- [ ] **Step 3: Commit**
+**Deviation found and fixed during execution**: `npx tsc --noEmit` initially failed with `Type 'WeeklyMetrics' is not assignable to type 'Json'` on the `metrics` field of the `weekly_report_snapshots` insert — `WeeklyMetrics` (a named interface) and `Record<string, number>` (`dailyPlanned`) aren't structurally assignable to the generated `Json` type without an explicit cast, since neither has an index signature. Fixed by importing `Json` from `@/lib/types/database` and casting both values (`metrics as unknown as Json`, `dailyPlanned as unknown as Json`) at the insert call site. This is a real bug the plan's shown code had — it had never actually been run through `tsc` before this task executed.
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/weekly-reports.ts
