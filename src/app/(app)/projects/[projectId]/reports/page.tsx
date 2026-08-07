@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RagEditor } from "@/components/reports/rag-editor";
+import { DailyExecutionTable } from "@/components/reports/daily-execution-table";
 import { computeWeeklyReportMetrics, getWeekdayRange } from "@/lib/weekly-report-metrics";
 import { captureWeeklyReportSnapshot } from "@/lib/actions/weekly-reports";
 
@@ -106,6 +107,11 @@ export default async function WeeklyReportPage({
             <div className="text-lg font-semibold text-ink-primary">{metrics.criticalHighOpen}</div>
           </div>
         </div>
+      </Card>
+
+      <Card className="p-5">
+        <h2 className="mb-3 text-sm font-semibold text-ink-secondary">Daily Test Execution</h2>
+        <DailyExecutionTable projectId={projectId} days={metrics.dailyExecution} />
       </Card>
 
       <Card className="p-5">
