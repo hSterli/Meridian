@@ -1527,7 +1527,7 @@ git commit -m "Add weekly report history list, grouped by week"
 - Create: `src/app/(app)/projects/[projectId]/reports/history/[snapshotId]/page.tsx`
 - Create: `src/components/reports/snapshot-rag-editor.tsx`
 
-- [ ] **Step 1: Write the snapshot editorial-fields editor**
+- [x] **Step 1: Write the snapshot editorial-fields editor**
 
 Create `src/components/reports/snapshot-rag-editor.tsx`:
 
@@ -1607,7 +1607,7 @@ export function SnapshotRagEditor({
 
 Check for the stray `</content>` line: `tail -3 src/components/reports/snapshot-rag-editor.tsx`.
 
-- [ ] **Step 2: Write the snapshot view page**
+- [x] **Step 2: Write the snapshot view page**
 
 Create `src/app/(app)/projects/[projectId]/reports/history/[snapshotId]/page.tsx`:
 
@@ -1753,7 +1753,7 @@ Check for the stray `</content>` line: `tail -3 "src/app/(app)/projects/[project
 
 Note the `Badge` import in this page is unused if you copy it verbatim without the RAG display elsewhere — double check with the eslint step below and remove it if flagged; it's only listed here because `SnapshotRagEditor` handles RAG display internally.
 
-- [ ] **Step 3: Verify types, lint, and build**
+- [x] **Step 3: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1764,7 +1764,7 @@ Expected: no output. If an unused `Badge` import is flagged per the note above, 
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/reports/snapshot-rag-editor.tsx "src/app/(app)/projects/[projectId]/reports/history/[snapshotId]/page.tsx"
