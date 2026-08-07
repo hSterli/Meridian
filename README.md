@@ -81,6 +81,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **RBAC**: owner/admin/member roles, invite-by-email (auto-joins on next login/onboarding if the email matches a pending invite), role changes, member removal
 - **Public REST API**: versioned `/api/v1` endpoints (list/get test cases, list/get runs, record a run result) authenticated via a `Bearer` API key instead of a Supabase Auth session; org-scoped, admin-managed key issuance/revocation from Settings > API Keys (plaintext key shown once, at creation); plus a generic signed inbound webhook receiver (`/api/v1/webhooks/[source]`) that validates and stores events for future source-specific processing
 - **Two-way Jira issue sync**: one Jira connection per org (Settings > Integrations > Jira), API token stored in Supabase Vault; send a Meridian issue to Jira and it creates a linked Jira issue, status changes on the Meridian side push a transition attempt to Jira, and Jira-side changes flow back in via a per-connection inbound webhook (`/api/v1/webhooks/jira`)
+- Weekly Status Report per project — live dashboard (RAG status, key metrics, daily execution with planned/variance, module breakdown) plus a non-destructive snapshot history for sharing a stable point-in-time record with stakeholders.
 
 ## Design system
 

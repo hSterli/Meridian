@@ -47,6 +47,13 @@ Everything below is implemented, RLS-secured, and passes `tsc`/`eslint`/`build`.
 - Native lightweight tracker, linkable to a test case and/or a specific run result
 - Status workflow: open → in progress → resolved → closed
 
+### Weekly Status Report (per project)
+- New "Reports" tab per project (`/projects/[projectId]/reports`), alongside Test Cases/Suites/Runs/Issues — a live, always-current dashboard: editable RAG status + key highlights, key metrics (total/executed/% complete/pass rate/open defects/critical-high open), a daily execution table (Mon–Fri) with editable planned counts and a computed variance column, and a module/feature breakdown table
+- All metrics come from a single pure aggregation function (`aggregateWeeklyMetrics` in `src/lib/weekly-report-metrics.ts`, unit-tested), used identically by the live dashboard and by snapshot capture, so there's exactly one place the math lives
+- **Non-destructive snapshot mechanism**: "Capture this week's report" permanently freezes that week's metrics and planned counts (`weekly_report_snapshots`, jsonb, append-only) so a report shared externally can't have its numbers silently change later; a history page groups every capture by `week_ending`, tagging the most recent as "Current"; re-capturing the same week adds a new snapshot rather than overwriting
+- Editorial fields (RAG status, highlights) on a past snapshot can still be corrected in place after capture — enforced at the Server Action layer (`updateSnapshotEditorialFields` only ever writes those two columns), not RLS — while its frozen `metrics`/`daily_planned` are never touched
+- This is the per-project Reports *tab*, distinct from the top-level cross-project `/reports` page (see §2) — the other report types shown there (team velocity, pass/fail trend, coverage-by-requirement, flaky-test deep dive) are untouched and still placeholders
+
 ### Dashboard
 - Stat tiles (projects, test cases, runs this week, open issues)
 - Recent-run pass/fail trend
