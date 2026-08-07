@@ -1020,7 +1020,7 @@ git commit -m "Add Reports tab to project navigation"
 - Create: `src/app/(app)/projects/[projectId]/reports/page.tsx`
 - Create: `src/components/reports/rag-editor.tsx`
 
-- [ ] **Step 1: Write the RAG/highlights editor component**
+- [x] **Step 1: Write the RAG/highlights editor component**
 
 Create `src/components/reports/rag-editor.tsx`:
 
@@ -1098,7 +1098,7 @@ export function RagEditor({
 
 Check for the stray `</content>` line: `tail -3 src/components/reports/rag-editor.tsx`.
 
-- [ ] **Step 2: Write the live dashboard page**
+- [x] **Step 2: Write the live dashboard page**
 
 Create `src/app/(app)/projects/[projectId]/reports/page.tsx`:
 
@@ -1140,7 +1140,10 @@ export default async function WeeklyReportPage({
   const metrics = await computeWeeklyReportMetrics(supabase, projectId, weekDates);
   const weekEnding = weekDates[weekDates.length - 1];
 
-  const captureAction = captureWeeklyReportSnapshot.bind(null, projectId, weekEnding);
+  async function captureAction() {
+    "use server";
+    await captureWeeklyReportSnapshot(projectId, weekEnding);
+  }
 
   return (
     <div className="max-w-4xl space-y-6">
@@ -1253,7 +1256,7 @@ export default async function WeeklyReportPage({
 
 Check for the stray `</content>` line: `tail -3 "src/app/(app)/projects/[projectId]/reports/page.tsx"`.
 
-- [ ] **Step 3: Verify types, lint, and build**
+- [x] **Step 3: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1264,7 +1267,9 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 4: Commit**
+**Deviation found and fixed during execution**: `npx tsc --noEmit` initially failed with `Type '() => Promise<ActionState>' is not assignable to type 'string | ((formData: FormData) => void | Promise<void>) | undefined'` on the `<form action={captureAction}>` line, where `captureAction` was originally `captureWeeklyReportSnapshot.bind(null, projectId, weekEnding)`. Unlike `deleteRun` elsewhere in this codebase (which returns no value and binds cleanly as a form action), `captureWeeklyReportSnapshot` returns `Promise<ActionState>`, which `<form action>`'s type doesn't accept. Fixed by replacing the `.bind()` call with an inline Server Action wrapper (`async function captureAction() { "use server"; await captureWeeklyReportSnapshot(...); }`, shown corrected above) that discards the return value — this is a real bug the plan's shown code had, not caught until this task actually ran through `tsc`.
+
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/reports/rag-editor.tsx "src/app/(app)/projects/[projectId]/reports/page.tsx"
