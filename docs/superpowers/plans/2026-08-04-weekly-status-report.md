@@ -1779,7 +1779,7 @@ git commit -m "Add single snapshot view with editable editorial fields"
 - Modify: `README.md`
 - Modify: `docs/build-status.md`
 
-- [ ] **Step 1: Full automated verification**
+- [x] **Step 1: Full automated verification**
 
 Run each of these and confirm the stated expectation:
 
@@ -1808,7 +1808,7 @@ git status --short
 ```
 Expected: clean (everything from Tasks 1-11 already committed).
 
-- [ ] **Step 2: Manual browser walkthrough (write these instructions, do not attempt to execute them — this environment has no way to log into the live app)**
+- [x] **Step 2: Manual browser walkthrough (write these instructions, do not attempt to execute them — this environment has no way to log into the live app)**
 
 1. Open a project with some test cases and at least one executed run (`Projects → [a project] → Reports`).
 2. Confirm the Key Metrics numbers look right — Total Test Cases should match that project's actual test case count, Executed should match how many have at least one run result.
@@ -1821,7 +1821,7 @@ Expected: clean (everything from Tasks 1-11 already committed).
 9. On that older snapshot's page, change the RAG status and save. Confirm it saves without creating a new snapshot row (history list still shows the same two snapshots for that week, not three).
 10. As a sanity check for frozen numbers: close an issue in that project (via Issues), then revisit the older snapshot. Confirm its `Open Defects` count is unchanged, even though the live dashboard's count now reflects the closed issue.
 
-- [ ] **Step 3: Update README.md**
+- [x] **Step 3: Update README.md**
 
 Read the current `README.md` in full first (don't assume its structure hasn't shifted since the last edit). Find the section listing shipped features and add a bullet:
 
@@ -1829,11 +1829,11 @@ Read the current `README.md` in full first (don't assume its structure hasn't sh
 - Weekly Status Report per project — live dashboard (RAG status, key metrics, daily execution with planned/variance, module breakdown) plus a non-destructive snapshot history for sharing a stable point-in-time record with stakeholders.
 ```
 
-- [ ] **Step 4: Update docs/build-status.md**
+- [x] **Step 4: Update docs/build-status.md**
 
 Read the current `docs/build-status.md` in full first. Add this feature to the "Shipped and working" list, and update the "Reports" area's description if it currently says something like "coming soon" or references only the placeholder page — this is real, working content now, not a placeholder, even though the top-level cross-project `/reports` page is untouched and still shows its own "coming soon" cards for the *other*, not-yet-built report types.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md docs/build-status.md
