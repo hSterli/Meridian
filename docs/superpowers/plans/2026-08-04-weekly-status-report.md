@@ -972,7 +972,7 @@ git commit -m "Add captureWeeklyReportSnapshot and updateSnapshotEditorialFields
 **Files:**
 - Modify: `src/components/layout/project-tabs.tsx:6-11`
 
-- [ ] **Step 1: Add the tab**
+- [x] **Step 1: Add the tab**
 
 In `src/components/layout/project-tabs.tsx`, replace the `TABS` array (currently lines 6-11):
 
@@ -997,7 +997,7 @@ const TABS = [
 ];
 ```
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output (the route doesn't exist yet until Task 8, but this is a plain string array — nothing to break yet).
@@ -1005,7 +1005,7 @@ Expected: no output (the route doesn't exist yet until Task 8, but this is a pla
 Run: `npx eslint src/components/layout/project-tabs.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/layout/project-tabs.tsx
