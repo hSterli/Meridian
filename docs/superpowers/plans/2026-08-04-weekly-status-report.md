@@ -1284,7 +1284,7 @@ git commit -m "Add live weekly status report dashboard"
 - Create: `src/components/reports/daily-execution-table.tsx`
 - Modify: `src/app/(app)/projects/[projectId]/reports/page.tsx`
 
-- [ ] **Step 1: Write the daily execution table component**
+- [x] **Step 1: Write the daily execution table component**
 
 Create `src/components/reports/daily-execution-table.tsx`:
 
@@ -1376,7 +1376,7 @@ export function DailyExecutionTable({
 
 Check for the stray `</content>` line: `tail -3 src/components/reports/daily-execution-table.tsx`.
 
-- [ ] **Step 2: Wire it into the dashboard page**
+- [x] **Step 2: Wire it into the dashboard page**
 
 In `src/app/(app)/projects/[projectId]/reports/page.tsx`, add the import:
 
@@ -1393,7 +1393,7 @@ Add a new `Card` between the "Key Metrics" card and the "Module / Test Area Prog
       </Card>
 ```
 
-- [ ] **Step 3: Verify types, lint, and build**
+- [x] **Step 3: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1404,7 +1404,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/reports/daily-execution-table.tsx "src/app/(app)/projects/[projectId]/reports/page.tsx"
