@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `src/components/test-cases/test-case-filters.tsx` (full file, 136 lines)
 
-- [ ] **Step 1: Replace the file with the updated version**
+- [x] **Step 1: Replace the file with the updated version**
 
 The current file (read in full before writing this plan) renders every filter control in one always-visible `<div className="flex flex-wrap items-center gap-2">`. Replace the entire contents of `src/components/test-cases/test-case-filters.tsx` with:
 
@@ -200,7 +200,7 @@ What changed versus the original: the `q` state, `updateParam`, and every indivi
 
 Check for the stray `</content>` line per this repo's known Write-tool quirk: `tail -3 src/components/test-cases/test-case-filters.tsx`, strip with `sed -i '' -e '/^<\/content>$/d' src/components/test-cases/test-case-filters.tsx` if present.
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -211,7 +211,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/test-cases/test-case-filters.tsx
