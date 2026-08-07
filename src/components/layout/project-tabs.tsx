@@ -9,6 +9,7 @@ const TABS = [
   { segment: "suites", label: "Suites" },
   { segment: "runs", label: "Runs" },
   { segment: "issues", label: "Issues" },
+  { segment: "reports", label: "Reports" },
 ];
 
 export function ProjectTabs({ projectId }: { projectId: string }) {
