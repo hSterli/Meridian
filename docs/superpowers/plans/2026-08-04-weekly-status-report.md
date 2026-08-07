@@ -1418,7 +1418,7 @@ git commit -m "Add editable daily execution table with planned/variance"
 **Files:**
 - Create: `src/app/(app)/projects/[projectId]/reports/history/page.tsx`
 
-- [ ] **Step 1: Write the history page**
+- [x] **Step 1: Write the history page**
 
 Create `src/app/(app)/projects/[projectId]/reports/history/page.tsx`:
 
@@ -1501,7 +1501,7 @@ Check for the stray `</content>` line: `tail -3 "src/app/(app)/projects/[project
 
 The query orders by `week_ending desc, created_at desc`, so within each `weekEnding` group the first entry (`i === 0`) is always the most recently captured one for that week — that's what gets the "Current" badge, per the spec's "most recent snapshot per week shown as default" rule.
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1512,7 +1512,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/reports/history/page.tsx"
