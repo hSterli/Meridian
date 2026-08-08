@@ -683,7 +683,7 @@ git commit -m "Show screenshots side-by-side with notes in the run executor"
 **Files:**
 - Modify: `src/components/runs/run-executor.tsx` (imports + new `useEffect`)
 
-- [ ] **Step 1: Add imports**
+- [x] **Step 1: Add imports**
 
 In `src/components/runs/run-executor.tsx`, add:
 
@@ -692,7 +692,7 @@ import { uploadAttachment } from "@/lib/actions/attachments";
 import { clipboardItemsToImageFile } from "@/lib/clipboard";
 ```
 
-- [ ] **Step 2: Add paste-upload state and the paste listener**
+- [x] **Step 2: Add paste-upload state and the paste listener**
 
 Immediately after the existing keyboard-shortcut `useEffect` (currently lines 99-112, the one that calls `applyStatus` on Enter/F/B/S and navigates with arrow keys), add a new `useEffect`:
 
@@ -731,7 +731,7 @@ This mirrors the existing keyboard-shortcut listener's lifecycle pattern exactly
 
 Reusing the existing `isPending`/`startTransition` (shared with `applyStatus`) means the Pass/Fail/Blocked/Skip buttons show their disabled state during a paste-triggered upload too — this is an intentional, harmless side effect, not a bug.
 
-- [ ] **Step 3: Show a lightweight pasting indicator**
+- [x] **Step 3: Show a lightweight pasting indicator**
 
 Immediately after the closing `</div>` of the notes/screenshots row added in Task 7 (before the status buttons `<div className="flex gap-3">`), add:
 
@@ -741,7 +741,7 @@ Immediately after the closing `</div>` of the notes/screenshots row added in Tas
         )}
 ```
 
-- [ ] **Step 4: Verify types, lint, and build**
+- [x] **Step 4: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -752,7 +752,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds with no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/runs/run-executor.tsx
