@@ -46,6 +46,7 @@ export default async function TestCasesPage({
   const { projectId } = await params;
   const resolvedSearchParams = await searchParams;
   const { q, priority, status, tag, feature, groupBy, suite } = resolvedSearchParams;
+  const effectiveGroupBy = groupBy === "none" ? undefined : (groupBy ?? "feature");
 
   const supabase = await createClient();
 
@@ -162,17 +163,17 @@ export default async function TestCasesPage({
   }
 
   function groupKeyFor(tc: TestCaseRow): string {
-    if (groupBy === "sprint") {
+    if (effectiveGroupBy === "sprint") {
       return tc.sprint_number != null ? `Sprint ${tc.sprint_number}` : "No sprint";
     }
-    if (groupBy === "feature") {
+    if (effectiveGroupBy === "feature") {
       return featureName(tc) ?? "No feature";
     }
     return "";
   }
 
   const groups: { label: string; items: TestCaseRow[] }[] = [];
-  if (groupBy === "feature" || groupBy === "sprint") {
+  if (effectiveGroupBy === "feature" || effectiveGroupBy === "sprint") {
     const byLabel = new Map<string, TestCaseRow[]>();
     for (const tc of filtered) {
       const label = groupKeyFor(tc);
@@ -181,7 +182,7 @@ export default async function TestCasesPage({
       byLabel.set(label, bucket);
     }
     const labels = Array.from(byLabel.keys()).sort((a, b) => {
-      if (groupBy === "sprint") {
+      if (effectiveGroupBy === "sprint") {
         if (a === "No sprint") return 1;
         if (b === "No sprint") return -1;
         return Number(a.replace("Sprint ", "")) - Number(b.replace("Sprint ", ""));
@@ -211,10 +212,10 @@ export default async function TestCasesPage({
             <span className="truncate font-ui-label font-semibold text-ink-primary">{tc.title}</span>
           </div>
           <div className="mt-1 flex flex-wrap items-center gap-1">
-            {groupBy !== "feature" && featureName(tc) && (
+            {effectiveGroupBy !== "feature" && featureName(tc) && (
               <Badge tone="indigo">{featureName(tc)}</Badge>
             )}
-            {groupBy !== "sprint" && tc.sprint_number != null && (
+            {effectiveGroupBy !== "sprint" && tc.sprint_number != null && (
               <Badge tone="blue">Sprint {tc.sprint_number}</Badge>
             )}
             {(customFieldDefs ?? []).map((field) => {
