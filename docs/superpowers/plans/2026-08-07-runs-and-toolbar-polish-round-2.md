@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `src/components/runs/run-executor.tsx:220`
 
-- [ ] **Step 1: Add an explicit text color for the Pass Case badge**
+- [x] **Step 1: Add an explicit text color for the Pass Case badge**
 
 The shared `.kbd` class (`src/app/globals.css:85-93`) sets no text color, so the badge inherits whatever its parent button sets. The Pass Case button sets `text-white` (its `className` includes `bg-meridian-dark text-white hover:shadow-lg`), which combined with `.kbd`'s light `paper-muted` background makes the "ENTER" text unreadable. The other three status buttons have light backgrounds with dark text, so they're unaffected.
 
@@ -37,7 +37,7 @@ with:
 
 `clsx` is already imported at the top of this file (`import { clsx } from "clsx";`) — no new import needed.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -45,7 +45,7 @@ Expected: no output.
 Run: `npx eslint src/components/runs/run-executor.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/runs/run-executor.tsx
@@ -59,7 +59,7 @@ git commit -m "Fix unreadable ENTER badge on the Pass Case button"
 **Files:**
 - Modify: `src/components/runs/runs-table.tsx:189`
 
-- [ ] **Step 1: Add a `title` attribute to the segmented bar**
+- [x] **Step 1: Add a `title` attribute to the segmented bar**
 
 `row.segments` already carries all five counts (`passed`/`failed`/`blocked`/`skipped`/`pending`), already rendered as colored bar segments — just missing a hover summary. Replace line 189:
 ```tsx
@@ -73,7 +73,7 @@ with:
                     >
 ```
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -81,7 +81,7 @@ Expected: no output.
 Run: `npx eslint src/components/runs/runs-table.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/runs/runs-table.tsx
@@ -95,7 +95,7 @@ git commit -m "Add hover breakdown to the Runs list status bar"
 **Files:**
 - Create: `src/components/ui/modal.tsx`
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 This codebase has no dialog/modal/popover primitive yet (confirmed by searching `src/components/ui/` and the rest of `src/`). Create `src/components/ui/modal.tsx`:
 
@@ -161,7 +161,7 @@ Scope deliberately minimal: no focus trap, no portal (a `fixed inset-0` overlay 
 
 Check for the stray `</content>` line per this repo's known Write-tool quirk: `tail -3 src/components/ui/modal.tsx`, strip with `sed -i '' -e '/^<\/content>$/d' src/components/ui/modal.tsx` if present.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -169,7 +169,7 @@ Expected: no output.
 Run: `npx eslint src/components/ui/modal.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/ui/modal.tsx
@@ -183,33 +183,36 @@ git commit -m "Add reusable Modal component"
 **Files:**
 - Modify: `src/components/test-cases/import-csv-form.tsx` (full file, 36 lines)
 
-- [ ] **Step 1: Replace the file**
+- [x] **Step 1: Replace the file**
 
 The current file (read in full before writing this plan) always renders the file input inline. Replace the entire contents of `src/components/test-cases/import-csv-form.tsx` with:
 
 ```tsx
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { bulkImportTestCases } from "@/lib/actions/test-cases";
-import type { ActionState } from "@/lib/actions/auth";
 
 export function ImportCsvForm({ projectId }: { projectId: string }) {
   const [open, setOpen] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const action = bulkImportTestCases.bind(null, projectId);
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(action, {});
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    if (submitted && !isPending && !state.error) {
+  async function handleSubmit(formData: FormData) {
+    setIsPending(true);
+    setError(undefined);
+    const result = await bulkImportTestCases(projectId, {}, formData);
+    setIsPending(false);
+    if (result.error) {
+      setError(result.error);
+    } else {
       setOpen(false);
-      setSubmitted(false);
       formRef.current?.reset();
     }
-  }, [submitted, isPending, state.error]);
+  }
 
   return (
     <>
@@ -217,14 +220,7 @@ export function ImportCsvForm({ projectId }: { projectId: string }) {
         Import CSV
       </Button>
       <Modal open={open} onClose={() => setOpen(false)} title="Import test cases from CSV">
-        <form
-          ref={formRef}
-          action={(formData) => {
-            setSubmitted(true);
-            formAction(formData);
-          }}
-          className="flex flex-col gap-3"
-        >
+        <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3">
           <input
             type="file"
             name="file"
@@ -235,7 +231,7 @@ export function ImportCsvForm({ projectId }: { projectId: string }) {
           <Button type="submit" variant="secondary" disabled={isPending}>
             {isPending ? "Importing…" : "Import"}
           </Button>
-          {state.error && <span className="text-xs text-fail">{state.error}</span>}
+          {error && <span className="text-xs text-fail">{error}</span>}
         </form>
       </Modal>
     </>
@@ -243,11 +239,11 @@ export function ImportCsvForm({ projectId }: { projectId: string }) {
 }
 ```
 
-This is deliberately **not** the "await formAction, then always reset+close" shape you might reach for first — that would close the modal (and hide any error message) on every submission, success or failure. Instead, `submitted` tracks that a submit was attempted, and the `useEffect` only closes/resets once the action has finished (`!isPending`) with no error — a failed import leaves the modal open with the error message visible, so the user can see what went wrong and retry.
+Deliberately not the "await formAction, then always reset+close" shape you might reach for first — that would close the modal (and hide any error message) on every submission, success or failure — a failed import needs to leave the modal open with the error visible. It's also not `useActionState` + a `useEffect` watching `state.error` to decide when to close, as originally shown here: this codebase's eslint config enforces `react-hooks/set-state-in-effect` (already hit once this session, for the sidebar's collapsed state), and `setOpen(false)` inside that effect would violate it the same way. Since `bulkImportTestCases(projectId, _prevState, formData)` is a plain async Server Action, calling it directly and awaiting its real return value sidesteps the effect entirely — branch on `result.error` synchronously, no reactive watching required.
 
 Check for the stray `</content>` line: `tail -3 src/components/test-cases/import-csv-form.tsx`.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -255,7 +251,9 @@ Expected: no output.
 Run: `npx eslint src/components/test-cases/import-csv-form.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+**Deviation found and fixed during execution**: as described above — the plan's originally-shown `useActionState` + `useEffect(() => { if (submitted && !isPending && !state.error) setOpen(false) ... })` pattern failed `npx eslint` with the same `react-hooks/set-state-in-effect` violation already encountered once this session. Fixed by calling `bulkImportTestCases` directly instead of through `useActionState`, awaiting its real return value in a plain async handler — this is a real bug the plan's shown code had, not caught until this task actually ran through `eslint`.
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/test-cases/import-csv-form.tsx
@@ -269,7 +267,7 @@ git commit -m "Move CSV import behind a modal instead of an always-visible file 
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/page.tsx:2`, `:261-270`, `:292-310`, `:331-341`
 
-- [ ] **Step 1: Drop the now-unused `Download` icon import**
+- [x] **Step 1: Drop the now-unused `Download` icon import**
 
 Line 2 currently reads:
 ```tsx
@@ -280,7 +278,7 @@ import { Sparkles, PieChart, Download, SlidersHorizontal } from "lucide-react";
 import { Sparkles, PieChart, SlidersHorizontal } from "lucide-react";
 ```
 
-- [ ] **Step 2: Move `ImportCsvForm` into the header action row**
+- [x] **Step 2: Move `ImportCsvForm` into the header action row**
 
 Replace the `PageHeader`'s `action` prop (currently lines 261-270):
 ```tsx
@@ -310,7 +308,7 @@ with:
         }
 ```
 
-- [ ] **Step 3: Remove the duplicate "Export as CSV" link from Quick Actions**
+- [x] **Step 3: Remove the duplicate "Export as CSV" link from Quick Actions**
 
 Replace the Quick Actions `Card` (currently lines 292-310):
 ```tsx
@@ -351,7 +349,7 @@ with:
 ```
 (the remaining `Link` picks up the `mt-2` the removed `<a>` used to provide, for spacing below the "Quick actions" label)
 
-- [ ] **Step 4: Remove `ImportCsvForm` from its old position**
+- [x] **Step 4: Remove `ImportCsvForm` from its old position**
 
 Replace (currently lines 331-341):
 ```tsx
@@ -382,7 +380,7 @@ with:
 
 `ImportCsvForm`'s import statement (`import { ImportCsvForm } from "@/components/test-cases/import-csv-form";`) stays unchanged — it's still used, just rendered from the header now instead of here.
 
-- [ ] **Step 5: Verify types, lint, and build**
+- [x] **Step 5: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -393,7 +391,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/page.tsx"
@@ -407,7 +405,7 @@ git commit -m "Move Import CSV to the header, remove duplicate Export CSV link"
 **Files:**
 - Modify: `src/components/test-cases/test-case-filters.tsx` (full file, 175 lines)
 
-- [ ] **Step 1: Replace the file**
+- [x] **Step 1: Replace the file**
 
 The current file (read in full before writing this plan) always shows the "Filters" text label and renders tags as individual pill buttons. Replace the entire contents of `src/components/test-cases/test-case-filters.tsx` with:
 
@@ -582,7 +580,7 @@ Two things worth noting versus the previous version: (1) the `Filters` label is 
 
 Check for the stray `</content>` line: `tail -3 src/components/test-cases/test-case-filters.tsx`.
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -593,7 +591,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/test-cases/test-case-filters.tsx
