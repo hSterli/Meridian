@@ -204,7 +204,7 @@ export function RunsTable({
                   </td>
                   <td className="p-3 font-mono-data text-sm text-ink-primary">{row.instances}</td>
                   <td className="p-3 text-sm text-ink-tertiary">
-                    {new Date(row.updatedAt).toLocaleDateString()}
+                    {new Date(row.updatedAt).toLocaleDateString("en-US", { timeZone: "UTC" })}
                   </td>
                 </tr>
               );

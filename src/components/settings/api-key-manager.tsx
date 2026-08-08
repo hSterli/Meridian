@@ -53,9 +53,9 @@ export function ApiKeyManager({
             <div>
               <p className="text-sm font-medium text-ink-primary">{k.name}</p>
               <p className="text-xs text-ink-tertiary">
-                Created {new Date(k.created_at).toLocaleDateString()}
+                Created {new Date(k.created_at).toLocaleDateString("en-US", { timeZone: "UTC" })}
                 {k.last_used_at
-                  ? ` · Last used ${new Date(k.last_used_at).toLocaleDateString()}`
+                  ? ` · Last used ${new Date(k.last_used_at).toLocaleDateString("en-US", { timeZone: "UTC" })}`
                   : " · Never used"}
                 {k.revoked_at ? " · Revoked" : ""}
               </p>
