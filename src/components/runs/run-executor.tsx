@@ -217,7 +217,14 @@ export function RunExecutor({
               >
                 <Icon size={20} />
                 {cfg.label}
-                <span className="kbd absolute right-2 top-1 opacity-60">{cfg.key}</span>
+                <span
+                  className={clsx(
+                    "kbd absolute right-2 top-1 opacity-60",
+                    status === "passed" && "text-ink-primary"
+                  )}
+                >
+                  {cfg.key}
+                </span>
               </button>
             );
           })}
