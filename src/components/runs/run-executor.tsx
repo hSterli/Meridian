@@ -9,6 +9,14 @@ import { Badge } from "@/components/ui/card";
 import { setRunCaseStatus } from "@/lib/actions/runs";
 import type { RunCaseStatus, TestStep } from "@/lib/types/database";
 
+export interface RunCaseAttachmentItem {
+  id: string;
+  fileName: string;
+  fileSize: number | null;
+  storagePath: string;
+  downloadUrl: string | null;
+}
+
 export interface RunCaseItem {
   id: string;
   status: RunCaseStatus;
@@ -20,6 +28,7 @@ export interface RunCaseItem {
     steps: TestStep[];
     feature: string | null;
   };
+  attachments: RunCaseAttachmentItem[];
 }
 
 const STATUS_CONFIG: Record<
