@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, PieChart, Download, SlidersHorizontal } from "lucide-react";
+import { Sparkles, PieChart, SlidersHorizontal } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -259,10 +259,11 @@ export default async function TestCasesPage({
       <PageHeader
         title="Test Cases"
         action={
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <a href={`/projects/${projectId}/test-cases/export`}>
               <Button variant="secondary">Export CSV</Button>
             </a>
+            <ImportCsvForm projectId={projectId} />
             <Link href={`/projects/${projectId}/test-cases/new`}>
               <Button>New test case</Button>
             </Link>
@@ -293,16 +294,9 @@ export default async function TestCasesPage({
             <p className="font-ui-label text-xs font-bold uppercase tracking-wide text-ink-tertiary">
               Quick actions
             </p>
-            <a
-              href={`/projects/${projectId}/test-cases/export`}
-              className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink-secondary transition-colors hover:bg-paper-muted hover:text-ink-primary"
-            >
-              <Download size={14} />
-              Export as CSV
-            </a>
             <Link
               href={`/projects/${projectId}/test-cases/custom-fields`}
-              className="flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink-secondary transition-colors hover:bg-paper-muted hover:text-ink-primary"
+              className="mt-2 flex items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink-secondary transition-colors hover:bg-paper-muted hover:text-ink-primary"
             >
               <SlidersHorizontal size={14} />
               Manage custom fields
@@ -329,7 +323,7 @@ export default async function TestCasesPage({
         </aside>
 
         <div className="flex-1">
-          <div className="mb-4 flex items-center justify-between">
+          <div className="mb-4">
             <TestCaseFilters
               tags={(tags ?? []).map((t) => t.name)}
               features={(features ?? []).map((f) => f.name)}
@@ -337,7 +331,6 @@ export default async function TestCasesPage({
                 .filter((f) => f.field_type === "select")
                 .map((f) => ({ id: f.id, name: f.name, options: (f.options as string[]) ?? [] }))}
             />
-            <ImportCsvForm projectId={projectId} />
           </div>
 
           {filtered.length === 0 ? (
