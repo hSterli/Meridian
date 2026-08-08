@@ -1,35 +1,49 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 import { bulkImportTestCases } from "@/lib/actions/test-cases";
-import type { ActionState } from "@/lib/actions/auth";
 
 export function ImportCsvForm({ projectId }: { projectId: string }) {
-  const action = bulkImportTestCases.bind(null, projectId);
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(action, {});
+  const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | undefined>();
+  const [isPending, setIsPending] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
+  async function handleSubmit(formData: FormData) {
+    setIsPending(true);
+    setError(undefined);
+    const result = await bulkImportTestCases(projectId, {}, formData);
+    setIsPending(false);
+    if (result.error) {
+      setError(result.error);
+    } else {
+      setOpen(false);
+      formRef.current?.reset();
+    }
+  }
+
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        await formAction(formData);
-        formRef.current?.reset();
-      }}
-      className="flex items-center gap-2"
-    >
-      <input
-        type="file"
-        name="file"
-        accept=".csv"
-        required
-        className="text-xs text-ink-secondary file:mr-2 file:rounded-md file:border-0 file:bg-paper-muted file:px-2 file:py-1.5 file:text-xs file:font-medium"
-      />
-      <Button type="submit" variant="secondary" disabled={isPending}>
-        {isPending ? "Importing…" : "Import CSV"}
+    <>
+      <Button variant="secondary" onClick={() => setOpen(true)}>
+        Import CSV
       </Button>
-      {state.error && <span className="text-xs text-fail">{state.error}</span>}
-    </form>
+      <Modal open={open} onClose={() => setOpen(false)} title="Import test cases from CSV">
+        <form ref={formRef} action={handleSubmit} className="flex flex-col gap-3">
+          <input
+            type="file"
+            name="file"
+            accept=".csv"
+            required
+            className="text-xs text-ink-secondary file:mr-2 file:rounded-md file:border-0 file:bg-paper-muted file:px-2 file:py-1.5 file:text-xs file:font-medium"
+          />
+          <Button type="submit" variant="secondary" disabled={isPending}>
+            {isPending ? "Importing…" : "Import"}
+          </Button>
+          {error && <span className="text-xs text-fail">{error}</span>}
+        </form>
+      </Modal>
+    </>
   );
 }
