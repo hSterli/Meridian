@@ -2,7 +2,6 @@
 
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
-import { clsx } from "clsx";
 import { SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
@@ -73,7 +72,7 @@ export function TestCaseFilters({
           className="flex items-center gap-1.5 rounded-lg border border-border-light px-3 py-1.5 text-sm text-ink-secondary hover:bg-paper-muted"
         >
           <SlidersHorizontal size={14} />
-          Filters
+          {!filtersOpen && "Filters"}
           {activeCount > 0 && (
             <span className="rounded-full bg-meridian-soft px-1.5 py-0.5 text-[11px] font-ui-label font-bold text-meridian-dark">
               {activeCount}
@@ -144,28 +143,19 @@ export function TestCaseFilters({
             <option value="feature">Group by feature</option>
             <option value="sprint">Group by sprint</option>
           </Select>
-
           {tags.length > 0 && (
-            <div className="flex shrink-0 flex-nowrap items-center gap-1.5">
-              {tags.map((t) => {
-                const active = searchParams.get("tag") === t;
-                return (
-                  <button
-                    key={t}
-                    type="button"
-                    onClick={() => updateParam("tag", active ? "" : t)}
-                    className={clsx(
-                      "shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-ui-label font-bold transition-colors",
-                      active
-                        ? "bg-meridian-soft text-meridian-dark"
-                        : "bg-surface-container-highest text-ink-secondary hover:bg-paper-muted"
-                    )}
-                  >
-                    {t}
-                  </button>
-                );
-              })}
-            </div>
+            <Select
+              defaultValue={searchParams.get("tag") ?? ""}
+              onChange={(e) => updateParam("tag", e.target.value)}
+              className="shrink-0 text-ink-secondary"
+            >
+              <option value="">All tags</option>
+              {tags.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </Select>
           )}
         </div>
       )}
