@@ -7,6 +7,8 @@ import { clsx } from "clsx";
 import { CheckCircle2, XCircle, MinusCircle, SkipForward } from "lucide-react";
 import { Badge } from "@/components/ui/card";
 import { setRunCaseStatus } from "@/lib/actions/runs";
+import { uploadAttachment } from "@/lib/actions/attachments";
+import { clipboardItemsToImageFile } from "@/lib/clipboard";
 import { RunCaseScreenshots } from "@/components/runs/run-case-screenshots";
 import type { RunCaseStatus, TestStep } from "@/lib/types/database";
 
@@ -121,6 +123,35 @@ export function RunExecutor({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, items]);
 
+  const [isPastingScreenshot, setIsPastingScreenshot] = useState(false);
+
+  useEffect(() => {
+    function onPaste(e: ClipboardEvent) {
+      if (!e.clipboardData || !current) return;
+      const items = Array.from(e.clipboardData.items).map((item) => ({
+        type: item.type,
+        getAsFile: () => item.getAsFile(),
+      }));
+      const file = clipboardItemsToImageFile(items);
+      if (!file) return;
+      e.preventDefault();
+      setIsPastingScreenshot(true);
+      const formData = new FormData();
+      formData.set("file", file, file.name || "screenshot.png");
+      formData.set("runCaseId", current.id);
+      startTransition(async () => {
+        const result = await uploadAttachment(projectId, current.test_case.id, {}, formData);
+        setIsPastingScreenshot(false);
+        if (!result.error) {
+          router.refresh();
+        }
+      });
+    }
+    window.addEventListener("paste", onPaste);
+    return () => window.removeEventListener("paste", onPaste);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.id]);
+
   if (!current) return null;
 
   return (
@@ -225,6 +256,10 @@ export function RunExecutor({
             />
           </div>
         </div>
+
+        {isPastingScreenshot && (
+          <p className="mb-2 text-xs text-ink-tertiary">Uploading pasted screenshot…</p>
+        )}
 
         <div className="flex gap-3">
           {ORDER.map((status) => {
