@@ -27,6 +27,10 @@ export async function uploadAttachment(
     return { error: "File is too large — max 10 MB." };
   }
 
+  const runCaseIdRaw = formData.get("runCaseId");
+  const runCaseId =
+    typeof runCaseIdRaw === "string" && runCaseIdRaw.length > 0 ? runCaseIdRaw : null;
+
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
 
@@ -34,6 +38,17 @@ export async function uploadAttachment(
   if (limitError) return { error: limitError };
 
   const supabase = await createClient();
+
+  if (runCaseId) {
+    const { data: runCase, error: runCaseError } = await supabase
+      .from("test_run_cases")
+      .select("test_case_id")
+      .eq("id", runCaseId)
+      .single();
+    if (runCaseError || !runCase || runCase.test_case_id !== testCaseId) {
+      return { error: "This run result doesn't belong to this test case." };
+    }
+  }
 
   const storagePath = `${projectId}/${testCaseId}/${crypto.randomUUID()}-${sanitizeFileName(
     file.name
@@ -47,6 +62,7 @@ export async function uploadAttachment(
 
   const { error: insertError } = await supabase.from("test_case_attachments").insert({
     test_case_id: testCaseId,
+    run_case_id: runCaseId,
     storage_path: storagePath,
     file_name: file.name,
     file_size: file.size,
