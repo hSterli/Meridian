@@ -77,11 +77,11 @@ git commit -m "Link test case attachments to the run case that produced them"
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Patch the `test_case_attachments` type block**
+- [x] **Step 2: Patch the `test_case_attachments` type block**
 
 In `src/lib/types/database.ts`, find the existing `test_case_attachments` block (currently at lines 398-435) and add `run_case_id` to `Row`, `Insert`, `Update`, and a new entry to `Relationships`, matching the generated output:
 
@@ -138,12 +138,12 @@ In `src/lib/types/database.ts`, find the existing `test_case_attachments` block 
 
 (Relationships entries are alphabetized by `foreignKeyName` in this codebase's existing generated output — `run_case_id_fkey` sorts before `test_case_id_fkey`.)
 
-- [ ] **Step 3: Verify the type compiles**
+- [x] **Step 3: Verify the type compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/types/database.ts
