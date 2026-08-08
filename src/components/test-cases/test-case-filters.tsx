@@ -3,7 +3,7 @@
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useState, useTransition } from "react";
 import { clsx } from "clsx";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { SlidersHorizontal } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 
@@ -72,23 +72,23 @@ export function TestCaseFilters({
           onClick={() => setFiltersOpen((v) => !v)}
           className="flex items-center gap-1.5 rounded-lg border border-border-light px-3 py-1.5 text-sm text-ink-secondary hover:bg-paper-muted"
         >
+          <SlidersHorizontal size={14} />
           Filters
           {activeCount > 0 && (
             <span className="rounded-full bg-meridian-soft px-1.5 py-0.5 text-[11px] font-ui-label font-bold text-meridian-dark">
               {activeCount}
             </span>
           )}
-          {filtersOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
         </button>
       </div>
 
       {filtersOpen && (
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-nowrap items-center gap-2 overflow-x-auto pb-1">
           {features.length > 0 && (
             <Select
               defaultValue={searchParams.get("feature") ?? ""}
               onChange={(e) => updateParam("feature", e.target.value)}
-              className="text-ink-secondary"
+              className="shrink-0 text-ink-secondary"
             >
               <option value="">All features</option>
               {features.map((f) => (
@@ -101,7 +101,7 @@ export function TestCaseFilters({
           <Select
             defaultValue={searchParams.get("priority") ?? ""}
             onChange={(e) => updateParam("priority", e.target.value)}
-            className="text-ink-secondary"
+            className="shrink-0 text-ink-secondary"
           >
             <option value="">All priorities</option>
             <option value="low">Low</option>
@@ -112,7 +112,7 @@ export function TestCaseFilters({
           <Select
             defaultValue={searchParams.get("status") ?? ""}
             onChange={(e) => updateParam("status", e.target.value)}
-            className="text-ink-secondary"
+            className="shrink-0 text-ink-secondary"
           >
             <option value="">All statuses</option>
             <option value="active">Active</option>
@@ -124,7 +124,7 @@ export function TestCaseFilters({
               key={field.id}
               defaultValue={searchParams.get(`cf_${field.id}`) ?? ""}
               onChange={(e) => updateParam(`cf_${field.id}`, e.target.value)}
-              className="text-ink-secondary"
+              className="shrink-0 text-ink-secondary"
             >
               <option value="">All {field.name}</option>
               {field.options.map((opt) => (
@@ -134,19 +134,19 @@ export function TestCaseFilters({
               ))}
             </Select>
           ))}
-          <div className="h-6 w-px bg-border-light" />
+          <div className="h-6 w-px shrink-0 bg-border-light" />
           <Select
-            defaultValue={searchParams.get("groupBy") ?? ""}
+            defaultValue={searchParams.get("groupBy") ?? "feature"}
             onChange={(e) => updateParam("groupBy", e.target.value)}
-            className="font-ui-label font-semibold text-ink-secondary"
+            className="shrink-0 font-ui-label font-semibold text-ink-secondary"
           >
-            <option value="">No grouping</option>
+            <option value="none">No grouping</option>
             <option value="feature">Group by feature</option>
             <option value="sprint">Group by sprint</option>
           </Select>
 
           {tags.length > 0 && (
-            <div className="flex flex-wrap items-center gap-1.5">
+            <div className="flex shrink-0 flex-nowrap items-center gap-1.5">
               {tags.map((t) => {
                 const active = searchParams.get("tag") === t;
                 return (
@@ -155,7 +155,7 @@ export function TestCaseFilters({
                     type="button"
                     onClick={() => updateParam("tag", active ? "" : t)}
                     className={clsx(
-                      "rounded-full px-2.5 py-1 text-[11px] font-ui-label font-bold transition-colors",
+                      "shrink-0 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-ui-label font-bold transition-colors",
                       active
                         ? "bg-meridian-soft text-meridian-dark"
                         : "bg-surface-container-highest text-ink-secondary hover:bg-paper-muted"
