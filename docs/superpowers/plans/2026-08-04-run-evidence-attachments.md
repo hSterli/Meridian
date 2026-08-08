@@ -364,7 +364,7 @@ git commit -m "Add clipboardItemsToImageFile helper with unit tests"
 - Modify: `src/app/(app)/projects/[projectId]/runs/[runId]/page.tsx:25-55`
 - Modify: `src/components/runs/run-executor.tsx:12-23` (the `RunCaseItem` interface)
 
-- [ ] **Step 1: Add the attachment type to `run-executor.tsx`**
+- [x] **Step 1: Add the attachment type to `run-executor.tsx`**
 
 In `src/components/runs/run-executor.tsx`, replace the `RunCaseItem` interface (currently lines 12-23):
 
@@ -392,7 +392,7 @@ export interface RunCaseItem {
 }
 ```
 
-- [ ] **Step 2: Extend the runs page query**
+- [x] **Step 2: Extend the runs page query**
 
 In `src/app/(app)/projects/[projectId]/runs/[runId]/page.tsx`, replace lines 25-55 (the `runCases` query and `items` mapping) with:
 
@@ -447,7 +447,7 @@ In `src/app/(app)/projects/[projectId]/runs/[runId]/page.tsx`, replace lines 25-
   );
 ```
 
-- [ ] **Step 3: Verify types and lint**
+- [x] **Step 3: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output (note: `run-executor.tsx` now expects `attachments` on every `RunCaseItem` — this step confirms the page supplies it).
@@ -455,7 +455,7 @@ Expected: no output (note: `run-executor.tsx` now expects `attachments` on every
 Run: `npx eslint "src/app/(app)/projects/[projectId]/runs/[runId]/page.tsx" src/components/runs/run-executor.tsx`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/runs/[runId]/page.tsx" src/components/runs/run-executor.tsx
