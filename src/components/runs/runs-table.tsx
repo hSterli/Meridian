@@ -186,7 +186,10 @@ export function RunsTable({
                     <Badge tone={STATUS_TONE[row.status]}>{row.status.replace("_", " ")}</Badge>
                   </td>
                   <td className="p-3">
-                    <div className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-container-highest">
+                    <div
+                      className="flex h-2 w-40 overflow-hidden rounded-full bg-surface-container-highest"
+                      title={`Passed: ${row.segments.passed} · Failed: ${row.segments.failed} · Blocked: ${row.segments.blocked} · Skipped: ${row.segments.skipped} · Not run: ${row.segments.pending}`}
+                    >
                       <div className="h-full bg-pass" style={{ width: `${(row.segments.passed / total) * 100}%` }} />
                       <div className="h-full bg-fail" style={{ width: `${(row.segments.failed / total) * 100}%` }} />
                       <div
