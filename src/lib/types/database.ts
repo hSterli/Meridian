@@ -400,6 +400,7 @@ export type Database = {
           file_name: string
           file_size: number | null
           id: string
+          run_case_id: string | null
           storage_path: string
           test_case_id: string
           uploaded_at: string
@@ -409,6 +410,7 @@ export type Database = {
           file_name: string
           file_size?: number | null
           id?: string
+          run_case_id?: string | null
           storage_path: string
           test_case_id: string
           uploaded_at?: string
@@ -418,12 +420,20 @@ export type Database = {
           file_name?: string
           file_size?: number | null
           id?: string
+          run_case_id?: string | null
           storage_path?: string
           test_case_id?: string
           uploaded_at?: string
           uploaded_by?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "test_case_attachments_run_case_id_fkey"
+            columns: ["run_case_id"]
+            isOneToOne: false
+            referencedRelation: "test_run_cases"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "test_case_attachments_test_case_id_fkey"
             columns: ["test_case_id"]
