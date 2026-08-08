@@ -15,7 +15,7 @@
 **Files:**
 - Modify: `src/components/test-cases/test-case-filters.tsx` (full file, 175 lines)
 
-- [ ] **Step 1: Replace the file**
+- [x] **Step 1: Replace the file**
 
 The current file (read in full before writing this plan) has a plain "Filters" text button, a `flex-wrap` expanded row, and a groupBy `<Select>` whose "No grouping" option uses `value=""` — which the shared `updateParam` helper treats identically to "never touched this control" (both delete the URL param), so a default-to-feature change would silently override an explicit "No grouping" choice. Fixing that needs "No grouping" to have its own truthy value (`"none"`) instead.
 
@@ -202,7 +202,7 @@ What changed versus the previous version: (1) `ChevronDown`/`ChevronUp` import a
 
 Check for the stray `</content>` line per this repo's known Write-tool quirk: `tail -3 src/components/test-cases/test-case-filters.tsx`, strip with `sed -i '' -e '/^<\/content>$/d' src/components/test-cases/test-case-filters.tsx` if present.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -210,7 +210,7 @@ Expected: no output.
 Run: `npx eslint src/components/test-cases/test-case-filters.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/test-cases/test-case-filters.tsx
@@ -224,7 +224,7 @@ git commit -m "Use SlidersHorizontal icon, keep filters on one line, fix groupBy
 **Files:**
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/page.tsx:48`, `:165`, `:168`, `:175`, `:184`, `:214`, `:217`
 
-- [ ] **Step 1: Add the computed `effectiveGroupBy`**
+- [x] **Step 1: Add the computed `effectiveGroupBy`**
 
 Immediately after line 48 (`const { q, priority, status, tag, feature, groupBy, suite } = resolvedSearchParams;`), add:
 
@@ -232,7 +232,7 @@ Immediately after line 48 (`const { q, priority, status, tag, feature, groupBy, 
   const effectiveGroupBy = groupBy === "none" ? undefined : (groupBy ?? "feature");
 ```
 
-- [ ] **Step 2: Replace every raw `groupBy` read below that line with `effectiveGroupBy`**
+- [x] **Step 2: Replace every raw `groupBy` read below that line with `effectiveGroupBy`**
 
 There are six call sites, all reading the raw `groupBy` destructured value. Replace each:
 
@@ -288,7 +288,7 @@ In `TestCaseRowItem` (currently around lines 213-219, the two badge-suppression 
 
 Search the file for any other bare `groupBy` reference below line 48 you may have missed (the destructured `groupBy` itself should no longer be read directly anywhere past this point — only `effectiveGroupBy`) and update it the same way.
 
-- [ ] **Step 3: Verify types and lint**
+- [x] **Step 3: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -299,7 +299,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/projects/[projectId]/test-cases/page.tsx"
@@ -313,7 +313,7 @@ git commit -m "Default Test Cases list to group-by-feature via effectiveGroupBy"
 **Files:**
 - Modify: `src/components/layout/sidebar.tsx` (full file, 139 lines)
 
-- [ ] **Step 1: Replace the file**
+- [x] **Step 1: Replace the file**
 
 The current file (read in full before writing this plan) renders a fixed `w-60` sidebar with no collapse capability. Replace the entire contents of `src/components/layout/sidebar.tsx` with:
 
@@ -513,7 +513,7 @@ What changed versus the previous version: added `PanelLeftClose`/`PanelLeftOpen`
 
 Check for the stray `</content>` line: `tail -3 src/components/layout/sidebar.tsx`, strip if present.
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -524,7 +524,9 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds.
 
-- [ ] **Step 3: Commit**
+**Deviation found and fixed during execution**: `npx eslint` failed on the originally-shown `useEffect(() => { setCollapsed(...) }, [])` pattern with `react-hooks/set-state-in-effect: Avoid calling setState() directly within an effect`. Fixed by replacing the `useState`+`useEffect` pair with `useSyncExternalStore(subscribeToCollapsed, getCollapsedSnapshot, getCollapsedServerSnapshot)` — a `getServerSnapshot` of `false` for SSR/initial hydration, `getSnapshot` reading `localStorage` directly, and a subscribe function listening for both the native `storage` event (cross-tab) and a custom `meridian-sidebar-collapsed-change` event that `toggleCollapsed()` dispatches after writing to `localStorage` (needed because the native `storage` event only fires in *other* tabs, not the one that made the change). This avoids both the lint violation and the hydration-mismatch risk a naive `useState` lazy initializer reading `localStorage` would have hit. This is a real bug in the plan's shown code — it had never actually been run through `eslint` before this task executed.
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/layout/sidebar.tsx
