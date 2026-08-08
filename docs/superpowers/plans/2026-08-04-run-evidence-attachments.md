@@ -469,7 +469,7 @@ git commit -m "Load run-case attachments alongside test cases in the runs page q
 **Files:**
 - Create: `src/components/runs/run-case-screenshots.tsx`
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 Create `src/components/runs/run-case-screenshots.tsx`:
 
@@ -582,7 +582,7 @@ export function RunCaseScreenshots({
 
 Check for the stray `</content>` line: `tail -3 src/components/runs/run-case-screenshots.tsx`.
 
-- [ ] **Step 2: Verify types and lint**
+- [x] **Step 2: Verify types and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -590,7 +590,7 @@ Expected: no output.
 Run: `npx eslint src/components/runs/run-case-screenshots.tsx`
 Expected: no output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/runs/run-case-screenshots.tsx
