@@ -767,7 +767,7 @@ git commit -m "Support pasting a screenshot directly into the run executor"
 - Modify: `src/components/test-cases/attachments-panel.tsx`
 - Modify: `src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx:58-78`
 
-- [ ] **Step 1: Add `runName` to `AttachmentRow`**
+- [x] **Step 1: Add `runName` to `AttachmentRow`**
 
 In `src/components/test-cases/attachments-panel.tsx`, replace the `AttachmentRow` interface (currently lines 9-16):
 
@@ -783,7 +783,7 @@ export interface AttachmentRow {
 }
 ```
 
-- [ ] **Step 2: Render the tag**
+- [x] **Step 2: Render the tag**
 
 In the same file, replace the attachment row's link block (currently lines 46-54):
 
@@ -820,7 +820,7 @@ with:
               </a>
 ```
 
-- [ ] **Step 3: Join run info in the test case detail page query**
+- [x] **Step 3: Join run info in the test case detail page query**
 
 In `src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx`, replace lines 58-78 (the `attachmentRows` query and `attachments` mapping):
 
@@ -859,7 +859,7 @@ In `src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx`, replac
 
 (Same array-unwrap idiom already used twice elsewhere in this codebase for nullable one-to-one-via-many-side embeds — see the comment in `runs/[runId]/page.tsx`.)
 
-- [ ] **Step 4: Verify types, lint, and build**
+- [x] **Step 4: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -870,7 +870,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds with no errors.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/test-cases/attachments-panel.tsx "src/app/(app)/projects/[projectId]/test-cases/[testCaseId]/page.tsx"
