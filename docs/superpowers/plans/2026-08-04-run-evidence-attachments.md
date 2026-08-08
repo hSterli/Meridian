@@ -21,7 +21,7 @@
 **Files:**
 - Create: `supabase/migrations/0019_link_attachments_to_run_cases.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/0019_link_attachments_to_run_cases.sql`:
 
@@ -37,11 +37,11 @@ alter table test_case_attachments
 create index test_case_attachments_run_case_id_idx on test_case_attachments(run_case_id);
 ```
 
-- [ ] **Step 2: Apply the migration to the live project**
+- [x] **Step 2: Apply the migration to the live project**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "link_attachments_to_run_cases"`, and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the column and index exist**
+- [x] **Step 3: Verify the column and index exist**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -59,11 +59,11 @@ select indexname from pg_indexes where tablename = 'test_case_attachments';
 
 Expected: includes both `test_case_attachments_test_case_id_idx` (existing) and `test_case_attachments_run_case_id_idx` (new).
 
-- [ ] **Step 4: Run the security advisor check**
+- [x] **Step 4: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same pre-existing, already-reviewed items as before this migration (rate_limit_buckets RLS-no-policy, SECURITY DEFINER warnings, leaked-password-protection) — no new items, since this migration adds no new table, function, or policy.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0019_link_attachments_to_run_cases.sql
