@@ -7,6 +7,7 @@ import { clsx } from "clsx";
 import { CheckCircle2, XCircle, MinusCircle, SkipForward } from "lucide-react";
 import { Badge } from "@/components/ui/card";
 import { setRunCaseStatus } from "@/lib/actions/runs";
+import { RunCaseScreenshots } from "@/components/runs/run-case-screenshots";
 import type { RunCaseStatus, TestStep } from "@/lib/types/database";
 
 export interface RunCaseAttachmentItem {
@@ -200,14 +201,30 @@ export function RunExecutor({
           )}
         </ol>
 
-        <textarea
-          ref={notesRef}
-          key={current.id}
-          defaultValue={current.notes ?? ""}
-          placeholder="Add observations or failure details here…"
-          rows={2}
-          className="mb-4 block w-full rounded-xl border border-border-light bg-paper-muted/50 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
-        />
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="flex-[2]">
+            <div className="mb-1 text-xs font-ui-label font-semibold uppercase tracking-wide text-ink-tertiary">
+              Notes
+            </div>
+            <textarea
+              ref={notesRef}
+              key={current.id}
+              defaultValue={current.notes ?? ""}
+              placeholder="Add observations or failure details here… (paste a screenshot too — ⌘V)"
+              rows={2}
+              className="block w-full rounded-xl border border-border-light bg-paper-muted/50 px-4 py-3 text-sm focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/10"
+            />
+          </div>
+          <div className="flex-1">
+            <RunCaseScreenshots
+              key={current.id}
+              projectId={projectId}
+              testCaseId={current.test_case.id}
+              runCaseId={current.id}
+              attachments={cases[index]?.attachments ?? []}
+            />
+          </div>
+        </div>
 
         <div className="flex gap-3">
           {ORDER.map((status) => {
