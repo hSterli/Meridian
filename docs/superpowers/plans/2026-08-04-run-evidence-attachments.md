@@ -604,7 +604,7 @@ git commit -m "Add RunCaseScreenshots component (thumbnail strip + file-picker u
 **Files:**
 - Modify: `src/components/runs/run-executor.tsx:194-201`
 
-- [ ] **Step 1: Import the new component**
+- [x] **Step 1: Import the new component**
 
 In `src/components/runs/run-executor.tsx`, add to the imports (near the other local imports):
 
@@ -612,7 +612,7 @@ In `src/components/runs/run-executor.tsx`, add to the imports (near the other lo
 import { RunCaseScreenshots } from "@/components/runs/run-case-screenshots";
 ```
 
-- [ ] **Step 2: Replace the notes textarea block with the side-by-side layout**
+- [x] **Step 2: Replace the notes textarea block with the side-by-side layout**
 
 Replace the existing textarea block (currently lines 194-201):
 
@@ -658,7 +658,7 @@ with:
 
 `attachments` is read from the `cases` prop (not the local `items` state that `current` comes from) deliberately: `RunCaseScreenshots` has no internal state mirroring the attachment list, so it re-renders correctly from fresh server data whenever `router.refresh()` causes the parent Server Component to re-run and pass new `cases` down — reading from `items`/`current` instead would show stale data, since that local array is only mutated manually by `applyStatus` for status/notes, never for attachments.
 
-- [ ] **Step 3: Verify types, lint, and build**
+- [x] **Step 3: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -669,7 +669,7 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds with no errors.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/components/runs/run-executor.tsx
