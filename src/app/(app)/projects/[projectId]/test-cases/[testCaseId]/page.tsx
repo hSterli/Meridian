@@ -57,7 +57,9 @@ export default async function TestCaseDetailPage({
 
   const { data: attachmentRows } = await supabase
     .from("test_case_attachments")
-    .select("id, storage_path, file_name, file_size, uploaded_at")
+    .select(
+      "id, storage_path, file_name, file_size, uploaded_at, test_run_cases(test_runs(name))"
+    )
     .eq("test_case_id", testCaseId)
     .order("uploaded_at", { ascending: false });
 
@@ -66,6 +68,12 @@ export default async function TestCaseDetailPage({
       const { data: signed } = await supabase.storage
         .from("test-case-attachments")
         .createSignedUrl(a.storage_path, 300);
+      const runCase = Array.isArray(a.test_run_cases) ? a.test_run_cases[0] : a.test_run_cases;
+      const run = runCase
+        ? Array.isArray(runCase.test_runs)
+          ? runCase.test_runs[0]
+          : runCase.test_runs
+        : null;
       return {
         id: a.id,
         storagePath: a.storage_path,
@@ -73,6 +81,7 @@ export default async function TestCaseDetailPage({
         fileSize: a.file_size,
         uploadedAt: a.uploaded_at,
         downloadUrl: signed?.signedUrl ?? null,
+        runName: run?.name ?? null,
       };
     })
   );

@@ -13,6 +13,7 @@ export interface AttachmentRow {
   fileSize: number | null;
   uploadedAt: string;
   downloadUrl: string | null;
+  runName: string | null;
 }
 
 function formatSize(bytes: number | null): string {
@@ -50,7 +51,14 @@ export function AttachmentsPanel({
                 className="flex min-w-0 items-center gap-1.5 text-ink-primary hover:text-primary"
               >
                 <Paperclip size={14} className="shrink-0" />
-                <span className="truncate">{a.fileName}</span>
+                <span className="min-w-0">
+                  <span className="block truncate">{a.fileName}</span>
+                  {a.runName && (
+                    <span className="block text-[10px] font-normal uppercase tracking-wide text-ink-tertiary">
+                      from Run: {a.runName}
+                    </span>
+                  )}
+                </span>
               </a>
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs text-ink-tertiary">{formatSize(a.fileSize)}</span>
