@@ -157,12 +157,12 @@ git commit -m "Regenerate types for test_case_attachments.run_case_id"
 **Files:**
 - Modify: `src/lib/actions/attachments.ts:16-63`
 
-- [ ] **Step 1: Check whether integration test infra has landed yet**
+- [x] **Step 1: Check whether integration test infra has landed yet**
 
 Run: `ls tests/integration/ 2>&1`
 If this lists files (rather than "No such file or directory"), the parallel test-suite plan has progressed further than expected — stop and re-read this plan's header note before continuing, since a real integration test may now be possible instead of the manual verification in Step 4 below. If it still doesn't exist, proceed with Steps 2-4 as written.
 
-- [ ] **Step 2: Extend the action**
+- [x] **Step 2: Extend the action**
 
 Replace `src/lib/actions/attachments.ts` lines 16-63 (the full `uploadAttachment` function) with:
 
@@ -235,7 +235,7 @@ export async function uploadAttachment(
 
 The only behavioral change when `runCaseId` is absent (the existing test-case-detail-page upload path) is the new `run_case_id: null` in the insert, which is the column's default-equivalent value — no change in observable behavior for existing callers.
 
-- [ ] **Step 3: Verify nothing broke**
+- [x] **Step 3: Verify nothing broke**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -243,11 +243,11 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/attachments.ts`
 Expected: no output.
 
-- [ ] **Step 4: Manual verification of the ownership check**
+- [x] **Step 4: Manual verification of the ownership check**
 
 With the local Supabase stack running (`npx supabase status` should show it reachable — if not, run `npx supabase start` first), use the Supabase MCP `execute_sql` tool against the **local** stack is not available via MCP (MCP only targets the live project `ucnfcsosbdgknmzyuqbw`), so instead verify this logically by reading the code: the `.eq("id", runCaseId).single()` lookup is scoped by RLS to run-cases the authenticated user's org can see at all (via the existing "members can view run cases" policy), and the subsequent `runCase.test_case_id !== testCaseId` comparison rejects any run case — even one the user CAN see — whose `test_case_id` doesn't match the `testCaseId` argument the caller (the UI) is claiming. Confirm this by re-reading the diff from Step 2 and checking the comparison is present and correct before committing.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/actions/attachments.ts
