@@ -262,7 +262,7 @@ git commit -m "Let uploadAttachment tag a screenshot with the run case that prod
 - Create: `src/lib/clipboard.ts`
 - Test: `src/lib/clipboard.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/lib/clipboard.test.ts`:
 
@@ -307,12 +307,12 @@ describe("clipboardItemsToImageFile", () => {
 
 Check for the stray `</content>` line per the known Write-tool quirk: `tail -3 src/lib/clipboard.test.ts`.
 
-- [ ] **Step 2: Run the test to confirm it fails**
+- [x] **Step 2: Run the test to confirm it fails**
 
 Run: `npm test`
 Expected: FAIL — `src/lib/clipboard.ts` doesn't exist yet, so the import fails.
 
-- [ ] **Step 3: Write the implementation**
+- [x] **Step 3: Write the implementation**
 
 Create `src/lib/clipboard.ts`:
 
@@ -336,12 +336,12 @@ Check for the stray `</content>` line: `tail -3 src/lib/clipboard.ts`.
 
 The `ClipboardImageItem` interface deliberately duck-types the two members this function actually uses from the DOM's `DataTransferItem`, rather than importing that DOM type directly — this keeps the function testable with plain objects in Vitest's `node` test environment, which has no real `DataTransferItem`. The real call site (Task 8) passes `Array.from(event.clipboardData.items)`, which structurally satisfies this interface.
 
-- [ ] **Step 4: Run the test to confirm it passes**
+- [x] **Step 4: Run the test to confirm it passes**
 
 Run: `npm test`
 Expected: PASS — all 5 tests in `src/lib/clipboard.test.ts` green.
 
-- [ ] **Step 5: Verify nothing else broke**
+- [x] **Step 5: Verify nothing else broke**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -349,7 +349,7 @@ Expected: no output.
 Run: `npx eslint src/lib/clipboard.ts src/lib/clipboard.test.ts`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/clipboard.ts src/lib/clipboard.test.ts
