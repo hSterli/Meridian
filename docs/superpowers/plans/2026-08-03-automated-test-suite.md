@@ -184,11 +184,11 @@ git commit -m "Install Vitest and configure the unit test project"
 - Modify: `src/lib/actions/test-cases.ts` (export the previously-private helper functions so they're testable)
 - Create: `src/lib/actions/test-cases.test.ts`
 
-- [ ] **Step 1: Export the helpers under test**
+- [x] **Step 1: Export the helpers under test**
 
 Read the current `src/lib/actions/test-cases.ts` first (it's evolved across three prior projects this session). Find `parseCsvLine`, `decodeSteps`, `parseSteps`, `resolveFeatureName`, and `parseSprintNumber` — each is currently declared as a plain (non-exported) `function`. Change each declaration from `function name(...)` to `export function name(...)`, leaving everything else about them untouched. Do not export anything else in this file — only these five.
 
-- [ ] **Step 2: Write the failing tests**
+- [x] **Step 2: Write the failing tests**
 
 Create `src/lib/actions/test-cases.test.ts`:
 
@@ -320,12 +320,14 @@ describe("parseSprintNumber", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to confirm they pass**
+- [x] **Step 2: Run the tests to confirm they pass**
 
 Run: `npm test`
 Expected: all tests in `src/lib/actions/test-cases.test.ts` pass (these are testing existing, already-correct logic — this is characterization testing of working code, not TDD-from-scratch, so "pass immediately" is the correct and expected outcome here, not a red flag). If any fail, that's a real, previously-undetected bug in the parsing logic — fix the implementation in `src/lib/actions/test-cases.ts` (not the test) unless the test itself is wrong about the function's documented/intended behavior.
 
-- [ ] **Step 3: Verify nothing else broke**
+**Deviation found and fixed during execution**: `npm test` initially failed with two unrelated infrastructure errors, not a bug in the parsing logic itself — this is the first test file in the project that imports a module (`test-cases.ts`) which transitively imports other project files, so these gaps in Task 3's config had never been exercised before now. (1) `Cannot find module '@/...'` — Vitest's `test.projects` array creates isolated per-project Vite configs that do NOT inherit the parent-level `resolve.alias`, so the `"@"` alias needed to be duplicated into each project's own `resolve` block. (2) `This module cannot be imported from a Client Component module...` thrown from `node_modules/server-only/index.js` — `src/lib/rate-limit.ts` (imported by `test-cases.ts`) does `import "server-only"`, a real npm package (added as a devDependency) whose default export unconditionally throws; Next.js's bundler swaps in the package's no-op `empty.js` via a `react-server` package.json export condition that Vitest doesn't set. Fixed by aliasing the literal string `"server-only"` to `node_modules/server-only/empty.js` in both Vitest projects. Both fixes are in `vitest.config.ts`, committed separately (`1f02d98`) from this task's actual deliverable, since they're pre-existing config gaps rather than part of this task's own file changes.
+
+- [x] **Step 3: Verify nothing else broke**
 
 Run: `npx tsc --noEmit`
 Expected: no output — confirms the new `export` keywords didn't break anything (they can't, since exporting a previously-private function is strictly additive, but verify anyway).
@@ -333,7 +335,7 @@ Expected: no output — confirms the new `export` keywords didn't break anything
 Run: `npx eslint src/lib/actions/test-cases.ts src/lib/actions/test-cases.test.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/test-cases.ts src/lib/actions/test-cases.test.ts
