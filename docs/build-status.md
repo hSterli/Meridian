@@ -35,7 +35,8 @@ Everything below is implemented, RLS-secured, and passes `tsc`/`eslint`/`build`.
 - Run creation from a test-case picker, with optional folder and/or suite assignment
 - Keyboard-driven execution UI (P/F/B/S shortcuts, arrow-key navigation), notes per result
 - "Add test cases" to append more cases to an already-created run
-- Runs list: sortable table (name, status, instances, last updated), per-run segmented pass/fail/blocked/skipped status bar, folder sidebar, multi-select bulk delete/move-to-folder
+- Runs list: sortable table (name, status, instances, last updated), per-run segmented pass/fail/blocked/skipped status bar (hover for a full breakdown), folder sidebar, multi-select bulk delete/move-to-folder
+- **Evidence attachments on run results**: attach a screenshot to a test case directly from the run executor (file picker or clipboard paste), tagged to the specific run case that produced it; also shows up on the test case's own Attachments panel with a "from Run: {name}" tag
 
 ### Test Suites
 - Reusable, named test case groupings (e.g. "Regression") that can be re-run on demand
@@ -124,7 +125,7 @@ Full writeup in `docs/session-notes.md`. Summary of what's still missing if/when
 - **Risk register** — no entity for this yet; nothing in the schema models risk/severity/mitigation tracking
 - **Multiple/categorized defect lists** — today there's one flat `issues` list per project; would reuse the Suites/Folders pattern (grouping table + membership), not a schema rewrite
 - **Scheduled daily/weekly reports** — the underlying pass/fail trend and flaky-test data already exist; missing piece is delivery (cron/schedule + digest template, email or Slack)
-- **Evidence-heavy documentation** — **partially resolved this session**: test cases now support real file attachments via Storage. Test *run results* (`test_run_cases`) still have no attachment path — the same bucket/RLS pattern would extend directly to that
+- **Evidence-heavy documentation** — **resolved this session**: test cases support real file attachments via Storage, and test *run results* can now attach evidence too (screenshots from the run executor, tagged to the run case, surfaced on the test case's Attachments panel)
 - **External integration** — never resolved what "some level of integration" meant (compliance export? two-way defect sync? something else). Needs a follow-up conversation before scoping.
 
 ### Flaky Test Detective (paused mid-brainstorm)
@@ -157,7 +158,6 @@ Things worth knowing even though no one explicitly asked for them yet:
 Roughly in order of value-for-effort, not a commitment:
 
 1. **Resume Flaky Test Detective scoping** — answer the data-source question above, then design the paid-gate mechanism. Highest-leverage unfinished thread; a scoped version (§4, option a) is genuinely buildable in the current architecture.
-2. **Evidence attachments on run results** — small lift given the test-case attachment work just landed; directly extends the same Storage/RLS pattern to `test_run_cases`.
-3. **Reports page: make one real** — the flaky-test deep dive is the closest to already having its data model; would also retire the dashboard's "top 5" limit.
-4. **Decide the billing/plan story** — even a minimal `org.plan` flag unblocks every "paid feature" conversation (Flaky Test Detective, AI Case Generation, Coverage) that's currently stuck behind disabled UI.
-5. **Settings → Organization** — currently 100% stub; likely low effort (name/slug edit already exists as data, just needs a form) and removes one of the more visible "fake" surfaces in the app.
+2. **Reports page: make one real** — the flaky-test deep dive is the closest to already having its data model; would also retire the dashboard's "top 5" limit.
+3. **Decide the billing/plan story** — even a minimal `org.plan` flag unblocks every "paid feature" conversation (Flaky Test Detective, AI Case Generation, Coverage) that's currently stuck behind disabled UI.
+4. **Settings → Organization** — currently 100% stub; likely low effort (name/slug edit already exists as data, just needs a form) and removes one of the more visible "fake" surfaces in the app.
