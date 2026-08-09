@@ -885,7 +885,7 @@ git commit -m 'Show a "from Run" tag on attachments captured during a run'
 - Modify: `README.md`
 - Modify: `docs/build-status.md`
 
-- [ ] **Step 1: Full automated verification**
+- [x] **Step 1: Full automated verification**
 
 Run each of these and confirm the stated expectation:
 
@@ -914,7 +914,7 @@ git status --short
 ```
 Expected: clean (everything from Tasks 1-9 already committed).
 
-- [ ] **Step 2: Manual browser walkthrough (write these instructions, do not attempt to execute them — this environment has no way to log into the live app)**
+- [x] **Step 2: Manual browser walkthrough (write these instructions, do not attempt to execute them — this environment has no way to log into the live app)**
 
 Add a short walkthrough to this task's commit message body or the final report, for the user to run themselves once this plan is fully executed:
 
@@ -927,7 +927,7 @@ Add a short walkthrough to this task's commit message body or the final report, 
 7. Navigate to that test case's own detail page (`Test Cases → [the test case]`). Expected: the Attachments panel on the right shows the screenshot(s) that weren't deleted, each with a small "from Run: [run name]" tag underneath the filename. Upload a file directly from this page (existing flow) and confirm it does *not* get a "from Run" tag.
 8. Try uploading a file over 10MB from either location. Expected: the existing "File is too large — max 10 MB" error still appears, unchanged.
 
-- [ ] **Step 3: Update README.md**
+- [x] **Step 3: Update README.md**
 
 Read the current `README.md` in full first (don't assume its structure hasn't shifted since the last edit). Find the section listing shipped features (near where test-case attachments and the Jira integration are already documented) and add a bullet:
 
@@ -935,11 +935,11 @@ Read the current `README.md` in full first (don't assume its structure hasn't sh
 - Attach screenshots to a test case directly from the Runs screen (file picker or clipboard paste) — evidence is tagged to the run execution and also shows up on the test case's own Attachments panel.
 ```
 
-- [ ] **Step 4: Update docs/build-status.md**
+- [x] **Step 4: Update docs/build-status.md**
 
 Read the current `docs/build-status.md` in full first. Add this feature to the "Shipped and working" list, in the same style as neighboring entries, near the existing test-case-attachments and run-execution entries.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add README.md docs/build-status.md
