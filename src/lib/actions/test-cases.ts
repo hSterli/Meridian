@@ -26,7 +26,7 @@ function parseAutomationStatus(formData: FormData): TestCaseAutomationStatus {
     : "manual_only";
 }
 
-function parseSteps(raw: string): TestStep[] {
+export function parseSteps(raw: string): TestStep[] {
   try {
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -130,7 +130,7 @@ async function upsertFeature(
 /** Resolves the "feature" form field: the `newFeature` text wins when the
  * `feature` select is set to the "add new" sentinel, otherwise the selected
  * existing feature name is used. */
-function resolveFeatureName(formData: FormData): string {
+export function resolveFeatureName(formData: FormData): string {
   const selected = String(formData.get("feature") ?? "");
   if (selected === "__new__") {
     return String(formData.get("newFeature") ?? "").trim();
@@ -138,7 +138,7 @@ function resolveFeatureName(formData: FormData): string {
   return selected.trim();
 }
 
-function parseSprintNumber(formData: FormData): number | null {
+export function parseSprintNumber(formData: FormData): number | null {
   const raw = String(formData.get("sprintNumber") ?? "").trim();
   if (!raw) return null;
   const parsed = Number.parseInt(raw, 10);
@@ -379,7 +379,7 @@ export async function deleteTestCase(projectId: string, testCaseId: string) {
   redirect(`/projects/${projectId}/test-cases`);
 }
 
-function parseCsvLine(line: string): string[] {
+export function parseCsvLine(line: string): string[] {
   const fields: string[] = [];
   let current = "";
   let inQuotes = false;
@@ -407,7 +407,7 @@ function parseCsvLine(line: string): string[] {
   return fields;
 }
 
-function decodeSteps(raw: string): TestStep[] {
+export function decodeSteps(raw: string): TestStep[] {
   if (!raw) return [];
   return raw
     .split(";;")
