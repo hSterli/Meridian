@@ -5,7 +5,7 @@ import {
   parseSteps,
   resolveFeatureName,
   parseSprintNumber,
-} from "./test-cases";
+} from "./test-cases-helpers";
 
 describe("parseCsvLine", () => {
   it("splits a simple comma-separated line", () => {
