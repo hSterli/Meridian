@@ -10,6 +10,12 @@ export default defineConfig({
   test: {
     projects: [
       {
+        resolve: {
+          alias: {
+            "@": path.resolve(__dirname, "src"),
+            "server-only": path.resolve(__dirname, "node_modules/server-only/empty.js"),
+          },
+        },
         test: {
           name: "unit",
           environment: "node",
@@ -17,6 +23,12 @@ export default defineConfig({
         },
       },
       {
+        resolve: {
+          alias: {
+            "@": path.resolve(__dirname, "src"),
+            "server-only": path.resolve(__dirname, "node_modules/server-only/empty.js"),
+          },
+        },
         test: {
           name: "integration",
           environment: "node",
