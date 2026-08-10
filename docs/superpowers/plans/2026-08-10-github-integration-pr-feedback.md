@@ -216,7 +216,7 @@ git commit -m "Add GitHub connection schema: project-scoped issue_tracker_connec
 **Files:**
 - Create: `supabase/migrations/0023_pr_feedback_ingestion.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/0023_pr_feedback_ingestion.sql`:
 
@@ -382,11 +382,11 @@ $$;
 revoke all on function api_get_github_pat_for_project(uuid, uuid) from public, anon, authenticated;
 ```
 
-- [ ] **Step 2: Apply the migration to the live project**
+- [x] **Step 2: Apply the migration to the live project**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "pr_feedback_ingestion"`, and the SQL above as `query`.
 
-- [ ] **Step 3: Verify by calling the function directly**
+- [x] **Step 3: Verify by calling the function directly**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw` to confirm the new signature works end to end, using the same seeded demo project used to verify every prior `api_*` function this session (org "TEST QA", `project_id = 3c89de27-9337-47ac-9061-95742b7ae10b`, `org_id = 404fdb0b-b740-4e64-b78f-a4d606481adc`). First find a valid API key id for that org:
 
@@ -418,7 +418,7 @@ select * from api_get_github_pat_for_project(
 
 Expected: zero rows (no GitHub connection exists yet) — confirms the "return zero rows, don't error" behavior.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add supabase/migrations/0023_pr_feedback_ingestion.sql
