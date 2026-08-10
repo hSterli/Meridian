@@ -423,7 +423,7 @@ git commit -m "Document CI-triggered run ingestion with GitHub Actions/GitLab CI
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full verification suite**
+- [x] **Step 1: Run the full verification suite**
 
 ```bash
 npx tsc --noEmit
@@ -450,6 +450,8 @@ git status --short
 ```
 Expected: clean.
 
-- [ ] **Step 2: Confirm task #38 is fully addressed**
+- [x] **Step 2: Confirm task #38 is fully addressed**
 
 Re-read `docs/superpowers/specs/2026-08-09-ci-triggered-run-ingestion-design.md`'s scope decisions one more time and confirm each is reflected: bulk ingestion in one call (Task 3), title-match-or-auto-create (Task 1's function), "CI Imported" feature tagging (Task 1), JSON-only/no JUnit (Task 3 — no XML parsing exists), no per-key scoping (unchanged), each trigger creates a new run (Task 1 — no update-existing-run path exists). No gaps expected; this step is a final sanity check, not new work.
+
+**Confirmed 2026-08-10:** all 6 scope decisions verified present in the shipped code, no gaps. `tsc`/`eslint`/`npm test` (36/36)/`npm run build` all clean, `/api/v1/runs/ingest` present in the build's route list, `git status --short` clean. All 5 tasks of this plan are now complete — CI-triggered run ingestion (roadmap item 1 of 6, V1/P0 gap task #38) ships.
