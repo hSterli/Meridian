@@ -660,7 +660,7 @@ git commit -m "Regenerate types for GitHub connections, PR ingestion, and the ne
 - Create: `src/lib/github/client.ts`
 - Test: `src/lib/github/client.test.ts`
 
-- [ ] **Step 1: Write the failing test for `verifyGithubSignature`**
+- [x] **Step 1: Write the failing test for `verifyGithubSignature`**
 
 Create `src/lib/github/client.test.ts`:
 
@@ -701,12 +701,12 @@ describe("verifyGithubSignature", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/github/client.test.ts`
 Expected: FAIL — `src/lib/github/client.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write `src/lib/github/client.ts`**
+- [x] **Step 3: Write `src/lib/github/client.ts`**
 
 ```ts
 import "server-only";
@@ -965,17 +965,17 @@ export function verifyGithubSignature(
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/github/client.ts`
 If the last line is a literal `</content>`, strip it: `sed -i '' -e '/^<\/content>$/d' src/lib/github/client.ts`
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/github/client.test.ts`
 Expected: 4 passed.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -983,7 +983,7 @@ Expected: no output.
 Run: `npx eslint src/lib/github/client.ts src/lib/github/client.test.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/github/client.ts src/lib/github/client.test.ts
