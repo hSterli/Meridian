@@ -1303,7 +1303,7 @@ git commit -m "Wire optional PR association + best-effort PR comment posting int
 **Files:**
 - Modify: `src/lib/actions/issue-tracker.ts`
 
-- [ ] **Step 1: Add the GitHub imports**
+- [x] **Step 1: Add the GitHub imports**
 
 At the top of `src/lib/actions/issue-tracker.ts`, change:
 
@@ -1323,7 +1323,7 @@ import {
 } from "@/lib/github/client";
 ```
 
-- [ ] **Step 2: Add the GitHub actions**
+- [x] **Step 2: Add the GitHub actions**
 
 Append to the end of `src/lib/actions/issue-tracker.ts`:
 
@@ -1469,7 +1469,7 @@ export async function sendIssueToGithub(
 }
 ```
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1477,12 +1477,14 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/issue-tracker.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/issue-tracker.ts
 git commit -m "Add connectGithubTracker/disconnectGithubTracker/sendIssueToGithub Server Actions"
 ```
+
+**Deviation found and fixed:** Step 3's eslint run did not come back clean — `npx eslint src/lib/actions/issue-tracker.ts` reported 4 warnings (0 errors): the 1 pre-existing accepted `_prevState`/`_formData` unused-vars pair on `sendIssueToJira` (predates this plan, already called out in Task 5's deviation note and in Task 13's expectations), plus an identical new pair on `sendIssueToGithub`. The new pair isn't a bug — `sendIssueToGithub` needs the exact `(projectId, issueId, connectionId, _prevState, _formData)` signature shown in Step 2 so it's callable via `useActionState` the same way `sendIssueToJira` is, and this repo's eslint config has no `argsIgnorePattern` for underscore-prefixed args (confirmed by the same warning already existing on `sendIssueToJira`), so the warning is unavoidable without breaking that calling convention. No code was changed — the file was committed as shown in Step 2. Flagging here because it means Task 13's "only the one pre-existing warning" verification expectation is stale as of this task; whoever runs Task 13 should expect 2 accepted warning pairs (4 warning lines) in this file, not 1.
 
 ---
 
