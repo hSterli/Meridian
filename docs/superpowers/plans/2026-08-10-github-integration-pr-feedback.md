@@ -1712,7 +1712,7 @@ git commit -m "Add an integrations index page; point Settings at it instead of J
 - Create: `src/components/settings/github-connection-manager.tsx`
 - Create: `src/app/(app)/settings/integrations/github/page.tsx`
 
-- [ ] **Step 1: Write the connection manager component**
+- [x] **Step 1: Write the connection manager component**
 
 Create `src/components/settings/github-connection-manager.tsx`:
 
@@ -1858,12 +1858,12 @@ export function GithubConnectionManager({
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/components/settings/github-connection-manager.tsx`
 Strip if present.
 
-- [ ] **Step 3: Write the page**
+- [x] **Step 3: Write the page**
 
 Create `src/app/(app)/settings/integrations/github/page.tsx`:
 
@@ -1910,12 +1910,12 @@ export default async function GithubIntegrationPage() {
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/settings/integrations/github/page.tsx"`
 Strip if present.
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1923,7 +1923,7 @@ Expected: no output.
 Run: `npx eslint src/components/settings/github-connection-manager.tsx "src/app/(app)/settings/integrations/github/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/settings/github-connection-manager.tsx "src/app/(app)/settings/integrations/github/page.tsx"
