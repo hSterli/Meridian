@@ -19,12 +19,12 @@
 **Files:**
 - Create: `supabase/migrations/00XX_ci_run_ingestion.sql` (see Step 1 for how to determine `XX`)
 
-- [ ] **Step 1: Confirm the next free migration number**
+- [x] **Step 1: Confirm the next free migration number**
 
 Run: `ls supabase/migrations/ | tail -5`
 As of this plan being written, `0020_weekly_status_reports.sql` is the latest applied — expect `0021` to be free, but use whatever the actual latest number + 1 is if something else has landed since. Name the file `supabase/migrations/0021_ci_run_ingestion.sql` (adjusting the number to match).
 
-- [ ] **Step 2: Write the migration**
+- [x] **Step 2: Write the migration**
 
 ```sql
 -- CI-triggered run ingestion: lets a CI pipeline report an entire test
@@ -120,11 +120,11 @@ $$;
 revoke all on function api_ingest_run_results(uuid, uuid, uuid, text, jsonb) from public, anon, authenticated;
 ```
 
-- [ ] **Step 3: Apply the migration to the live project**
+- [x] **Step 3: Apply the migration to the live project**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "ci_run_ingestion"`, and the SQL above as `query`.
 
-- [ ] **Step 4: Manual verification against the live project**
+- [x] **Step 4: Manual verification against the live project**
 
 There's no way to make a real authenticated HTTP request from this environment (no way to generate and use a real API key end-to-end), so verify the function directly via SQL — this also proves the whole get-or-create/matching flow works correctly before the route even exists.
 
@@ -186,11 +186,11 @@ Expected: two rows — `passed`/null-notes, then `failed`/`'Simulated failure fo
 
 This verification's rows (the throwaway API key, the new run, the new draft test case) are fine to leave in place — the "Customer Portal Revamp" project already serves as this app's realistic seeded demo data, and a CI-originated run/draft-case is a natural, harmless addition to that story rather than something that needs cleanup.
 
-- [ ] **Step 5: Run the security advisor check**
+- [x] **Step 5: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: only pre-existing, already-reviewed items — no new warning for `api_ingest_run_results`, since it's revoked from `public`/`anon`/`authenticated` exactly like every other `api_*` function.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/0021_ci_run_ingestion.sql
