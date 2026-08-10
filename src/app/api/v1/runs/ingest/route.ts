@@ -2,14 +2,8 @@ import { authenticateApiRequest } from "@/lib/api/auth";
 import { rateLimitApiKey } from "@/lib/rate-limit";
 import { createServiceClient } from "@/lib/supabase/service";
 import type { Json } from "@/lib/types/database";
-
-const VALID_STATUSES = ["passed", "failed", "blocked", "skipped"] as const;
-
-interface IngestResult {
-  title?: string;
-  status?: string;
-  notes?: string;
-}
+import { validateIngestRequestBody, type IngestResultInput } from "@/lib/validation/ingest-request";
+import { postOrUpdatePrComment } from "@/lib/github/client";
 
 export async function POST(request: Request) {
   const auth = await authenticateApiRequest(request);
@@ -25,33 +19,11 @@ export async function POST(request: Request) {
     return Response.json({ error: "Invalid JSON body." }, { status: 400 });
   }
 
-  const { projectId, runName, results } = (body ?? {}) as {
-    projectId?: string;
-    runName?: string;
-    results?: IngestResult[];
-  };
-
-  if (!projectId) {
-    return Response.json({ error: "projectId is required." }, { status: 400 });
+  const validation = validateIngestRequestBody(body);
+  if ("error" in validation) {
+    return Response.json({ error: validation.error }, { status: 400 });
   }
-  if (!runName) {
-    return Response.json({ error: "runName is required." }, { status: 400 });
-  }
-  if (!Array.isArray(results) || results.length === 0) {
-    return Response.json({ error: "results must be a non-empty array." }, { status: 400 });
-  }
-
-  for (const r of results) {
-    if (!r.title) {
-      return Response.json({ error: "Each result requires a title." }, { status: 400 });
-    }
-    if (!r.status || !(VALID_STATUSES as readonly string[]).includes(r.status)) {
-      return Response.json(
-        { error: `Each result's status must be one of: ${VALID_STATUSES.join(", ")}` },
-        { status: 400 }
-      );
-    }
-  }
+  const { projectId, runName, results, prNumber } = validation.data;
 
   const supabase = createServiceClient();
   const { data, error } = await supabase.rpc("api_ingest_run_results", {
@@ -60,12 +32,82 @@ export async function POST(request: Request) {
     p_project_id: projectId,
     p_run_name: runName,
     p_results: results as unknown as Json,
+    p_pr_number: prNumber,
   });
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
   const row = data?.[0];
+
+  let prCommentPosted = false;
+  if (row?.pr_url && prNumber && row.run_id) {
+    prCommentPosted = await tryPostPrComment({
+      orgId: auth.orgId,
+      projectId,
+      prNumber,
+      runId: row.run_id,
+      runName,
+      results,
+    });
+  }
+
   return Response.json(
-    { data: { runId: row?.run_id, matched: row?.matched, autoCreated: row?.auto_created } },
+    {
+      data: {
+        runId: row?.run_id,
+        matched: row?.matched,
+        autoCreated: row?.auto_created,
+        prCommentPosted,
+      },
+    },
     { status: 201 }
   );
+}
+
+// Best-effort: any failure here (bad/revoked PAT, renamed repo, GitHub
+// outage) is caught and never fails the ingest response — the run was
+// already recorded successfully by the time this runs.
+async function tryPostPrComment(args: {
+  orgId: string;
+  projectId: string;
+  prNumber: number;
+  runId: string;
+  runName: string;
+  results: IngestResultInput[];
+}): Promise<boolean> {
+  try {
+    const supabase = createServiceClient();
+    const { data } = await supabase.rpc("api_get_github_pat_for_project", {
+      p_org_id: args.orgId,
+      p_project_id: args.projectId,
+    });
+    const row = data?.[0];
+    if (!row?.token || !row.repo_owner || !row.repo_name) return false;
+
+    const counts = { passed: 0, failed: 0, blocked: 0, skipped: 0 };
+    for (const r of args.results) {
+      if (r.status && r.status in counts) {
+        counts[r.status as keyof typeof counts] += 1;
+      }
+    }
+
+    const runUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/projects/${args.projectId}/runs/${args.runId}`;
+
+    const result = await postOrUpdatePrComment(
+      { repoOwner: row.repo_owner, repoName: row.repo_name, token: row.token },
+      args.prNumber,
+      {
+        projectId: args.projectId,
+        runName: args.runName,
+        runUrl,
+        passed: counts.passed,
+        failed: counts.failed,
+        blocked: counts.blocked,
+        skipped: counts.skipped,
+      }
+    );
+
+    return "ok" in result;
+  } catch {
+    return false;
+  }
 }
