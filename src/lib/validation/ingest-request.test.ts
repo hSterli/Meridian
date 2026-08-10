@@ -30,8 +30,11 @@ describe("validateIngestRequestBody", () => {
   });
 
   it("rejects a missing projectId", () => {
-    const { projectId: _projectId, ...rest } = validBody;
-    expect(validateIngestRequestBody(rest)).toEqual({ error: "projectId is required." });
+    const bodyWithoutProjectId: Record<string, unknown> = { ...validBody };
+    delete bodyWithoutProjectId.projectId;
+    expect(validateIngestRequestBody(bodyWithoutProjectId)).toEqual({
+      error: "projectId is required.",
+    });
   });
 
   it("rejects an empty results array", () => {
