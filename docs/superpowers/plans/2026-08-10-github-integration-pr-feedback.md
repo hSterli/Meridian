@@ -1615,7 +1615,7 @@ git commit -m "Branch outbound issue-status push on connection provider (Jira or
 - Create: `src/app/(app)/settings/integrations/page.tsx`
 - Modify: `src/app/(app)/settings/page.tsx:45-57`
 
-- [ ] **Step 1: Write the index page**
+- [x] **Step 1: Write the index page**
 
 Create `src/app/(app)/settings/integrations/page.tsx`:
 
@@ -1664,12 +1664,12 @@ export default async function IntegrationsIndexPage() {
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/settings/integrations/page.tsx"`
 Strip with `sed -i '' -e '/^<\/content>$/d' "src/app/(app)/settings/integrations/page.tsx"` if present.
 
-- [ ] **Step 3: Point the main Settings page at the index instead of Jira directly**
+- [x] **Step 3: Point the main Settings page at the index instead of Jira directly**
 
 In `src/app/(app)/settings/page.tsx`, change:
 
@@ -1689,7 +1689,7 @@ to:
         >
 ```
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1697,7 +1697,7 @@ Expected: no output.
 Run: `npx eslint "src/app/(app)/settings/integrations/page.tsx" "src/app/(app)/settings/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "src/app/(app)/settings/integrations/page.tsx" "src/app/(app)/settings/page.tsx"
