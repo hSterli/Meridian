@@ -998,7 +998,7 @@ git commit -m "Add GitHub API client: issue sync, webhook management, PR comment
 - Create: `src/lib/validation/ingest-request.ts`
 - Test: `src/lib/validation/ingest-request.test.ts`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 Create `src/lib/validation/ingest-request.test.ts`:
 
@@ -1055,12 +1055,12 @@ describe("validateIngestRequestBody", () => {
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails**
+- [x] **Step 2: Run the test to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/validation/ingest-request.test.ts`
 Expected: FAIL — `src/lib/validation/ingest-request.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write the minimal implementation**
+- [x] **Step 3: Write the minimal implementation**
 
 Create `src/lib/validation/ingest-request.ts`:
 
@@ -1122,17 +1122,17 @@ export function validateIngestRequestBody(
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/validation/ingest-request.ts`
 Strip with `sed -i '' -e '/^<\/content>$/d' src/lib/validation/ingest-request.ts` if present.
 
-- [ ] **Step 5: Run the test to verify it passes**
+- [x] **Step 5: Run the test to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/validation/ingest-request.test.ts`
 Expected: 7 passed.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/validation/ingest-request.ts src/lib/validation/ingest-request.test.ts
