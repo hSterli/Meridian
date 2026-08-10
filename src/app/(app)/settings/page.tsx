@@ -43,7 +43,7 @@ export default async function SettingsPage() {
         </Link>
 
         <Link
-          href="/settings/integrations/jira"
+          href="/settings/integrations"
           className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"
         >
           <div className="rounded-lg bg-meridian-soft p-2 text-primary">
