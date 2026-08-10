@@ -1493,7 +1493,7 @@ git commit -m "Add connectGithubTracker/disconnectGithubTracker/sendIssueToGithu
 **Files:**
 - Modify: `src/lib/actions/issues.ts:8` (import) and `:51-105` (`updateIssueStatus`)
 
-- [ ] **Step 1: Update the import**
+- [x] **Step 1: Update the import**
 
 Change:
 
@@ -1508,7 +1508,7 @@ import { transitionJiraIssueStatus } from "@/lib/jira/client";
 import { setGithubIssueState } from "@/lib/github/client";
 ```
 
-- [ ] **Step 2: Replace `updateIssueStatus`**
+- [x] **Step 2: Replace `updateIssueStatus`**
 
 Replace the whole function (currently lines 51-105) with:
 
@@ -1592,7 +1592,7 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
 }
 ```
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1600,7 +1600,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/issues.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/issues.ts
