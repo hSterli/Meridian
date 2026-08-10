@@ -1151,7 +1151,7 @@ git commit -m "Extract ingest request validation as a pure, unit-tested module"
 **Files:**
 - Modify: `src/app/api/v1/runs/ingest/route.ts`
 
-- [ ] **Step 1: Replace the route's full contents**
+- [x] **Step 1: Replace the route's full contents**
 
 Replace all of `src/app/api/v1/runs/ingest/route.ts` with:
 
@@ -1271,7 +1271,7 @@ async function tryPostPrComment(args: {
 }
 ```
 
-- [ ] **Step 2: Type-check, lint, and re-run existing tests**
+- [x] **Step 2: Type-check, lint, and re-run existing tests**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1282,17 +1282,19 @@ Expected: no output.
 Run: `npm test`
 Expected: all existing unit tests still pass (this task adds no new pure logic beyond what Task 5 already tests).
 
-- [ ] **Step 3: Verify the route still builds**
+- [x] **Step 3: Verify the route still builds**
 
 Run: `npm run build`
 Expected: production build succeeds, `/api/v1/runs/ingest` still appears in the route list.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/app/api/v1/runs/ingest/route.ts
 git commit -m "Wire optional PR association + best-effort PR comment posting into the ingest route"
 ```
+
+**Deviation found and fixed:** the plan's Step 1 code passed `p_pr_number: prNumber ?? null`, but the `api_ingest_run_results` RPC's generated `Args` type (from Task 3) declares `p_pr_number?: number` — optional/undefined, not nullable. `npx tsc --noEmit` failed with `Type 'number | null' is not assignable to type 'number | undefined'` on that line. Fixed by passing `p_pr_number: prNumber` directly, since `validation.data.prNumber` is already typed `number | undefined`. All other steps ran clean as written.
 
 ---
 
