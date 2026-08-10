@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
 import { transitionJiraIssueStatus } from "@/lib/jira/client";
+import { setGithubIssueState } from "@/lib/github/client";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -55,14 +56,14 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
     .update({ status, updated_at: new Date().toISOString() })
     .eq("id", issueId);
 
-  // If this issue is linked to Jira, push the status change there too.
-  // Meridian's own save above already succeeded regardless of what
-  // happens next — a Jira-side failure is recorded, not allowed to fail
-  // the Meridian update.
+  // If this issue is linked to an external tracker, push the status
+  // change there too. Meridian's own save above already succeeded
+  // regardless of what happens next — a tracker-side failure is recorded,
+  // not allowed to fail the Meridian update.
   const { data: link } = await supabase
     .from("issue_tracker_links")
     .select(
-      "id, external_issue_key, connection_id, issue_tracker_connections(jira_base_url, jira_email, jira_project_key)"
+      "id, external_issue_key, connection_id, issue_tracker_connections(provider, jira_base_url, jira_email, jira_project_key, github_repo_owner, github_repo_name)"
     )
     .eq("issue_id", issueId)
     .maybeSingle();
@@ -73,22 +74,44 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
       : link.issue_tracker_connections;
 
     if (connection) {
-      const { data: apiToken } = await supabase.rpc("get_jira_api_token", {
-        p_connection_id: link.connection_id,
-      });
+      let result: { error?: string } | undefined;
 
-      if (apiToken) {
-        const result = await transitionJiraIssueStatus(
-          {
-            baseUrl: connection.jira_base_url,
-            email: connection.jira_email,
-            apiToken,
-            projectKey: connection.jira_project_key,
-          },
-          link.external_issue_key,
-          status
-        );
+      if (connection.provider === "jira") {
+        const { data: apiToken } = await supabase.rpc("get_jira_api_token", {
+          p_connection_id: link.connection_id,
+        });
 
+        if (apiToken) {
+          result = await transitionJiraIssueStatus(
+            {
+              baseUrl: connection.jira_base_url,
+              email: connection.jira_email,
+              apiToken,
+              projectKey: connection.jira_project_key,
+            },
+            link.external_issue_key,
+            status
+          );
+        }
+      } else if (connection.provider === "github") {
+        const { data: token } = await supabase.rpc("get_github_pat", {
+          p_connection_id: link.connection_id,
+        });
+
+        if (token && connection.github_repo_owner && connection.github_repo_name) {
+          result = await setGithubIssueState(
+            {
+              repoOwner: connection.github_repo_owner,
+              repoName: connection.github_repo_name,
+              token,
+            },
+            Number(link.external_issue_key),
+            status
+          );
+        }
+      }
+
+      if (result) {
         await supabase
           .from("issue_tracker_links")
           .update({
