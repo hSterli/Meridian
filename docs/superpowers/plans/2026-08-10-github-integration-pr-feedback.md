@@ -21,7 +21,7 @@
 **Files:**
 - Create: `supabase/migrations/0022_github_integration.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 Create `supabase/migrations/0022_github_integration.sql`:
 
@@ -169,11 +169,11 @@ $$;
 grant execute on function delete_github_connection(uuid) to authenticated;
 ```
 
-- [ ] **Step 2: Apply the migration to the live project**
+- [x] **Step 2: Apply the migration to the live project**
 
 Use the Supabase MCP `apply_migration` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`, `name: "github_integration"`, and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the schema changes**
+- [x] **Step 3: Verify the schema changes**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -198,11 +198,11 @@ select unnest(enum_range(null::issue_tracker_provider))::text as value;
 
 Expected: two rows, `jira` and `github`.
 
-- [ ] **Step 4: Run the security advisor check**
+- [x] **Step 4: Run the security advisor check**
 
 Use the Supabase MCP `get_advisors` tool with `type: "security"` against `ucnfcsosbdgknmzyuqbw`. Expected: the same pre-existing, already-reviewed items as before this migration (rate_limit_buckets RLS-no-policy, SECURITY DEFINER warnings, leaked-password-protection) — the three new SECURITY DEFINER functions will show up in the same flagged category the Jira three already do, which is expected and previously accepted.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add supabase/migrations/0022_github_integration.sql
