@@ -432,11 +432,11 @@ git commit -m "Extend CI ingestion with optional PR association + a service-role
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Patch the `issue_tracker_connections` type block**
+- [x] **Step 2: Patch the `issue_tracker_connections` type block**
 
 Find the existing block (around lines 63-109) and replace it with:
 
@@ -512,7 +512,7 @@ Find the existing block (around lines 63-109) and replace it with:
       }
 ```
 
-- [ ] **Step 3: Patch the `test_runs` type block**
+- [x] **Step 3: Patch the `test_runs` type block**
 
 Find the existing block (around lines 733-790) and replace `Row`/`Insert`/`Update` with:
 
@@ -560,7 +560,7 @@ Find the existing block (around lines 733-790) and replace `Row`/`Insert`/`Updat
 
 (Leave the `Relationships` array below it unchanged.)
 
-- [ ] **Step 4: Patch the `Functions` block**
+- [x] **Step 4: Patch the `Functions` block**
 
 Add `api_get_github_pat_for_project` immediately before `api_get_test_case`:
 
@@ -626,7 +626,7 @@ Add `get_github_pat` immediately before `get_jira_api_token`:
       get_github_pat: { Args: { p_connection_id: string }; Returns: string }
 ```
 
-- [ ] **Step 5: Patch the `Enums` block**
+- [x] **Step 5: Patch the `Enums` block**
 
 Find `issue_tracker_provider: "jira"` (around line 1212) and change to:
 
@@ -640,12 +640,12 @@ Find the matching `issue_tracker_provider: ["jira"],` further down (in the `Cons
       issue_tracker_provider: ["jira", "github"],
 ```
 
-- [ ] **Step 6: Verify the types compile**
+- [x] **Step 6: Verify the types compile**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/types/database.ts
