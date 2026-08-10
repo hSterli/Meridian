@@ -250,7 +250,7 @@ git commit -m "Regenerate types for api_ingest_run_results"
 **Files:**
 - Create: `src/app/api/v1/runs/ingest/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 This mirrors `src/app/api/v1/runs/[id]/results/route.ts`'s exact structure (read that file in full first — auth → rate limit → parse/validate JSON body → call the RPC via the service client → shape the response), extended for a batch payload instead of a single result.
 
@@ -260,6 +260,7 @@ Create `src/app/api/v1/runs/ingest/route.ts`:
 import { authenticateApiRequest } from "@/lib/api/auth";
 import { rateLimitApiKey } from "@/lib/rate-limit";
 import { createServiceClient } from "@/lib/supabase/service";
+import type { Json } from "@/lib/types/database";
 
 const VALID_STATUSES = ["passed", "failed", "blocked", "skipped"] as const;
 
@@ -317,7 +318,7 @@ export async function POST(request: Request) {
     p_key_id: auth.keyId,
     p_project_id: projectId,
     p_run_name: runName,
-    p_results: results,
+    p_results: results as unknown as Json,
   });
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
@@ -333,7 +334,7 @@ Check for the stray `</content>` line: `tail -3 src/app/api/v1/runs/ingest/route
 
 Note: `results` accepts `pending` nowhere in `VALID_STATUSES` here — deliberately narrower than the existing single-result endpoint's list, since a CI report describes results that already happened (per the design spec, scope decision — `pending` doesn't make sense as an ingested status).
 
-- [ ] **Step 2: Verify types, lint, and build**
+- [x] **Step 2: Verify types, lint, and build**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -344,7 +345,9 @@ Expected: no output.
 Run: `npm run build`
 Expected: build succeeds, and the route list includes `ƒ /api/v1/runs/ingest`.
 
-- [ ] **Step 3: Commit**
+**Deviation found and fixed during execution**: `npx tsc --noEmit` initially failed with `Type 'IngestResult[]' is not assignable to type 'Json'` on the `p_results: results` line — `IngestResult` (a named interface) isn't structurally assignable to the generated `Json` type without an explicit cast, since it has no index signature. This is the same class of gap already hit twice this session (`weekly-reports.ts`'s `metrics`/`dailyPlanned` fields). Fixed by importing `Json` from `@/lib/types/database` and casting at the call site (`results as unknown as Json`, shown corrected above) — a real bug the plan's shown code had, not caught until this task actually ran through `tsc`.
+
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/app/api/v1/runs/ingest/route.ts
