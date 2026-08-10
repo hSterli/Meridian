@@ -64,38 +64,53 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string
+          github_repo_name: string | null
+          github_repo_owner: string | null
+          github_webhook_id: number | null
+          github_webhook_secret: string | null
           id: string
           jira_base_url: string
           jira_email: string
           jira_project_key: string
           org_id: string
+          project_id: string | null
           provider: Database["public"]["Enums"]["issue_tracker_provider"]
           vault_secret_id: string
-          webhook_token: string
+          webhook_token: string | null
         }
         Insert: {
           created_at?: string
           created_by: string
+          github_repo_name?: string | null
+          github_repo_owner?: string | null
+          github_webhook_id?: number | null
+          github_webhook_secret?: string | null
           id?: string
           jira_base_url: string
           jira_email: string
           jira_project_key: string
           org_id: string
+          project_id?: string | null
           provider: Database["public"]["Enums"]["issue_tracker_provider"]
           vault_secret_id: string
-          webhook_token: string
+          webhook_token?: string | null
         }
         Update: {
           created_at?: string
           created_by?: string
+          github_repo_name?: string | null
+          github_repo_owner?: string | null
+          github_webhook_id?: number | null
+          github_webhook_secret?: string | null
           id?: string
           jira_base_url?: string
           jira_email?: string
           jira_project_key?: string
           org_id?: string
+          project_id?: string | null
           provider?: Database["public"]["Enums"]["issue_tracker_provider"]
           vault_secret_id?: string
-          webhook_token?: string
+          webhook_token?: string | null
         }
         Relationships: [
           {
@@ -103,6 +118,13 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "issue_tracker_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
@@ -738,6 +760,8 @@ export type Database = {
           folder_id: string | null
           id: string
           name: string
+          pr_number: number | null
+          pr_url: string | null
           project_id: string
           status: Database["public"]["Enums"]["run_status"]
           suite_id: string | null
@@ -749,6 +773,8 @@ export type Database = {
           folder_id?: string | null
           id?: string
           name: string
+          pr_number?: number | null
+          pr_url?: string | null
           project_id: string
           status?: Database["public"]["Enums"]["run_status"]
           suite_id?: string | null
@@ -760,6 +786,8 @@ export type Database = {
           folder_id?: string | null
           id?: string
           name?: string
+          pr_number?: number | null
+          pr_url?: string | null
           project_id?: string
           status?: Database["public"]["Enums"]["run_status"]
           suite_id?: string | null
@@ -1032,6 +1060,14 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      api_get_github_pat_for_project: {
+        Args: { p_org_id: string; p_project_id: string }
+        Returns: {
+          repo_name: string
+          repo_owner: string
+          token: string
+        }[]
+      }
       api_get_run: {
         Args: { p_org_id: string; p_run_id: string }
         Returns: {
@@ -1041,6 +1077,8 @@ export type Database = {
           folder_id: string | null
           id: string
           name: string
+          pr_number: number | null
+          pr_url: string | null
           project_id: string
           status: Database["public"]["Enums"]["run_status"]
           suite_id: string | null
@@ -1085,6 +1123,7 @@ export type Database = {
         Args: {
           p_key_id: string
           p_org_id: string
+          p_pr_number?: number
           p_project_id: string
           p_results: Json
           p_run_name: string
@@ -1092,6 +1131,7 @@ export type Database = {
         Returns: {
           auto_created: number
           matched: number
+          pr_url: string
           run_id: string
         }[]
       }
@@ -1104,6 +1144,8 @@ export type Database = {
           folder_id: string | null
           id: string
           name: string
+          pr_number: number | null
+          pr_url: string | null
           project_id: string
           status: Database["public"]["Enums"]["run_status"]
           suite_id: string | null
@@ -1157,6 +1199,16 @@ export type Database = {
         Args: { p_action: string; p_limit: number; p_window_seconds: number }
         Returns: boolean
       }
+      create_github_connection: {
+        Args: {
+          p_project_id: string
+          p_repo_name: string
+          p_repo_owner: string
+          p_token: string
+          p_webhook_secret: string
+        }
+        Returns: string
+      }
       create_jira_connection: {
         Args: {
           p_base_url: string
@@ -1184,10 +1236,15 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      delete_github_connection: {
+        Args: { p_connection_id: string }
+        Returns: undefined
+      }
       delete_jira_connection: {
         Args: { p_connection_id: string }
         Returns: undefined
       }
+      get_github_pat: { Args: { p_connection_id: string }; Returns: string }
       get_jira_api_token: { Args: { p_connection_id: string }; Returns: string }
       get_org_members: {
         Args: { check_org_id: string }
@@ -1209,7 +1266,7 @@ export type Database = {
     Enums: {
       issue_severity: "low" | "medium" | "high" | "critical"
       issue_status: "open" | "in_progress" | "resolved" | "closed"
-      issue_tracker_provider: "jira"
+      issue_tracker_provider: "jira" | "github"
       org_role: "owner" | "admin" | "member"
       report_rag_status: "red" | "amber" | "green"
       run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
@@ -1350,7 +1407,7 @@ export const Constants = {
     Enums: {
       issue_severity: ["low", "medium", "high", "critical"],
       issue_status: ["open", "in_progress", "resolved", "closed"],
-      issue_tracker_provider: ["jira"],
+      issue_tracker_provider: ["jira", "github"],
       org_role: ["owner", "admin", "member"],
       report_rag_status: ["red", "amber", "green"],
       run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],
