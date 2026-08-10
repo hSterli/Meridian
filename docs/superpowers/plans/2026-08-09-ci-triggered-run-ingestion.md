@@ -361,15 +361,15 @@ git commit -m "Add POST /api/v1/runs/ingest for CI-triggered run ingestion"
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Read the current README's API documentation section in full**
+- [x] **Step 1: Read the current README's API documentation section in full**
 
 Find where the existing `/api/v1` endpoints are documented (search for "Public REST API" or `/api/v1`) — read the surrounding section fully to match its existing style before adding to it.
 
-- [ ] **Step 2: Add the new endpoint's documentation**
+- [x] **Step 2: Add the new endpoint's documentation**
 
 Add a bullet or subsection (matching the style of what's already there) documenting `POST /api/v1/runs/ingest`: its request/response shape, and that it auto-creates the run plus any unmatched test cases (tagged under a "CI Imported" feature, `status: draft`).
 
-- [ ] **Step 3: Add GitHub Actions and GitLab CI example snippets**
+- [x] **Step 3: Add GitHub Actions and GitLab CI example snippets**
 
 Add a short "CI Integration" section with copy-pasteable examples. GitHub Actions step (assumes a JSON test report already exists at `results.json` in the shape Meridian expects — the example focuses on the upload call, not on generating that JSON, since that step is framework-specific):
 
@@ -408,12 +408,14 @@ And a short note showing the exact `results.json` shape both examples assume:
 }
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md
 git commit -m "Document CI-triggered run ingestion with GitHub Actions/GitLab CI examples"
 ```
+
+**Deviation:** also removed "CI-triggered automated run ingestion via webhook" from the README's "Explicitly deferred" list, since it's now shipped — not called out as a separate step above but a natural consequence of documenting the feature as implemented.
 
 ---
 
