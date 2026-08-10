@@ -1937,7 +1937,7 @@ git commit -m "Add GitHub connection manager UI (project picker, multi-row conne
 **Files:**
 - Create: `src/app/api/v1/webhooks/github/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 Create `src/app/api/v1/webhooks/github/route.ts`:
 
@@ -2039,12 +2039,12 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/app/api/v1/webhooks/github/route.ts`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -2052,12 +2052,12 @@ Expected: no output.
 Run: `npx eslint src/app/api/v1/webhooks/github/route.ts`
 Expected: no output.
 
-- [ ] **Step 4: Verify it builds and appears in the route list**
+- [x] **Step 4: Verify it builds and appears in the route list**
 
 Run: `npm run build`
 Expected: `ƒ /api/v1/webhooks/github` appears in the route list.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/v1/webhooks/github/route.ts
