@@ -82,6 +82,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **Public REST API**: versioned `/api/v1` endpoints (list/get test cases, list/get runs, record a run result) authenticated via a `Bearer` API key instead of a Supabase Auth session; org-scoped, admin-managed key issuance/revocation from Settings > API Keys (plaintext key shown once, at creation); plus a generic signed inbound webhook receiver (`/api/v1/webhooks/[source]`) that validates and stores events for future source-specific processing
 - **CI-triggered run ingestion**: `POST /api/v1/runs/ingest` lets a CI pipeline report a whole test run's results in one call — no pre-created run required. See "CI Integration" below.
 - **Two-way Jira issue sync**: one Jira connection per org (Settings > Integrations > Jira), API token stored in Supabase Vault; send a Meridian issue to Jira and it creates a linked Jira issue, status changes on the Meridian side push a transition attempt to Jira, and Jira-side changes flow back in via a per-connection inbound webhook (`/api/v1/webhooks/jira`)
+- **Two-way GitHub issue sync + PR/MR feedback**: one GitHub connection per project (Settings > Integrations > GitHub, admin-managed, PAT stored in Supabase Vault), scoped per project rather than per org since a PR's repo is tied to a specific codebase; the webhook is auto-created via GitHub's API on connect. Send a Meridian issue to GitHub and it creates a linked GitHub issue, status changes on the Meridian side push an open/closed update to GitHub, and GitHub-side close/reopen events flow back in via a per-repo inbound webhook (`/api/v1/webhooks/github`). CI-triggered runs can additionally include a PR number (see "CI Integration" below) to get a pass/fail summary posted as a PR comment.
 - Weekly Status Report per project — live dashboard (RAG status, key metrics, daily execution with planned/variance, module breakdown) plus a non-destructive snapshot history for sharing a stable point-in-time record with stakeholders.
 - Attach screenshots to a test case directly from the Runs screen (file picker or clipboard paste) — evidence is tagged to the run execution and also shows up on the test case's own Attachments panel.
 
@@ -95,6 +96,7 @@ Request body:
 {
   "projectId": "your-meridian-project-id",
   "runName": "CI: main @ ${CI_COMMIT_SHORT_SHA}",
+  "prNumber": 42,
   "results": [
     { "title": "test name matching a Meridian test case", "status": "passed" },
     { "title": "another test", "status": "failed", "notes": "why it failed" }
@@ -102,10 +104,12 @@ Request body:
 }
 ```
 
+`prNumber` is optional. If the project has a connected GitHub repo (Settings > Integrations > GitHub), Meridian posts (or updates, on a re-run) a comment on that pull request summarizing the pass/fail/blocked/skipped counts with a link back to the run. This never fails the ingest itself — a GitHub-side failure (bad token, renamed repo) is silently skipped, reflected only in the response's `prCommentPosted` field.
+
 `status` must be one of `passed`, `failed`, `blocked`, `skipped`. Each result is matched to an existing test case by exact title match within the project; unmatched titles auto-create a new draft test case under a "CI Imported" feature, so nothing is silently dropped. Response (`201`):
 
 ```json
-{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2 } }
+{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true } }
 ```
 
 Rate limit: 20 requests/hour per API key (one call per CI run, not per test).
@@ -157,7 +161,7 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 
 ## Explicitly deferred (Phase 2/3 per the PRD)
 
-- GitHub/GitLab two-way issue sync (Jira now works — see "What's implemented" above)
+- GitLab two-way issue sync, and GitLab MR feedback (Jira and GitHub now work — see "What's implemented" above)
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
