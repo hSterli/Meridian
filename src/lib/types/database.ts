@@ -1081,6 +1081,20 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      api_ingest_run_results: {
+        Args: {
+          p_key_id: string
+          p_org_id: string
+          p_project_id: string
+          p_results: Json
+          p_run_name: string
+        }
+        Returns: {
+          auto_created: number
+          matched: number
+          run_id: string
+        }[]
+      }
       api_list_runs: {
         Args: { p_org_id: string; p_project_id: string }
         Returns: {
