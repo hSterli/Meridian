@@ -1035,8 +1035,11 @@ describe("validateIngestRequestBody", () => {
   });
 
   it("rejects a missing projectId", () => {
-    const { projectId: _projectId, ...rest } = validBody;
-    expect(validateIngestRequestBody(rest)).toEqual({ error: "projectId is required." });
+    const bodyWithoutProjectId: Record<string, unknown> = { ...validBody };
+    delete bodyWithoutProjectId.projectId;
+    expect(validateIngestRequestBody(bodyWithoutProjectId)).toEqual({
+      error: "projectId is required.",
+    });
   });
 
   it("rejects an empty results array", () => {
@@ -1138,6 +1141,8 @@ Expected: 7 passed.
 git add src/lib/validation/ingest-request.ts src/lib/validation/ingest-request.test.ts
 git commit -m "Extract ingest request validation as a pure, unit-tested module"
 ```
+
+**Deviation found and fixed:** the "rejects a missing projectId" test's original `const { projectId: _projectId, ...rest } = validBody;` destructure-to-omit idiom triggered a real `@typescript-eslint/no-unused-vars` warning in this repo's eslint config (underscore-prefixed names aren't ignored here — same as the pre-existing accepted warning in `issue-tracker.ts`). Fixed by using `delete` on a shallow copy instead (shown above); this would have broken Task 13's "only 1 pre-existing warning" expectation otherwise.
 
 ---
 
