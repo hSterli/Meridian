@@ -2153,7 +2153,7 @@ git commit -m "Document GitHub integration and PR/MR feedback (prNumber field, r
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full automated verification suite**
+- [x] **Step 1: Run the full automated verification suite**
 
 ```bash
 npx tsc --noEmit
@@ -2192,7 +2192,11 @@ This step needs a real GitHub personal access token and a disposable/test repo �
 
 If you don't have a test GitHub repo/token available, **stop and tell the user this step was skipped** rather than marking it done — do not claim this was verified when it wasn't.
 
-- [ ] **Step 3: Confirm the design spec is fully addressed**
+**Status: skipped.** No real GitHub personal access token or disposable test repo was available in this environment. Left unchecked deliberately — do not mark this done without actually running it against a real repo.
+
+**Deviation found and fixed (during this step's write-up, before the automated checks were re-run):** re-reading the design spec's Issue sync section (`sendIssueToGithub` / `updateIssueStatus`) surfaced that no task in this plan actually wired `sendIssueToGithub` into any UI — it existed only as an unreachable Server Action since Task 7. The existing "Send to Jira" button on the issue detail page (`src/app/(app)/projects/[projectId]/issues/[issueId]/page.tsx`) was never a GitHub equivalent. Fixed by: creating `src/components/issues/send-to-github-form.tsx` (mirrors `send-to-jira-form.tsx`), and modifying the issue detail page to resolve a project-scoped GitHub connection alongside the existing org-scoped Jira one, show whichever "Send to X" form(s) apply when the issue has no tracker link yet, and branch the synced-issue display on the link's provider (`issue_tracker_connections(provider, ...)` now selected on the join) to build either a Jira or a GitHub issue URL. Re-ran `npx tsc --noEmit`, `npx eslint`, and `npm run build` after this fix — all clean, `/settings/integrations/github` and every other route still present. Committed separately (`5f6e1a6`), not folded into any earlier task's commit.
+
+- [x] **Step 3: Confirm the design spec is fully addressed**
 
 Re-read `docs/superpowers/specs/2026-08-10-github-integration-pr-feedback-design.md`'s 10 scope decisions and confirm each is reflected in what was built:
 1. GitHub only (Task 4-11 — no GitLab/Azure code anywhere).
