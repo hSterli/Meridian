@@ -206,11 +206,11 @@ git commit -m "Add api_ingest_run_results for CI-triggered run ingestion"
 **Files:**
 - Modify: `src/lib/types/database.ts`
 
-- [ ] **Step 1: Regenerate types from the live schema**
+- [x] **Step 1: Regenerate types from the live schema**
 
 Use the Supabase MCP `generate_typescript_types` tool with `project_id: "ucnfcsosbdgknmzyuqbw"`.
 
-- [ ] **Step 2: Add the new function's entry to the `Functions` block**
+- [x] **Step 2: Add the new function's entry to the `Functions` block**
 
 In `src/lib/types/database.ts`, the `Functions` block (currently starting around line 1009) lists each RPC function alphabetically — `api_create_run_result`, `api_get_run`, `api_get_test_case`, `api_list_runs`, then (alphabetically) `api_get_run` comes before `api_get_test_case` and `api_ingest_run_results` sorts between `api_get_test_case` and `api_list_runs`. Insert it there. This function returns a plain `table(...)`, not `setof <existing table>`, so — unlike `api_create_run_result`/`api_get_run`/etc., which have a `SetofOptions` block — this entry should have no `SetofOptions`, matching the shape any other plain `returns table(...)` function in this codebase has (check the actually-generated output from Step 1 for the exact real shape rather than assuming — this is a prediction to verify against, not to copy blindly):
 
@@ -231,12 +231,12 @@ In `src/lib/types/database.ts`, the `Functions` block (currently starting around
       }
 ```
 
-- [ ] **Step 3: Verify the type compiles**
+- [x] **Step 3: Verify the type compiles**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/types/database.ts
