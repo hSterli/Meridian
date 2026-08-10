@@ -2071,7 +2071,7 @@ git commit -m "Add inbound GitHub webhook route with HMAC signature verification
 **Files:**
 - Modify: `README.md`
 
-- [ ] **Step 1: Add a GitHub bullet to "What's implemented"**
+- [x] **Step 1: Add a GitHub bullet to "What's implemented"**
 
 In `README.md`, immediately after the existing Jira bullet (currently: `- **Two-way Jira issue sync**: ...`), add:
 
@@ -2079,7 +2079,7 @@ In `README.md`, immediately after the existing Jira bullet (currently: `- **Two-
 - **Two-way GitHub issue sync + PR/MR feedback**: one GitHub connection per project (Settings > Integrations > GitHub, admin-managed, PAT stored in Supabase Vault), scoped per project rather than per org since a PR's repo is tied to a specific codebase; the webhook is auto-created via GitHub's API on connect. Send a Meridian issue to GitHub and it creates a linked GitHub issue, status changes on the Meridian side push an open/closed update to GitHub, and GitHub-side close/reopen events flow back in via a per-repo inbound webhook (`/api/v1/webhooks/github`). CI-triggered runs can additionally include a PR number (see "CI Integration" below) to get a pass/fail summary posted as a PR comment.
 ```
 
-- [ ] **Step 2: Document the `prNumber` field in the CI Integration section**
+- [x] **Step 2: Document the `prNumber` field in the CI Integration section**
 
 In the "CI Integration" section's request body example, change:
 
@@ -2126,7 +2126,7 @@ to:
 { "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true } }
 ```
 
-- [ ] **Step 3: Update the "Explicitly deferred" list**
+- [x] **Step 3: Update the "Explicitly deferred" list**
 
 Change:
 
@@ -2140,7 +2140,7 @@ to:
 - GitLab two-way issue sync, and GitLab MR feedback (Jira and GitHub now work — see "What's implemented" above)
 ```
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add README.md
