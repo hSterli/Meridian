@@ -2163,7 +2163,7 @@ Expected: no output.
 ```bash
 git ls-files '*.ts' '*.tsx' | xargs npx eslint
 ```
-Expected: no new errors/warnings beyond the one pre-existing accepted warning in `src/lib/actions/issue-tracker.ts` (from before this plan — `_prevState`/`_formData` unused-vars in an unrelated function).
+Expected: no new errors/warnings beyond two accepted `_prevState`/`_formData` unused-vars pairs (4 warning lines total) in `src/lib/actions/issue-tracker.ts` — one pre-existing on `sendIssueToJira` (from before this plan), one added by Task 7 on `sendIssueToGithub` for the same reason (both need that exact signature to be callable via `useActionState`, and this repo's eslint config has no `argsIgnorePattern` for underscore-prefixed args — see Task 7's deviation note above).
 
 ```bash
 npm test
