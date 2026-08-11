@@ -26,7 +26,7 @@ export function JiraConnectionManager({
     prevState: JiraConnectionActionState,
     formData: FormData
   ) => Promise<JiraConnectionActionState>;
-  disconnectAction: () => void;
+  disconnectAction: (() => void) | null;
 }) {
   const [state, formAction, isPending] = useActionState<JiraConnectionActionState, FormData>(
     connectAction,
@@ -43,7 +43,7 @@ export function JiraConnectionManager({
         {isAdmin && (
           <button
             type="button"
-            onClick={() => disconnectAction()}
+            onClick={() => disconnectAction?.()}
             className="mt-2 text-xs font-medium text-fail hover:underline"
           >
             Disconnect

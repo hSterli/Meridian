@@ -21,9 +21,7 @@ export default async function JiraIntegrationPage() {
     .maybeSingle();
 
   const connectAction = connectJiraTracker.bind(null, ctx.activeOrgId);
-  const disconnectAction = connection
-    ? disconnectJiraTracker.bind(null, connection.id)
-    : async () => {};
+  const disconnectAction = connection ? disconnectJiraTracker.bind(null, connection.id) : null;
 
   return (
     <div className="mx-auto max-w-2xl px-6 py-8">
