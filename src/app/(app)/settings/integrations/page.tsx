@@ -12,6 +12,11 @@ const PROVIDERS = [
     label: "GitHub",
     description: "Two-way issue sync and PR/MR test-result feedback, per project.",
   },
+  {
+    segment: "slack",
+    label: "Slack",
+    description: "Post a message when a CI-ingested test run completes.",
+  },
 ];
 
 export default async function IntegrationsIndexPage() {
