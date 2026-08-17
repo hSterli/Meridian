@@ -417,6 +417,51 @@ export type Database = {
           },
         ]
       }
+      slack_connections: {
+        Row: {
+          channel_id: string
+          created_at: string
+          created_by: string
+          id: string
+          org_id: string
+          project_id: string
+          vault_secret_id: string
+        }
+        Insert: {
+          channel_id: string
+          created_at?: string
+          created_by: string
+          id?: string
+          org_id: string
+          project_id: string
+          vault_secret_id: string
+        }
+        Update: {
+          channel_id?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          org_id?: string
+          project_id?: string
+          vault_secret_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "slack_connections_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "slack_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       test_case_attachments: {
         Row: {
           file_name: string
@@ -1090,6 +1135,13 @@ export type Database = {
           isSetofReturn: true
         }
       }
+      api_get_slack_bot_token_for_project: {
+        Args: { p_org_id: string; p_project_id: string }
+        Returns: {
+          channel_id: string
+          token: string
+        }[]
+      }
       api_get_test_case: {
         Args: { p_org_id: string; p_test_case_id: string }
         Returns: {
@@ -1236,11 +1288,23 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      create_slack_connection: {
+        Args: {
+          p_bot_token: string
+          p_channel_id: string
+          p_project_id: string
+        }
+        Returns: string
+      }
       delete_github_connection: {
         Args: { p_connection_id: string }
         Returns: undefined
       }
       delete_jira_connection: {
+        Args: { p_connection_id: string }
+        Returns: undefined
+      }
+      delete_slack_connection: {
         Args: { p_connection_id: string }
         Returns: undefined
       }
@@ -1254,6 +1318,10 @@ export type Database = {
           role: Database["public"]["Enums"]["org_role"]
           user_id: string
         }[]
+      }
+      get_slack_bot_token: {
+        Args: { p_connection_id: string }
+        Returns: string
       }
       validate_api_key: {
         Args: { p_key: string }
