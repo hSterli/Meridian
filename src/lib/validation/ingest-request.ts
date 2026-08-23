@@ -11,16 +11,18 @@ export interface ValidatedIngestRequest {
   runName: string;
   results: IngestResultInput[];
   prNumber?: number;
+  mrIid?: number;
 }
 
 export function validateIngestRequestBody(
   body: unknown
 ): { data: ValidatedIngestRequest } | { error: string } {
-  const { projectId, runName, results, prNumber } = (body ?? {}) as {
+  const { projectId, runName, results, prNumber, mrIid } = (body ?? {}) as {
     projectId?: string;
     runName?: string;
     results?: IngestResultInput[];
     prNumber?: unknown;
+    mrIid?: unknown;
   };
 
   if (!projectId) return { error: "projectId is required." };
@@ -44,12 +46,19 @@ export function validateIngestRequestBody(
     }
   }
 
+  if (mrIid !== undefined) {
+    if (typeof mrIid !== "number" || !Number.isInteger(mrIid) || mrIid <= 0) {
+      return { error: "mrIid must be a positive integer." };
+    }
+  }
+
   return {
     data: {
       projectId,
       runName,
       results,
       prNumber: typeof prNumber === "number" ? prNumber : undefined,
+      mrIid: typeof mrIid === "number" ? mrIid : undefined,
     },
   };
 }

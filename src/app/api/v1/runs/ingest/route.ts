@@ -4,6 +4,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import type { Json } from "@/lib/types/database";
 import { validateIngestRequestBody, type IngestResultInput } from "@/lib/validation/ingest-request";
 import { postOrUpdatePrComment } from "@/lib/github/client";
+import { postOrUpdateMrComment } from "@/lib/gitlab/client";
 import { postSlackMessage, formatRunNotification } from "@/lib/slack/client";
 
 export async function POST(request: Request) {
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
   if ("error" in validation) {
     return Response.json({ error: validation.error }, { status: 400 });
   }
-  const { projectId, runName, results, prNumber } = validation.data;
+  const { projectId, runName, results, prNumber, mrIid } = validation.data;
 
   const supabase = createServiceClient();
   const { data, error } = await supabase.rpc("api_ingest_run_results", {
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     p_run_name: runName,
     p_results: results as unknown as Json,
     p_pr_number: prNumber,
+    p_mr_iid: mrIid,
   });
 
   if (error) return Response.json({ error: error.message }, { status: 400 });
@@ -45,6 +47,18 @@ export async function POST(request: Request) {
       orgId: auth.orgId,
       projectId,
       prNumber,
+      runId: row.run_id,
+      runName,
+      results,
+    });
+  }
+
+  let mrCommentPosted = false;
+  if (row?.mr_url && mrIid && row.run_id) {
+    mrCommentPosted = await tryPostMrComment({
+      orgId: auth.orgId,
+      projectId,
+      mrIid,
       runId: row.run_id,
       runName,
       results,
@@ -69,6 +83,7 @@ export async function POST(request: Request) {
         matched: row?.matched,
         autoCreated: row?.auto_created,
         prCommentPosted,
+        mrCommentPosted,
         slackNotified,
       },
     },
@@ -114,6 +129,49 @@ async function tryPostPrComment(args: {
     const result = await postOrUpdatePrComment(
       { repoOwner: row.repo_owner, repoName: row.repo_name, token: row.token },
       args.prNumber,
+      {
+        projectId: args.projectId,
+        runName: args.runName,
+        runUrl,
+        passed: counts.passed,
+        failed: counts.failed,
+        blocked: counts.blocked,
+        skipped: counts.skipped,
+      }
+    );
+
+    return "ok" in result;
+  } catch {
+    return false;
+  }
+}
+
+// Best-effort, same pattern as tryPostPrComment: any failure (bad/revoked
+// PAT, renamed project, GitLab outage) is caught and never fails the
+// ingest response.
+async function tryPostMrComment(args: {
+  orgId: string;
+  projectId: string;
+  mrIid: number;
+  runId: string;
+  runName: string;
+  results: IngestResultInput[];
+}): Promise<boolean> {
+  try {
+    const supabase = createServiceClient();
+    const { data } = await supabase.rpc("api_get_gitlab_pat_for_project", {
+      p_org_id: args.orgId,
+      p_project_id: args.projectId,
+    });
+    const row = data?.[0];
+    if (!row?.token || !row.instance_url || !row.project_path) return false;
+
+    const counts = countResultsByStatus(args.results);
+    const runUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/projects/${args.projectId}/runs/${args.runId}`;
+
+    const result = await postOrUpdateMrComment(
+      { instanceUrl: row.instance_url, projectPath: row.project_path, token: row.token },
+      args.mrIid,
       {
         projectId: args.projectId,
         runName: args.runName,
