@@ -57,6 +57,7 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0018_lock_down_jira_functions.sql` | Fixes 0017's Jira connection functions being left callable by `anon`/`public` via the default execute grant (same class of gap `0004` closed for the RLS helpers) — revokes and re-grants to `authenticated` only |
 | `0024_slack_integration.sql` | `slack_connections` (one Slack connection per project, bot token stored in Supabase Vault); `create_slack_connection`/`get_slack_bot_token`/`delete_slack_connection` SECURITY DEFINER functions plus a service-role-only `api_get_slack_bot_token_for_project` used by the CI ingest route |
 | `0025_revoke_anon_function_execute.sql` | Recovered from the live project's migration history (originally applied 2026-07-19, chronologically between `0004` and `0006`) — closes a gap where this repo was missing a file for a migration that had already run live. See the file's own header comment: not safe to blindly replay at its current sequential position, since `0006` later moved 3 of its 4 target functions into the `private` schema. |
+| `0027_gitlab_integration.sql` | `issue_tracker_connections` gains a third `gitlab` provider value plus GitLab connection columns (`gitlab_instance_url`, `gitlab_project_path`, `gitlab_webhook_token`, `gitlab_webhook_id`); `create_gitlab_connection`/`get_gitlab_pat`/`delete_gitlab_connection` SECURITY DEFINER functions plus a service-role-only `api_get_gitlab_pat_for_project` used by the CI ingest route; `test_runs` gains `mr_iid`/`mr_url` columns, and `api_ingest_run_results` gains a parallel `p_mr_iid` parameter alongside `p_pr_number` |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -85,6 +86,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **CI-triggered run ingestion**: `POST /api/v1/runs/ingest` lets a CI pipeline report a whole test run's results in one call — no pre-created run required. See "CI Integration" below.
 - **Two-way Jira issue sync**: one Jira connection per org (Settings > Integrations > Jira), API token stored in Supabase Vault; send a Meridian issue to Jira and it creates a linked Jira issue, status changes on the Meridian side push a transition attempt to Jira, and Jira-side changes flow back in via a per-connection inbound webhook (`/api/v1/webhooks/jira`)
 - **Two-way GitHub issue sync + PR/MR feedback**: one GitHub connection per project (Settings > Integrations > GitHub, admin-managed, PAT stored in Supabase Vault), scoped per project rather than per org since a PR's repo is tied to a specific codebase; the webhook is auto-created via GitHub's API on connect. Send a Meridian issue to GitHub and it creates a linked GitHub issue, status changes on the Meridian side push an open/closed update to GitHub, and GitHub-side close/reopen events flow back in via a per-repo inbound webhook (`/api/v1/webhooks/github`). CI-triggered runs can additionally include a PR number (see "CI Integration" below) to get a pass/fail summary posted as a PR comment.
+- **Two-way GitLab issue sync + MR feedback**: one GitLab connection per project (Settings > Integrations > GitLab, admin-managed, PAT stored in Supabase Vault), with support for self-hosted instances via an optional instance URL (defaults to `gitlab.com`); the webhook is auto-created via GitLab's API on connect. Send a Meridian issue to GitLab and it creates a linked GitLab issue, status changes on the Meridian side push an open/closed update to GitLab, and GitLab-side close/reopen events flow back in via a per-project inbound webhook (`/api/v1/webhooks/gitlab`). CI-triggered runs can additionally include an MR IID (see "CI Integration" below) to get a pass/fail summary posted as an MR comment.
 - **Slack run-completion notifications**: one Slack connection per project (Settings > Integrations > Slack, admin-managed, bot token stored in Supabase Vault, `chat:write` scope only). Every CI-ingested run completion (`POST /api/v1/runs/ingest`) posts a best-effort message to the connected channel summarizing pass/fail/blocked/skipped counts with a link back to the run — never a manual Test Runner completion, never gated on a PR number. Connecting posts a real confirmation message to the channel, which both validates the bot has access and confirms the wiring end to end.
 - Weekly Status Report per project — live dashboard (RAG status, key metrics, daily execution with planned/variance, module breakdown) plus a non-destructive snapshot history for sharing a stable point-in-time record with stakeholders.
 - Attach screenshots to a test case directly from the Runs screen (file picker or clipboard paste) — evidence is tagged to the run execution and also shows up on the test case's own Attachments panel.
@@ -100,6 +102,7 @@ Request body:
   "projectId": "your-meridian-project-id",
   "runName": "CI: main @ ${CI_COMMIT_SHORT_SHA}",
   "prNumber": 42,
+  "mrIid": 7,
   "results": [
     { "title": "test name matching a Meridian test case", "status": "passed" },
     { "title": "another test", "status": "failed", "notes": "why it failed" }
@@ -109,12 +112,14 @@ Request body:
 
 `prNumber` is optional. If the project has a connected GitHub repo (Settings > Integrations > GitHub), Meridian posts (or updates, on a re-run) a comment on that pull request summarizing the pass/fail/blocked/skipped counts with a link back to the run. This never fails the ingest itself — a GitHub-side failure (bad token, renamed repo) is silently skipped, reflected only in the response's `prCommentPosted` field.
 
+`mrIid` is optional. If the project has a connected GitLab project (Settings > Integrations > GitLab), Meridian posts (or updates, on a re-run) a note on that merge request summarizing the pass/fail/blocked/skipped counts with a link back to the run. This never fails the ingest itself — a GitLab-side failure (bad token, renamed project) is silently skipped, reflected only in the response's `mrCommentPosted` field.
+
 Independently of `prNumber`, if the project has a connected Slack channel (Settings > Integrations > Slack), Meridian posts a message there summarizing the same counts on every run this endpoint ingests. Like the GitHub PR comment, this never fails the ingest itself — reflected only in the response's `slackNotified` field.
 
 `status` must be one of `passed`, `failed`, `blocked`, `skipped`. Each result is matched to an existing test case by exact title match within the project; unmatched titles auto-create a new draft test case under a "CI Imported" feature, so nothing is silently dropped. Response (`201`):
 
 ```json
-{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true, "slackNotified": true } }
+{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true, "mrCommentPosted": true, "slackNotified": true } }
 ```
 
 Rate limit: 20 requests/hour per API key (one call per CI run, not per test).
@@ -166,7 +171,6 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 
 ## Explicitly deferred (Phase 2/3 per the PRD)
 
-- GitLab two-way issue sync, and GitLab MR feedback (Jira and GitHub now work — see "What's implemented" above)
 - Requirements management / traceability
 - AI features (duplicate detection, test-value signal)
 - Billing/plan tiers, regional data residency, SSO/SAML
