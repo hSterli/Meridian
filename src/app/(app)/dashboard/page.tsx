@@ -6,6 +6,7 @@ import { getUserContext } from "@/lib/org-context";
 import { Card, Badge } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { DashboardProjectFilter } from "@/components/dashboard/project-filter";
+import { computeFlakyTests, type RawFlakyRunCaseRow } from "@/lib/flaky-tests";
 
 export default async function DashboardPage({
   searchParams,
@@ -68,7 +69,7 @@ export default async function DashboardPage({
         .in("status", ["open", "in_progress"]),
       supabase
         .from("test_run_cases")
-        .select("status, test_case_id, test_cases(title), test_runs!inner(project_id)")
+        .select("status, test_case_id, executed_at, test_cases(title), test_runs!inner(project_id)")
         .in("test_runs.project_id", projectIds)
         .neq("status", "pending"),
     ]);
@@ -90,20 +91,18 @@ export default async function DashboardPage({
     return { ...run, total, passed, passRate, projectName: project?.name ?? "" };
   });
 
-  // Flaky-test tracker: test cases with both a pass and a fail somewhere in history.
-  const byTestCase = new Map<string, { title: string; passed: number; failed: number }>();
+  const flakyRows: RawFlakyRunCaseRow[] = [];
   for (const rc of runCases ?? []) {
     const title = (rc as unknown as { test_cases: { title: string } | null }).test_cases?.title;
     if (!title) continue;
-    const entry = byTestCase.get(rc.test_case_id) ?? { title, passed: 0, failed: 0 };
-    if (rc.status === "passed") entry.passed += 1;
-    if (rc.status === "failed") entry.failed += 1;
-    byTestCase.set(rc.test_case_id, entry);
+    flakyRows.push({
+      testCaseId: rc.test_case_id,
+      title,
+      status: rc.status as RawFlakyRunCaseRow["status"],
+      executedAt: (rc as unknown as { executed_at: string | null }).executed_at,
+    });
   }
-  const flaky = Array.from(byTestCase.values())
-    .filter((e) => e.passed > 0 && e.failed > 0)
-    .sort((a, b) => b.failed - a.failed)
-    .slice(0, 5);
+  const flaky = computeFlakyTests(flakyRows, { limit: 5 });
 
   const testRunsThisWeek = (runs ?? []).filter((r) => {
     const created = new Date(r.created_at);
@@ -171,14 +170,19 @@ export default async function DashboardPage({
         </div>
 
         <div>
-          <h2 className="mb-3 font-headline-sm text-[17px] font-semibold text-ink-primary">
-            Flaky-test tracker
-          </h2>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-headline-sm text-[17px] font-semibold text-ink-primary">
+              Flaky-test tracker
+            </h2>
+            <Link href="/reports" className="text-xs font-semibold text-primary">
+              See all →
+            </Link>
+          </div>
           <Card className="divide-y divide-border-light">
             {flaky.length === 0 && (
               <p className="p-4 text-sm text-ink-tertiary">
-                No flaky tests detected yet — a test needs both a pass and a fail in history to
-                show here.
+                No flaky tests detected yet — a test needs at least 3 recent executions with a
+                mix of pass and fail to show here.
               </p>
             )}
             {flaky.map((f) => (
