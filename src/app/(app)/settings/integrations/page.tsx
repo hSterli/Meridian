@@ -17,6 +17,11 @@ const PROVIDERS = [
     label: "Slack",
     description: "Post a message when a CI-ingested test run completes.",
   },
+  {
+    segment: "gitlab",
+    label: "GitLab",
+    description: "Two-way issue sync and MR test-result feedback, per project.",
+  },
 ];
 
 export default async function IntegrationsIndexPage() {
