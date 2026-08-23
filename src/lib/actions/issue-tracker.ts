@@ -12,6 +12,12 @@ import {
   deleteGithubWebhook,
   verifyGithubRepoAccess,
 } from "@/lib/github/client";
+import {
+  createGitlabIssue,
+  createGitlabWebhook,
+  deleteGitlabWebhook,
+  verifyGitlabProjectAccess,
+} from "@/lib/gitlab/client";
 import type { ActionState } from "@/lib/actions/auth";
 
 export interface JiraConnectionActionState extends ActionState {
@@ -258,6 +264,148 @@ export async function sendIssueToGithub(
     issue_id: issueId,
     connection_id: connectionId,
     external_issue_key: String(result.number),
+    external_issue_id: result.id,
+    external_updated_at: new Date().toISOString(),
+  });
+
+  if (linkError) return { error: linkError.message };
+
+  revalidatePath(`/projects/${projectId}/issues/${issueId}`);
+  return {};
+}
+
+export interface GitlabConnectionActionState extends ActionState {
+  webhookWarning?: string;
+}
+
+export async function connectGitlabTracker(
+  _prevState: GitlabConnectionActionState,
+  formData: FormData
+): Promise<GitlabConnectionActionState> {
+  const projectId = String(formData.get("projectId") ?? "").trim();
+  const instanceUrl = (String(formData.get("instanceUrl") ?? "").trim() || "https://gitlab.com").replace(
+    /\/$/,
+    ""
+  );
+  const projectPath = String(formData.get("projectPath") ?? "").trim();
+  const token = String(formData.get("token") ?? "").trim();
+
+  if (!projectId || !projectPath || !token) {
+    return { error: "Project, project path, and token are required." };
+  }
+
+  const ctx = await getUserContext();
+  if (!ctx) return { error: "Not authenticated." };
+  if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
+    return { error: "Only owners and admins can connect an issue tracker." };
+  }
+
+  const limitError = await rateLimit("connect_issue_tracker", 10, 3600);
+  if (limitError) return { error: limitError };
+
+  const access = await verifyGitlabProjectAccess({ instanceUrl, projectPath, token });
+  if ("error" in access) return { error: access.error };
+
+  const webhookToken = randomBytes(24).toString("base64url");
+  const supabase = await createClient();
+
+  const { data: connectionId, error } = await supabase.rpc("create_gitlab_connection", {
+    p_project_id: projectId,
+    p_instance_url: instanceUrl,
+    p_project_path: projectPath,
+    p_token: token,
+    p_webhook_token: webhookToken,
+  });
+
+  if (error || !connectionId) return { error: error?.message ?? "Could not save connection." };
+
+  revalidatePath("/settings/integrations/gitlab");
+
+  const callbackUrl = `${process.env.NEXT_PUBLIC_APP_URL ?? ""}/api/v1/webhooks/gitlab`;
+  const webhook = await createGitlabWebhook({ instanceUrl, projectPath, token }, callbackUrl, webhookToken);
+
+  if ("error" in webhook) {
+    return {
+      webhookWarning:
+        "Issue sync is connected, but automatic status updates from GitLab aren't set up yet — disconnect and reconnect to retry.",
+    };
+  }
+
+  await supabase
+    .from("issue_tracker_connections")
+    .update({ gitlab_webhook_id: webhook.hookId })
+    .eq("id", connectionId);
+
+  return {};
+}
+
+export async function disconnectGitlabTracker(
+  connectionId: string,
+  instanceUrl: string,
+  projectPath: string,
+  webhookId: number | null
+) {
+  const supabase = await createClient();
+
+  if (webhookId) {
+    const { data: token } = await supabase.rpc("get_gitlab_pat", { p_connection_id: connectionId });
+    if (token) {
+      await deleteGitlabWebhook({ instanceUrl, projectPath, token }, webhookId);
+    }
+  }
+
+  await supabase.rpc("delete_gitlab_connection", { p_connection_id: connectionId });
+  revalidatePath("/settings/integrations/gitlab");
+}
+
+export async function sendIssueToGitlab(
+  projectId: string,
+  issueId: string,
+  connectionId: string,
+  _prevState: ActionState,
+  _formData: FormData
+): Promise<ActionState> {
+  const ctx = await getUserContext();
+  if (!ctx) return { error: "Not authenticated." };
+
+  const limitError = await rateLimit("send_issue_to_gitlab", 30, 3600);
+  if (limitError) return { error: limitError };
+
+  const supabase = await createClient();
+
+  const { data: connection } = await supabase
+    .from("issue_tracker_connections")
+    .select("gitlab_instance_url, gitlab_project_path")
+    .eq("id", connectionId)
+    .single();
+  if (!connection) return { error: "Connection not found." };
+  if (!connection.gitlab_instance_url || !connection.gitlab_project_path) {
+    return { error: "This connection is missing project information." };
+  }
+
+  const { data: token } = await supabase.rpc("get_gitlab_pat", { p_connection_id: connectionId });
+  if (!token) return { error: "Could not retrieve GitLab credentials." };
+
+  const { data: issue } = await supabase
+    .from("issues")
+    .select("title, description, severity")
+    .eq("id", issueId)
+    .single();
+  if (!issue) return { error: "Issue not found." };
+
+  const result = await createGitlabIssue(
+    { instanceUrl: connection.gitlab_instance_url, projectPath: connection.gitlab_project_path, token },
+    issue.title,
+    issue.description ?? "",
+    issue.severity
+  );
+
+  if ("error" in result) return { error: result.error };
+
+  const { error: linkError } = await supabase.from("issue_tracker_links").insert({
+    issue_id: issueId,
+    connection_id: connectionId,
+    external_issue_key: String(result.iid),
     external_issue_id: result.id,
     external_updated_at: new Date().toISOString(),
   });
