@@ -5,6 +5,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RagEditor } from "@/components/reports/rag-editor";
 import { DailyExecutionTable } from "@/components/reports/daily-execution-table";
+import { AutoRefresh } from "@/components/reports/auto-refresh";
 import { computeWeeklyReportMetrics, getWeekdayRange } from "@/lib/weekly-report-metrics";
 import { captureWeeklyReportSnapshot } from "@/lib/actions/weekly-reports";
 
@@ -54,6 +55,7 @@ export default async function WeeklyReportPage({
         description={project?.name ?? ""}
         action={
           <div className="flex items-center gap-2">
+            <AutoRefresh />
             <Link
               href={`/projects/${projectId}/reports/history`}
               className="text-sm font-medium text-primary hover:text-primary"
