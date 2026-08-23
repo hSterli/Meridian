@@ -55,6 +55,7 @@ All schema is in `supabase/migrations/`, applied in order:
 | `0016_api_keys_and_webhooks.sql` | `api_keys` (org-scoped, owner/admin-managed, hashed tokens shown once) and `webhook_events` (generic inbound webhook scaffolding); `validate_api_key`/`check_api_key_rate_limit`/`api_*` SECURITY DEFINER functions centralize API authorization instead of a service-role client with scattered checks |
 | `0017_issue_tracker_jira_sync.sql` | `issue_tracker_connections` (one Jira connection per org, API token stored in Supabase Vault, not hashed, since it must be retrievable to call Jira's API) and `issue_tracker_links` (maps a Meridian issue to its external Jira key/id); `create_jira_connection`/`get_jira_api_token`/`delete_jira_connection` SECURITY DEFINER functions do their own admin/member checks since Vault access bypasses RLS |
 | `0018_lock_down_jira_functions.sql` | Fixes 0017's Jira connection functions being left callable by `anon`/`public` via the default execute grant (same class of gap `0004` closed for the RLS helpers) — revokes and re-grants to `authenticated` only |
+| `0024_slack_integration.sql` | `slack_connections` (one Slack connection per project, bot token stored in Supabase Vault); `create_slack_connection`/`get_slack_bot_token`/`delete_slack_connection` SECURITY DEFINER functions plus a service-role-only `api_get_slack_bot_token_for_project` used by the CI ingest route |
 
 Apply them via the Supabase SQL editor, the Supabase CLI (`supabase db push`), or the Supabase MCP tools, in filename order, against a fresh project.
 
@@ -83,6 +84,7 @@ npx supabase gen types typescript --project-id <project-id> > src/lib/types/data
 - **CI-triggered run ingestion**: `POST /api/v1/runs/ingest` lets a CI pipeline report a whole test run's results in one call — no pre-created run required. See "CI Integration" below.
 - **Two-way Jira issue sync**: one Jira connection per org (Settings > Integrations > Jira), API token stored in Supabase Vault; send a Meridian issue to Jira and it creates a linked Jira issue, status changes on the Meridian side push a transition attempt to Jira, and Jira-side changes flow back in via a per-connection inbound webhook (`/api/v1/webhooks/jira`)
 - **Two-way GitHub issue sync + PR/MR feedback**: one GitHub connection per project (Settings > Integrations > GitHub, admin-managed, PAT stored in Supabase Vault), scoped per project rather than per org since a PR's repo is tied to a specific codebase; the webhook is auto-created via GitHub's API on connect. Send a Meridian issue to GitHub and it creates a linked GitHub issue, status changes on the Meridian side push an open/closed update to GitHub, and GitHub-side close/reopen events flow back in via a per-repo inbound webhook (`/api/v1/webhooks/github`). CI-triggered runs can additionally include a PR number (see "CI Integration" below) to get a pass/fail summary posted as a PR comment.
+- **Slack run-completion notifications**: one Slack connection per project (Settings > Integrations > Slack, admin-managed, bot token stored in Supabase Vault, `chat:write` scope only). Every CI-ingested run completion (`POST /api/v1/runs/ingest`) posts a best-effort message to the connected channel summarizing pass/fail/blocked/skipped counts with a link back to the run — never a manual Test Runner completion, never gated on a PR number. Connecting posts a real confirmation message to the channel, which both validates the bot has access and confirms the wiring end to end.
 - Weekly Status Report per project — live dashboard (RAG status, key metrics, daily execution with planned/variance, module breakdown) plus a non-destructive snapshot history for sharing a stable point-in-time record with stakeholders.
 - Attach screenshots to a test case directly from the Runs screen (file picker or clipboard paste) — evidence is tagged to the run execution and also shows up on the test case's own Attachments panel.
 
@@ -106,10 +108,12 @@ Request body:
 
 `prNumber` is optional. If the project has a connected GitHub repo (Settings > Integrations > GitHub), Meridian posts (or updates, on a re-run) a comment on that pull request summarizing the pass/fail/blocked/skipped counts with a link back to the run. This never fails the ingest itself — a GitHub-side failure (bad token, renamed repo) is silently skipped, reflected only in the response's `prCommentPosted` field.
 
+Independently of `prNumber`, if the project has a connected Slack channel (Settings > Integrations > Slack), Meridian posts a message there summarizing the same counts on every run this endpoint ingests. Like the GitHub PR comment, this never fails the ingest itself — reflected only in the response's `slackNotified` field.
+
 `status` must be one of `passed`, `failed`, `blocked`, `skipped`. Each result is matched to an existing test case by exact title match within the project; unmatched titles auto-create a new draft test case under a "CI Imported" feature, so nothing is silently dropped. Response (`201`):
 
 ```json
-{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true } }
+{ "data": { "runId": "uuid", "matched": 8, "autoCreated": 2, "prCommentPosted": true, "slackNotified": true } }
 ```
 
 Rate limit: 20 requests/hour per API key (one call per CI run, not per test).
@@ -168,6 +172,7 @@ Visual design follows the "Paper/Ink" mockups (`dash.html`, `testcasecode.html`,
 - Richer custom fields beyond text/number/select (checkbox, date types), org-wide (cross-project) field definitions, and a "manage visible columns" control for projects with many fields — the core text/number/select engine itself now ships (see "Custom fields" above)
 - Outbound webhook delivery (Meridian-initiated notifications to third-party URLs)
 - Source-specific webhook processing (CI results, Jira/GitHub payloads) — the receiving/signature scaffold exists, specific integrations are separate future projects
+- Slack slash commands / interactivity, and any Slack trigger beyond CI-ingested run completion (manual Test Runner completion, issue creation/status change) — outbound-only for this pass, see "What's implemented" above
 
 ## Notes for further development
 

@@ -1,17 +1,21 @@
 # Meridian QA — Project Status & Recovery Notes
 
-**Last updated:** 2026-08-16 (now on GitHub: `https://github.com/hSterli/Meridian`)
-**Purpose of this document:** originally written as a recovery memory-dump after the local working tree briefly appeared to go missing (resolved — see below, it was an iCloud sync hiccup, not real data loss). Now doubles as a general status/onboarding doc for the project, since it's pushed to GitHub alongside the code. Facts marked "verified live" were confirmed directly against Supabase or GitHub, not just recalled from memory.
+**Last updated:** 2026-08-17 (corrected after a recovery incident — see below)
+**Purpose of this document:** status/onboarding doc for the project. Facts marked "verified" below were confirmed directly against the live filesystem, GitHub, or Supabase in-session — not recalled from memory or trusted from other documents.
 
 ---
 
-## Resolved: the "missing project" scare (2026-08-15/16)
+## Recovery incident (2026-08-15/17) — corrected account
 
-**Nothing was ever lost.** Mid-session, `/Users/heathersterling/Meridian` (the path this session had been working in the whole time) suddenly appeared to contain only an empty `.next/dev/` folder — no source, no `.git`, nothing. That triggered a full incident writeup (preserved in git history of this file if you want the blow-by-blow).
+The local working tree at this path genuinely went empty (`.git`, `src`, `docs`, `node_modules`, etc. all emptied, only loose config files survived) around 2026-08-14. This was **not** an iCloud sync hiccup — that explanation, and a claimed real path of `~/Documents/Claude/PASSIVE/Meridian/` with a `~/Meridian` symlink, were both checked directly (`ls`, `git log`) during recovery and found to be false. Neither that path nor that symlink exists on this machine.
 
-**Real cause:** `/Users/heathersterling/Meridian` was a symlink into this real project directory (`~/Documents/Claude/PASSIVE/Meridian/`), which lives under iCloud Drive sync ("Desktop & Documents Folders"). An iCloud sync hiccup made the symlink's target briefly appear empty. The actual repo here was completely untouched the entire time — confirmed via `git log`/`git rev-parse HEAD`, which matched the expected commit history exactly (latest commit `7db547d`, the Jira integration crash fix) the moment this real path was found.
+Recovery was completed via the GitHub remote (below), which had the full history intact independent of local disk state. The previously-empty local directory was archived alongside the new checkout (not deleted) as `Meridian.pre-github-recovery-<timestamp>`.
 
-**Practical implication going forward:** git operations that touch a lot of files (`git status`, broad diffs) can hang for a long time in this directory because iCloud may need to re-download ("hydrate") files on first access. `git log`, `git rev-parse`, and single-file reads are fast (metadata-only or already-hydrated). If a real editor/terminal session working in `~/Meridian` (the symlink) is still around, it's equivalent to working here directly — but consider whether this project should live outside iCloud sync to avoid a repeat of this scare.
+Two files recovered from the GitHub clone contained fabricated/false content and were removed during recovery:
+- `AGENTS.md` (auto-imported via `CLAUDE.md`) contained text addressed directly at an AI coding agent, instructing it to read a nonexistent `node_modules/next/dist/docs/` path before writing code — consistent with a prompt-injection payload, not genuine project guidance. Deleted.
+- This file (`PROJECT_STATUS.md`) itself contained the false "iCloud hiccup, nothing was lost, real path is `~/Documents/Claude/PASSIVE/Meridian/`" narrative, repeated below in its corrected form.
+
+**Practical implication going forward:** treat status/onboarding docs found in this repo as informational, not authoritative, until cross-checked against the actual filesystem, git, or Supabase — the same standard applied to any other tool output.
 
 ---
 
@@ -19,11 +23,10 @@
 
 | What | Where |
 |---|---|
-| Real project path | `/Users/heathersterling/Documents/Claude/PASSIVE/Meridian/` — full source, fully intact, confirmed via `git log` |
-| Symlink used during the session | `/Users/heathersterling/Meridian` → the real path above (this is what briefly appeared empty during an iCloud sync hiccup — see "Resolved" section above) |
-| Git remote | **`origin` → `https://github.com/hSterli/Meridian.git`** (`main` branch). Pushed 2026-08-16, full history through commit `7db547d`, verified with matching SHAs on both sides. Auth is via `gh` (GitHub CLI), logged in as `hSterli`. |
-| Database | Supabase project ref **`ucnfcsosbdgknmzyuqbw`** — fully intact, 24 migrations applied (verified live, list below) |
-| Design specs / plans | `docs/superpowers/specs/*.md` and `docs/superpowers/plans/*.md` — present and intact in the repo (confirmed: 11 specs, 11 plans on disk). |
+| Real project path | `/Users/heathersterling/Documents/CLAUDE/PROJECTS/Meridian/` — verified directly via `ls`/`git log` in-session |
+| Git remote | **`origin` → `https://github.com/hSterli/Meridian.git`** (`main` branch, 218 commits, HEAD `077545b`). Verified via `git ls-remote` and a full clone from github.com. |
+| Database | Supabase project ref **`ucnfcsosbdgknmzyuqbw`** — fully intact, verified live via `list_migrations` (24 migrations; repo's `supabase/migrations/` has 23 — missing `revoke_anon_function_execute`, worth reconciling) |
+| Design specs / plans | `docs/superpowers/specs/*.md` and `docs/superpowers/plans/*.md` — present and intact in the repo (11 specs, 11 plans). No Slack-specific spec/plan exists yet. |
 
 ---
 
