@@ -32,7 +32,7 @@ Check `tail -3 <file>` after every file write for a stray literal `</content>` l
 - Create: `src/lib/pass-rate-trend.ts`
 - Test: `src/lib/pass-rate-trend.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/pass-rate-trend.test.ts`:
 
@@ -97,12 +97,12 @@ describe("computePassRateTrend", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `npx vitest run --project unit src/lib/pass-rate-trend.test.ts`
 Expected: FAIL — `src/lib/pass-rate-trend.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write `src/lib/pass-rate-trend.ts`**
+- [x] **Step 3: Write `src/lib/pass-rate-trend.ts`**
 
 ```ts
 export type TrendRunCaseStatus = "pending" | "passed" | "failed" | "blocked" | "skipped";
@@ -158,17 +158,17 @@ export function computePassRateTrend(
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/pass-rate-trend.ts`
 Strip with `sed -i '' -e '/^<\/content>$/d' src/lib/pass-rate-trend.ts` if present. Repeat for the test file.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run --project unit src/lib/pass-rate-trend.test.ts`
 Expected: 6 passed.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -176,7 +176,7 @@ Expected: no output.
 Run: `npx eslint src/lib/pass-rate-trend.ts src/lib/pass-rate-trend.test.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/pass-rate-trend.ts src/lib/pass-rate-trend.test.ts
@@ -191,7 +191,7 @@ git commit -m "Add computePassRateTrend: daily pass rate from passed/failed rows
 - Create: `src/lib/pass-rate-chart-geometry.ts`
 - Test: `src/lib/pass-rate-chart-geometry.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/pass-rate-chart-geometry.test.ts`:
 
@@ -236,12 +236,12 @@ describe("buildAreaChartPath", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `npx vitest run --project unit src/lib/pass-rate-chart-geometry.test.ts`
 Expected: FAIL — `src/lib/pass-rate-chart-geometry.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write `src/lib/pass-rate-chart-geometry.ts`**
+- [x] **Step 3: Write `src/lib/pass-rate-chart-geometry.ts`**
 
 ```ts
 import type { DailyPassRate } from "./pass-rate-trend";
@@ -284,17 +284,17 @@ export function buildAreaChartPath(
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/pass-rate-chart-geometry.ts`
 Strip if present. Repeat for the test file.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run --project unit src/lib/pass-rate-chart-geometry.test.ts`
 Expected: 5 passed.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -302,7 +302,7 @@ Expected: no output.
 Run: `npx eslint src/lib/pass-rate-chart-geometry.ts src/lib/pass-rate-chart-geometry.test.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/pass-rate-chart-geometry.ts src/lib/pass-rate-chart-geometry.test.ts
@@ -316,7 +316,7 @@ git commit -m "Add buildAreaChartPath: daily pass rates to SVG polyline/polygon 
 **Files:**
 - Modify: `src/app/(app)/reports/page.tsx`
 
-- [ ] **Step 1: Replace the full file contents**
+- [x] **Step 1: Replace the full file contents**
 
 The current file (208 lines) has 3 stub cards, a Flaky tests section, and a Blocked tests section, with no project-filtering logic anywhere. Replace the entire file with:
 
@@ -605,12 +605,12 @@ Notes on this change:
 - The project filter (`DashboardProjectFilter`) is added to the page's `PageHeader` action slot, which **also scopes the existing Flaky tests and Blocked tests sections** (both already query via `projectIds`, which now responds to `?project=` instead of always being every org project). This is a deliberate, natural side effect — once a project-filter control exists on the page, leaving two of the three sections unfiltered while only the new chart responds to it would be inconsistent UX. It is not scope creep on the *data model* (no new query shape for Flaky/Blocked tests, just a narrower `projectIds` input to the query they already run).
 - The trend section reuses the exact `#1e8a5b` pass-green from the approved visual mockup.
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/reports/page.tsx"`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output. If it reports a type error specifically on `rc.executed_at` or `rc.status` inside the new `trendRows` mapping, this means the simpler direct-typed approach doesn't hold for this particular select shape — apply the same `(rc as unknown as { executed_at: string | null }).executed_at` cast pattern already used for the Flaky/Blocked-tests mappings immediately above it in this same file (the code above already does this defensively; if tsc is clean, no change needed).
@@ -618,7 +618,7 @@ Expected: no output. If it reports a type error specifically on `rc.executed_at`
 Run: `npx eslint "src/app/(app)/reports/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 4: Manual verification via the dev server**
+- [x] **Step 4: Manual verification via the dev server**
 
 The Browser-pane preview tool is broken this session — verify directly instead:
 
@@ -635,7 +635,7 @@ kill %1
 
 Expected: HTTP status is `200` or a redirect (`307`/`302` to `/login` is also fine if not authenticated in this shell — it proves the route compiles and responds, which is what this check is for); if `200`, `"Pass/fail trend"` and an `<svg` tag should both appear in the response body. If port 3000 is already in use by something else, adjust to a free port with `PORT=3100 npm run dev &` and curl that port instead. This is a compile/render smoke check, not a substitute for looking at it in an actual browser — note in your report that a real visual check (does the chart look right, is the fill visible, does the project filter work) still needs a human or a working preview tool.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "src/app/(app)/reports/page.tsx"
@@ -648,7 +648,7 @@ git commit -m "Build out the Pass/fail trend chart on /reports, with a project f
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full automated verification suite**
+- [x] **Step 1: Run the full automated verification suite**
 
 ```bash
 npx tsc --noEmit
@@ -675,7 +675,7 @@ git status --short
 ```
 Expected: clean.
 
-- [ ] **Step 2: Confirm the design spec is fully addressed**
+- [x] **Step 2: Confirm the design spec is fully addressed**
 
 Re-read `docs/superpowers/specs/2026-08-24-pass-fail-trend-design.md`'s 8 scope decisions and confirm each is reflected:
 1. Daily buckets, 30-day lookback — confirmed by the `.gte("executed_at", thirtyDaysAgo...)` query in Task 3.
@@ -687,7 +687,7 @@ Re-read `docs/superpowers/specs/2026-08-24-pass-fail-trend-design.md`'s 8 scope 
 7. Zero-result days omitted, not zeroed — confirmed by Task 1's test 3.
 8. Own date-bounded query, not a reuse of the Flaky/Blocked-tests fetch — confirmed, `trendRunCases` is a separate query from `runCases`.
 
-- [ ] **Step 3: Commit the plan checkbox updates**
+- [x] **Step 3: Commit the plan checkbox updates**
 
 ```bash
 git add docs/superpowers/plans/2026-08-24-pass-fail-trend.md
