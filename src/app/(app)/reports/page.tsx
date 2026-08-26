@@ -155,7 +155,13 @@ export default async function ReportsPage({
             <p className="text-sm text-ink-tertiary">No pass/fail results in the last 30 days yet.</p>
           ) : (
             <>
-              <svg viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`} className="h-[150px] w-full">
+              <svg
+                viewBox={`0 -4 ${CHART_WIDTH} ${CHART_HEIGHT + 8}`}
+                className="h-[150px] w-full"
+              >
+                {/* viewBox has 4px of vertical slack on each side so the
+                    2.5px stroke isn't clipped at passRate 0 or 1, where
+                    buildAreaChartPath places points exactly on y=0/y=height. */}
                 <defs>
                   <linearGradient id="passRateFill" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stopColor="#1e8a5b" stopOpacity="0.25" />
