@@ -26,7 +26,7 @@ export default async function GithubIntegrationPage() {
     .eq("provider", "github");
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-2xl px-6 py-8">
       <PageHeader title="GitHub" description="Two-way issue sync and PR/MR feedback, per project." />
       <GithubConnectionManager
         connections={connections ?? []}

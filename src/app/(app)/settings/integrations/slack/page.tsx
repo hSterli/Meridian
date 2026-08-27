@@ -25,7 +25,7 @@ export default async function SlackIntegrationPage() {
     .eq("org_id", ctx.activeOrgId);
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-2xl px-6 py-8">
       <PageHeader
         title="Slack"
         description="Post a message to a channel when a CI-ingested test run completes."

@@ -24,7 +24,7 @@ export default async function JiraIntegrationPage() {
   const disconnectAction = connection ? disconnectJiraTracker.bind(null, connection.id) : null;
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-2xl px-6 py-8">
       <PageHeader title="Jira" description="Two-way sync between Meridian issues and Jira." />
       <JiraConnectionManager
         connection={connection ?? null}

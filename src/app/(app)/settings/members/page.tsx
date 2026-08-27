@@ -28,7 +28,7 @@ export default async function MembersPage() {
     : { data: [] };
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-2xl px-6 py-8">
       <PageHeader title="Team" description="Roles configurable in minutes — owner, admin, or member." />
 
       {isAdmin && (

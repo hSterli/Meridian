@@ -23,7 +23,7 @@ export default async function ApiSettingsPage() {
   const revokeAction = revokeApiKey.bind(null, ctx.activeOrgId);
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-2xl px-6 py-8">
       <PageHeader
         title="API Keys"
         description="Use these to authenticate requests to the Meridian API."

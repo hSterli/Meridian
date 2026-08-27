@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="max-w-5xl px-6 py-8">
       <PageHeader
         title="Projects"
         action={
