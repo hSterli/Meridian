@@ -6,7 +6,6 @@ import { clsx } from "clsx";
 import {
   LayoutDashboard,
   FolderKanban,
-  Users,
   LogOut,
   ChevronDown,
   Plus,
@@ -26,7 +25,6 @@ const NAV = [
   { href: "/projects", label: "Projects", icon: FolderKanban },
   { href: "/reports", label: "Reports", icon: BarChart3 },
   { href: "/settings", label: "Settings", icon: SettingsIcon },
-  { href: "/settings/members", label: "Team", icon: Users },
 ];
 
 const COLLAPSED_STORAGE_KEY = "meridian-sidebar-collapsed";
@@ -62,12 +60,14 @@ export function Sidebar({
   activeOrgName,
   activeRole,
   userEmail,
+  userName,
 }: {
   orgs: { id: string; name: string }[];
   activeOrgId: string | null;
   activeOrgName: string;
   activeRole: OrgRole | null;
   userEmail: string | null;
+  userName: string | null;
 }) {
   const pathname = usePathname();
   const [switcherOpen, setSwitcherOpen] = useState(false);
@@ -143,10 +143,7 @@ export function Sidebar({
 
       <nav className="flex-1 space-y-2">
         {NAV.map((item) => {
-          const active =
-            item.href === "/settings"
-              ? pathname === "/settings"
-              : pathname?.startsWith(item.href);
+          const active = pathname?.startsWith(item.href);
           const Icon = item.icon;
           return (
             <Link
@@ -180,7 +177,15 @@ export function Sidebar({
           <Plus size={16} />
           {!collapsed && "New Project"}
         </Link>
-        {!collapsed && <div className="truncate px-2 text-xs text-ink-tertiary">{userEmail}</div>}
+        {!collapsed && (
+          <Link
+            href="/settings/profile"
+            title={userEmail ?? undefined}
+            className="block truncate px-2 text-xs text-ink-tertiary hover:text-white"
+          >
+            {userName ?? userEmail}
+          </Link>
+        )}
         <Link
           href="/onboarding"
           title={collapsed ? "Help Center" : undefined}

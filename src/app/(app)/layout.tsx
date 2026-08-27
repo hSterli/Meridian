@@ -20,6 +20,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         activeOrgName={activeOrg?.organizations.name ?? ""}
         activeRole={ctx.activeRole}
         userEmail={ctx.email}
+        userName={ctx.fullName}
       />
       <main className="flex-1 overflow-y-auto p-8">{children}</main>
     </div>
