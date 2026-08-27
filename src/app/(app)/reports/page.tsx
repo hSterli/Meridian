@@ -139,7 +139,7 @@ export default async function ReportsPage({
   const { linePoints, areaPoints } = buildAreaChartPath(trend, CHART_WIDTH, CHART_HEIGHT);
 
   return (
-    <div className="max-w-4xl">
+    <div className="max-w-[1400px]">
       <PageHeader
         title="Reports"
         description="The dashboard already covers cross-project pass/fail trend and the flaky-test tracker. Deeper, exportable report templates are coming next."
