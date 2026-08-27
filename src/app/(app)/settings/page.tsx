@@ -11,7 +11,7 @@ export default async function SettingsPage() {
   if (!ctx.activeOrgId) redirect("/onboarding");
 
   return (
-    <div className="max-w-2xl">
+    <div className="max-w-3xl">
       <PageHeader title="Settings" />
       <Card className="divide-y divide-border-light">
         <Link

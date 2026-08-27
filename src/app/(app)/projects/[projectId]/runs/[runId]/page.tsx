@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { RunExecutor, type RunCaseItem } from "@/components/runs/run-executor";
 import { deleteRun } from "@/lib/actions/runs";
@@ -21,6 +22,12 @@ export default async function RunDetailPage({
     .single();
 
   if (!run) notFound();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: runCases } = await supabase
     .from("test_run_cases")
@@ -75,6 +82,14 @@ export default async function RunDetailPage({
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Runs", href: `/projects/${projectId}/runs` },
+          { label: run.name },
+        ]}
+      />
       <PageHeader
         title={run.name}
         action={

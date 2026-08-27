@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 
 const SEVERITY_TONE: Record<IssueSeverity, "slate" | "amber" | "red" | "indigo"> = {
@@ -27,6 +28,12 @@ export default async function IssuesPage({
   const { projectId } = await params;
   const supabase = await createClient();
 
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
+
   const { data: issues } = await supabase
     .from("issues")
     .select("id, title, status, severity, created_at")
@@ -35,6 +42,13 @@ export default async function IssuesPage({
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Issues" },
+        ]}
+      />
       <PageHeader
         title="Issues"
         action={

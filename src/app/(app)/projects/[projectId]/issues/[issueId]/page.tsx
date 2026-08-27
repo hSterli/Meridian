@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { updateIssueStatus, deleteIssue } from "@/lib/actions/issues";
 import { sendIssueToJira, sendIssueToGithub } from "@/lib/actions/issue-tracker";
 import { SendToJiraForm } from "@/components/issues/send-to-jira-form";
@@ -30,7 +31,7 @@ export default async function IssueDetailPage({
 
   const { data: project } = await supabase
     .from("projects")
-    .select("org_id")
+    .select("org_id, name")
     .eq("id", projectId)
     .single();
 
@@ -74,6 +75,14 @@ export default async function IssueDetailPage({
 
   return (
     <div className="max-w-2xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Issues", href: `/projects/${projectId}/issues` },
+          { label: issue.title },
+        ]}
+      />
       <PageHeader
         title={issue.title}
         action={<Badge tone="indigo">{issue.severity}</Badge>}

@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { TestCaseFilters } from "@/components/test-cases/test-case-filters";
 import { ImportCsvForm } from "@/components/test-cases/import-csv-form";
 import { TestCaseSuiteSidebar } from "@/components/test-cases/test-case-suite-sidebar";
@@ -37,7 +38,7 @@ export default async function TestCasesPage({
 
   const { data: project } = await supabase
     .from("projects")
-    .select("key")
+    .select("key, name")
     .eq("id", projectId)
     .single();
 
@@ -206,6 +207,13 @@ export default async function TestCasesPage({
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Cases" },
+        ]}
+      />
       <PageHeader
         title="Test Cases"
         action={

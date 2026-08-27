@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/org-context";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JiraConnectionManager } from "@/components/settings/jira-connection-manager";
 import { connectJiraTracker, disconnectJiraTracker } from "@/lib/actions/issue-tracker";
 
@@ -24,7 +25,14 @@ export default async function JiraIntegrationPage() {
   const disconnectAction = connection ? disconnectJiraTracker.bind(null, connection.id) : null;
 
   return (
-    <div className="max-w-2xl px-6 py-8">
+    <div className="max-w-3xl px-6 py-8">
+      <Breadcrumbs
+        items={[
+          { label: "Settings", href: "/settings" },
+          { label: "Integrations", href: "/settings/integrations" },
+          { label: "Jira" },
+        ]}
+      />
       <PageHeader title="Jira" description="Two-way sync between Meridian issues and Jira." />
       <JiraConnectionManager
         connection={connection ?? null}

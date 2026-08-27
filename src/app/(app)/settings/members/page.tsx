@@ -4,6 +4,7 @@ import { getUserContext } from "@/lib/org-context";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { InviteForm } from "@/components/members/invite-form";
 import { updateMemberRole, removeMember, cancelInvite } from "@/lib/actions/members";
 import type { OrgRole } from "@/lib/types/database";
@@ -28,7 +29,8 @@ export default async function MembersPage() {
     : { data: [] };
 
   return (
-    <div className="max-w-2xl px-6 py-8">
+    <div className="max-w-3xl px-6 py-8">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Team" }]} />
       <PageHeader title="Team" description="Roles configurable in minutes — owner, admin, or member." />
 
       {isAdmin && (

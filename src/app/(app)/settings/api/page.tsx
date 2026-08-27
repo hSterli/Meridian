@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/org-context";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { ApiKeyManager } from "@/components/settings/api-key-manager";
 import { createApiKey, revokeApiKey } from "@/lib/actions/api-keys";
 
@@ -23,7 +24,8 @@ export default async function ApiSettingsPage() {
   const revokeAction = revokeApiKey.bind(null, ctx.activeOrgId);
 
   return (
-    <div className="max-w-2xl px-6 py-8">
+    <div className="max-w-3xl px-6 py-8">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "API Keys" }]} />
       <PageHeader
         title="API Keys"
         description="Use these to authenticate requests to the Meridian API."
