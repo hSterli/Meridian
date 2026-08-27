@@ -85,7 +85,7 @@ export function Sidebar({
   return (
     <aside
       className={clsx(
-        "flex shrink-0 flex-col bg-ink-primary py-6 shadow-sm transition-all",
+        "flex shrink-0 flex-col bg-ink-primary py-6 shadow-sm transition-all print:hidden",
         collapsed ? "w-16 px-2" : "w-60 px-4"
       )}
     >

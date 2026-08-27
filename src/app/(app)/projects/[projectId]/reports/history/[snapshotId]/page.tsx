@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card } from "@/components/ui/card";
 import { SnapshotRagEditor } from "@/components/reports/snapshot-rag-editor";
+import { SnapshotShareActions } from "@/components/reports/snapshot-share-actions";
 import type { WeeklyMetrics } from "@/lib/weekly-report-metrics";
 
 function formatPercent(n: number): string {
@@ -32,6 +33,7 @@ export default async function WeeklyReportSnapshotPage({
       <PageHeader
         title={`Report — Week Ending ${snapshot.week_ending}`}
         description={`Captured ${new Date(snapshot.created_at).toLocaleString()}`}
+        action={<SnapshotShareActions />}
       />
 
       <Card className="p-5">
