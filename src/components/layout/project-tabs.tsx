@@ -16,7 +16,7 @@ export function ProjectTabs({ projectId }: { projectId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-4 flex gap-6 border-b border-border-light">
+    <nav className="flex gap-6 border-b border-border-light">
       {TABS.map((tab) => {
         const href = `/projects/${projectId}/${tab.segment}`;
         const active = pathname?.startsWith(href);
