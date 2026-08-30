@@ -26,7 +26,7 @@ export default async function IntegrationsIndexPage() {
   if (!ctx.activeOrgId) redirect("/onboarding");
 
   return (
-    <div className="max-w-3xl px-6 py-8">
+    <div className="max-w-3xl">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Integrations" }]} />
       <PageHeader title="Integrations" description="Connect external issue trackers and CI tools." />
       <Card className="divide-y divide-border-light">

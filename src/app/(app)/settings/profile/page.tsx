@@ -11,7 +11,7 @@ export default async function ProfileSettingsPage() {
   if (!ctx.activeOrgId) redirect("/onboarding");
 
   return (
-    <div className="max-w-3xl px-6 py-8">
+    <div className="max-w-3xl">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Profile" }]} />
       <PageHeader title="Profile" description="Your name and account email." />
       <Card className="p-5">

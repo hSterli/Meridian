@@ -29,7 +29,7 @@ export default async function MembersPage() {
     : { data: [] };
 
   return (
-    <div className="max-w-3xl px-6 py-8">
+    <div className="max-w-3xl">
       <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Team" }]} />
       <PageHeader title="Team" description="Roles configurable in minutes — owner, admin, or member." />
 

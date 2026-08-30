@@ -27,7 +27,7 @@ export default async function GithubIntegrationPage() {
     .eq("provider", "github");
 
   return (
-    <div className="max-w-3xl px-6 py-8">
+    <div className="max-w-3xl">
       <Breadcrumbs
         items={[
           { label: "Settings", href: "/settings" },
