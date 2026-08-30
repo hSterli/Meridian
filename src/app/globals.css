@@ -114,3 +114,10 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-ink-tertiary);
 }
+
+/* Plain CSS rather than Tailwind's group-open: variant, so the
+   collapsible test-case group disclosure chevron rotates reliably
+   regardless of how that variant gets generated. */
+details[open] > summary > .group-chevron {
+  transform: rotate(90deg);
+}

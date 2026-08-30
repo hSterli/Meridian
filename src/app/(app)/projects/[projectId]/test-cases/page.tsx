@@ -298,12 +298,9 @@ export default async function TestCasesPage({
           ) : groups.length > 0 ? (
             <div className="mt-4 space-y-6">
               {groups.map((group) => (
-                <details key={group.label} open className="group">
+                <details key={group.label} open>
                   <summary className="mb-2 flex list-none items-center gap-2 font-ui-label text-sm font-bold uppercase tracking-wide text-ink-tertiary [&::-webkit-details-marker]:hidden">
-                    <ChevronRight
-                      size={14}
-                      className="shrink-0 transition-transform group-open:rotate-90"
-                    />
+                    <ChevronRight size={14} className="group-chevron shrink-0 transition-transform" />
                     {group.label}
                     <span className="rounded-full bg-surface-container-highest px-2 py-0.5 text-[11px] font-bold text-ink-secondary">
                       {group.items.length}
