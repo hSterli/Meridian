@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Users, Key, Building2, Plug, CreditCard, ChevronRight } from "lucide-react";
+import { User, Users, Key, Building2, Plug, CreditCard, ChevronRight } from "lucide-react";
 import { getUserContext } from "@/lib/org-context";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
@@ -11,9 +11,23 @@ export default async function SettingsPage() {
   if (!ctx.activeOrgId) redirect("/onboarding");
 
   return (
-    <div className="mx-auto max-w-2xl">
+    <div className="max-w-3xl">
       <PageHeader title="Settings" />
       <Card className="divide-y divide-border-light">
+        <Link
+          href="/settings/profile"
+          className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"
+        >
+          <div className="rounded-lg bg-meridian-soft p-2 text-primary">
+            <User size={18} />
+          </div>
+          <div className="flex-1">
+            <p className="font-ui-label font-semibold text-ink-primary">Profile</p>
+            <p className="text-sm text-ink-secondary">Your name and account email.</p>
+          </div>
+          <ChevronRight size={18} className="text-ink-tertiary" />
+        </Link>
+
         <Link
           href="/settings/members"
           className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"

@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCaseForm } from "@/components/test-cases/test-case-form";
 import { createTestCase } from "@/lib/actions/test-cases";
 import type { TestCaseCustomFieldType } from "@/lib/types/database";
@@ -25,7 +27,7 @@ export default async function NewTestCasePage({
 
   const { data: project } = await supabase
     .from("projects")
-    .select("org_id")
+    .select("org_id, name")
     .eq("id", projectId)
     .single();
 
@@ -48,8 +50,17 @@ export default async function NewTestCasePage({
 
   return (
     <div className="max-w-2xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library", href: `/projects/${projectId}/test-cases` },
+          { label: "New" },
+        ]}
+      />
       <PageHeader title="New test case" />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <TestCaseForm
           action={action}
           submitLabel="Create test case"

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { CustomFieldsManager } from "@/components/test-cases/custom-fields-manager";
 import { createCustomField, updateCustomField, deleteCustomField } from "@/lib/actions/custom-fields";
 import type { TestCaseCustomFieldType } from "@/lib/types/database";
@@ -12,6 +14,12 @@ export default async function CustomFieldsPage({
 }) {
   const { projectId } = await params;
   const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: fields } = await supabase
     .from("test_case_custom_fields")
@@ -26,6 +34,14 @@ export default async function CustomFieldsPage({
 
   return (
     <div className="max-w-2xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library", href: `/projects/${projectId}/test-cases` },
+          { label: "Custom Fields" },
+        ]}
+      />
       <PageHeader
         title="Custom fields"
         description="Define per-project fields that show up on every test case."
@@ -34,21 +50,24 @@ export default async function CustomFieldsPage({
             href={`/projects/${projectId}/test-cases`}
             className="text-sm font-medium text-primary hover:text-primary"
           >
-            ← Back to Test Cases
+            ← Back to Test Case Library
           </Link>
         }
       />
-      <CustomFieldsManager
-        fields={(fields ?? []).map((f) => ({
-          id: f.id,
-          name: f.name,
-          field_type: f.field_type as TestCaseCustomFieldType,
-          options: (f.options as string[]) ?? [],
-        }))}
-        createAction={createAction}
-        updateAction={updateAction}
-        deleteAction={deleteAction}
-      />
+      <ProjectTabs projectId={projectId} />
+      <div className="mt-6">
+        <CustomFieldsManager
+          fields={(fields ?? []).map((f) => ({
+            id: f.id,
+            name: f.name,
+            field_type: f.field_type as TestCaseCustomFieldType,
+            options: (f.options as string[]) ?? [],
+          }))}
+          createAction={createAction}
+          updateAction={updateAction}
+          deleteAction={deleteAction}
+        />
+      </div>
     </div>
   );
 }

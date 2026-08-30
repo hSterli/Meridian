@@ -13,6 +13,7 @@ export interface OrgMembership {
 export interface UserContext {
   userId: string;
   email: string | null;
+  fullName: string | null;
   memberships: OrgMembership[];
   activeOrgId: string | null;
   activeRole: OrgRole | null;
@@ -39,9 +40,12 @@ export async function getUserContext(): Promise<UserContext | null> {
   const active =
     typedMemberships.find((m) => m.org_id === cookieOrgId) ?? typedMemberships[0] ?? null;
 
+  const rawFullName = user.user_metadata?.full_name;
+
   return {
     userId: user.id,
     email: user.email ?? null,
+    fullName: typeof rawFullName === "string" && rawFullName.trim() ? rawFullName.trim() : null,
     memberships: typedMemberships,
     activeOrgId: active?.org_id ?? null,
     activeRole: active?.role ?? null,

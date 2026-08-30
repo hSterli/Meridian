@@ -109,6 +109,8 @@ export async function createRun(
 
   if (casesError) return { error: casesError.message };
 
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
   redirect(`/projects/${projectId}/runs/${run.id}`);
 }
 
@@ -157,12 +159,16 @@ export async function setRunCaseStatus(
   }
 
   revalidatePath(`/projects/${projectId}/runs/${runId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
 }
 
 export async function deleteRun(projectId: string, runId: string) {
   const supabase = await createClient();
   await supabase.from("test_runs").delete().eq("id", runId);
   revalidatePath(`/projects/${projectId}/runs`);
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
   redirect(`/projects/${projectId}/runs`);
 }
 
@@ -207,6 +213,8 @@ export async function addTestCasesToRun(
     .eq("status", "completed");
 
   revalidatePath(`/projects/${projectId}/runs/${runId}`);
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
 }
 
 export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
@@ -219,6 +227,8 @@ export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
   const supabase = await createClient();
   await supabase.from("test_runs").delete().in("id", runIds);
   revalidatePath(`/projects/${projectId}/runs`);
+  revalidatePath("/dashboard");
+  revalidatePath("/reports");
 }
 
 export async function bulkMoveRunsToFolder(

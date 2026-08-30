@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { runSuiteNow } from "@/lib/actions/suites";
 
 export default async function SuitesPage({
@@ -12,6 +14,12 @@ export default async function SuitesPage({
 }) {
   const { projectId } = await params;
   const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: suites } = await supabase
     .from("test_suites")
@@ -38,6 +46,13 @@ export default async function SuitesPage({
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Suites" },
+        ]}
+      />
       <PageHeader
         title="Suites"
         description="Reusable, named sets of test cases you can re-run — e.g. a Regression suite you run every release."
@@ -47,7 +62,9 @@ export default async function SuitesPage({
           </Link>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
+      <div className="mt-6">
       {!suites || suites.length === 0 ? (
         <Card className="p-8 text-center text-sm text-ink-tertiary">
           No suites yet.{" "}
@@ -96,6 +113,7 @@ export default async function SuitesPage({
           })}
         </Card>
       )}
+      </div>
     </div>
   );
 }

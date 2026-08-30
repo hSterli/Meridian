@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { Card, Badge } from "@/components/ui/card";
 import type { ReportRagStatus } from "@/lib/types/database";
 
@@ -15,6 +17,12 @@ export default async function WeeklyReportHistoryPage({
 }) {
   const { projectId } = await params;
   const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: snapshots } = await supabase
     .from("weekly_report_snapshots")
@@ -32,8 +40,17 @@ export default async function WeeklyReportHistoryPage({
 
   return (
     <div className="max-w-4xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Weekly Report", href: `/projects/${projectId}/reports` },
+          { label: "History" },
+        ]}
+      />
       <PageHeader title="Report History" description="Every captured weekly report for this project." />
-      <div className="space-y-6">
+      <ProjectTabs projectId={projectId} />
+      <div className="mt-6 space-y-6">
         {Array.from(byWeek.entries()).map(([weekEnding, weekSnapshots]) => (
           <div key={weekEnding}>
             <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Week ending {weekEnding}</h2>

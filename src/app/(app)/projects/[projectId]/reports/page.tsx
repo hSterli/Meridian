@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RagEditor } from "@/components/reports/rag-editor";
@@ -50,6 +52,13 @@ export default async function WeeklyReportPage({
 
   return (
     <div className="max-w-4xl space-y-6">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Weekly Report" },
+        ]}
+      />
       <PageHeader
         title="Weekly Status Report"
         description={project?.name ?? ""}
@@ -70,6 +79,7 @@ export default async function WeeklyReportPage({
           </div>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
       <Card className="p-5">
         <RagEditor

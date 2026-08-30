@@ -4,6 +4,7 @@ import { ChevronRight } from "lucide-react";
 import { getUserContext } from "@/lib/org-context";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 
 const PROVIDERS = [
   { segment: "jira", label: "Jira", description: "Two-way sync between Meridian issues and Jira." },
@@ -25,7 +26,8 @@ export default async function IntegrationsIndexPage() {
   if (!ctx.activeOrgId) redirect("/onboarding");
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-3xl">
+      <Breadcrumbs items={[{ label: "Settings", href: "/settings" }, { label: "Integrations" }]} />
       <PageHeader title="Integrations" description="Connect external issue trackers and CI tools." />
       <Card className="divide-y divide-border-light">
         {PROVIDERS.map((provider) => (
