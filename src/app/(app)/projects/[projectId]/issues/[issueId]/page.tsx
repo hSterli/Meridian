@@ -5,6 +5,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { updateIssueStatus, deleteIssue } from "@/lib/actions/issues";
 import { sendIssueToJira, sendIssueToGithub } from "@/lib/actions/issue-tracker";
 import { SendToJiraForm } from "@/components/issues/send-to-jira-form";
@@ -87,8 +88,9 @@ export default async function IssueDetailPage({
         title={issue.title}
         action={<Badge tone="indigo">{issue.severity}</Badge>}
       />
+      <ProjectTabs projectId={projectId} />
 
-      <Card className="p-6">
+      <Card className="mt-6 p-6">
         {issue.description && (
           <p className="mb-4 whitespace-pre-wrap text-sm text-ink-secondary">{issue.description}</p>
         )}

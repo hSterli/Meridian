@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { ProjectTabs } from "@/components/layout/project-tabs";
 
 export default async function ProjectLayout({
   children,
@@ -19,10 +18,5 @@ export default async function ProjectLayout({
 
   if (!project) notFound();
 
-  return (
-    <div>
-      <ProjectTabs projectId={project.id} />
-      <div className="pt-6">{children}</div>
-    </div>
-  );
+  return <div>{children}</div>;
 }

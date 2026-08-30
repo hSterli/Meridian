@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCaseForm } from "@/components/test-cases/test-case-form";
 import { updateTestCase, deleteTestCase } from "@/lib/actions/test-cases";
 import { AttachmentsPanel } from "@/components/test-cases/attachments-panel";
@@ -109,20 +110,22 @@ export default async function TestCaseDetailPage({
           { label: testCase.title },
         ]}
       />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
+      <PageHeader
+        title={testCase.title}
+        description={`v${testCase.version} · Report an issue against this case →`}
+        action={
+          <Link
+            href={`/projects/${projectId}/issues/new?testCaseId=${testCaseId}`}
+            className="text-sm font-medium text-primary hover:text-primary"
+          >
+            Report issue
+          </Link>
+        }
+      />
+      <ProjectTabs projectId={projectId} />
+
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
         <div>
-          <PageHeader
-            title={testCase.title}
-            description={`v${testCase.version} · Report an issue against this case →`}
-            action={
-              <Link
-                href={`/projects/${projectId}/issues/new?testCaseId=${testCaseId}`}
-                className="text-sm font-medium text-primary hover:text-primary"
-              >
-                Report issue
-              </Link>
-            }
-          />
           <Card className="p-6">
             <TestCaseForm
               action={updateAction}

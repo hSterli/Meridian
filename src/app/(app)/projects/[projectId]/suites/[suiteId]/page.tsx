@@ -5,6 +5,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCasePicker } from "@/components/test-cases/test-case-picker";
 import {
   addTestCasesToSuite,
@@ -105,8 +106,9 @@ export default async function SuiteDetailPage({
           </div>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div>
           <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Test cases in this suite</h2>
           <Card className="divide-y divide-border-light">

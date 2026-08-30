@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { CustomFieldsManager } from "@/components/test-cases/custom-fields-manager";
 import { createCustomField, updateCustomField, deleteCustomField } from "@/lib/actions/custom-fields";
 import type { TestCaseCustomFieldType } from "@/lib/types/database";
@@ -53,17 +54,20 @@ export default async function CustomFieldsPage({
           </Link>
         }
       />
-      <CustomFieldsManager
-        fields={(fields ?? []).map((f) => ({
-          id: f.id,
-          name: f.name,
-          field_type: f.field_type as TestCaseCustomFieldType,
-          options: (f.options as string[]) ?? [],
-        }))}
-        createAction={createAction}
-        updateAction={updateAction}
-        deleteAction={deleteAction}
-      />
+      <ProjectTabs projectId={projectId} />
+      <div className="mt-6">
+        <CustomFieldsManager
+          fields={(fields ?? []).map((f) => ({
+            id: f.id,
+            name: f.name,
+            field_type: f.field_type as TestCaseCustomFieldType,
+            options: (f.options as string[]) ?? [],
+          }))}
+          createAction={createAction}
+          updateAction={updateAction}
+          deleteAction={deleteAction}
+        />
+      </div>
     </div>
   );
 }

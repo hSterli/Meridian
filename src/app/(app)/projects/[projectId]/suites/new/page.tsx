@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { NewSuiteForm } from "@/components/suites/new-suite-form";
 import { createSuite } from "@/lib/actions/suites";
 
@@ -42,7 +43,8 @@ export default async function NewSuitePage({
         title="New suite"
         description="Give it a name (e.g. Regression) and pick which test cases belong to it — you can add more later."
       />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <NewSuiteForm action={action} testCases={testCases ?? []} />
       </Card>
     </div>

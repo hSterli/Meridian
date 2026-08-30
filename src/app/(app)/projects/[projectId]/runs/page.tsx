@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { RunFolderSidebar } from "@/components/runs/run-folder-sidebar";
 import { RunsTable, type RunRow } from "@/components/runs/runs-table";
 import type { RunStatus } from "@/lib/types/database";
@@ -96,8 +97,9 @@ export default async function RunsPage({
           </Link>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="flex gap-6">
+      <div className="mt-6 flex gap-6">
         <RunFolderSidebar projectId={projectId} folders={folders ?? []} />
 
         <div className="flex-1">

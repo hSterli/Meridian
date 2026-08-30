@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { IssueForm } from "@/components/issues/issue-form";
 import { createIssue } from "@/lib/actions/issues";
 
@@ -44,7 +45,8 @@ export default async function NewIssuePage({
         ]}
       />
       <PageHeader title="New issue" />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <IssueForm
           action={action}
           linkedTestCaseId={testCaseId}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { Card, Badge } from "@/components/ui/card";
 import type { ReportRagStatus } from "@/lib/types/database";
 
@@ -48,7 +49,8 @@ export default async function WeeklyReportHistoryPage({
         ]}
       />
       <PageHeader title="Report History" description="Every captured weekly report for this project." />
-      <div className="space-y-6">
+      <ProjectTabs projectId={projectId} />
+      <div className="mt-6 space-y-6">
         {Array.from(byWeek.entries()).map(([weekEnding, weekSnapshots]) => (
           <div key={weekEnding}>
             <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Week ending {weekEnding}</h2>

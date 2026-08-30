@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { NewRunForm } from "@/components/runs/new-run-form";
 import { createRun } from "@/lib/actions/runs";
 
@@ -45,7 +46,8 @@ export default async function NewRunPage({
         ]}
       />
       <PageHeader title="New test run" description="Pick which test cases go into this run." />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <NewRunForm
           action={action}
           testCases={testCases ?? []}

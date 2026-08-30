@@ -4,6 +4,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { runSuiteNow } from "@/lib/actions/suites";
 
 export default async function SuitesPage({
@@ -61,7 +62,9 @@ export default async function SuitesPage({
           </Link>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
+      <div className="mt-6">
       {!suites || suites.length === 0 ? (
         <Card className="p-8 text-center text-sm text-ink-tertiary">
           No suites yet.{" "}
@@ -110,6 +113,7 @@ export default async function SuitesPage({
           })}
         </Card>
       )}
+      </div>
     </div>
   );
 }

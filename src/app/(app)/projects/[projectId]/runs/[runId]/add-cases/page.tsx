@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCasePicker } from "@/components/test-cases/test-case-picker";
 import { addTestCasesToRun } from "@/lib/actions/runs";
 
@@ -63,7 +64,8 @@ export default async function AddCasesToRunPage({
         ]}
       />
       <PageHeader title={`Add test cases to “${run.name}”`} />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <form action={action} className="space-y-4">
           <TestCasePicker testCases={addableTestCases} />
           <Button type="submit" disabled={addableTestCases.length === 0}>

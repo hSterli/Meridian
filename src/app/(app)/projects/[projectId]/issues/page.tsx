@@ -4,6 +4,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 
 const SEVERITY_TONE: Record<IssueSeverity, "slate" | "amber" | "red" | "indigo"> = {
@@ -57,28 +58,31 @@ export default async function IssuesPage({
           </Link>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      {!issues || issues.length === 0 ? (
-        <Card className="p-8 text-center text-sm text-ink-tertiary">No issues reported yet.</Card>
-      ) : (
-        <Card className="divide-y divide-border-light">
-          {issues.map((issue) => (
-            <Link
-              key={issue.id}
-              href={`/projects/${projectId}/issues/${issue.id}`}
-              className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-paper-surface"
-            >
-              <div className="font-medium text-ink-primary">{issue.title}</div>
-              <div className="flex gap-2">
-                <Badge tone={SEVERITY_TONE[issue.severity as IssueSeverity]}>{issue.severity}</Badge>
-                <Badge tone={STATUS_TONE[issue.status as IssueStatus]}>
-                  {issue.status.replace("_", " ")}
-                </Badge>
-              </div>
-            </Link>
-          ))}
-        </Card>
-      )}
+      <div className="mt-6">
+        {!issues || issues.length === 0 ? (
+          <Card className="p-8 text-center text-sm text-ink-tertiary">No issues reported yet.</Card>
+        ) : (
+          <Card className="divide-y divide-border-light">
+            {issues.map((issue) => (
+              <Link
+                key={issue.id}
+                href={`/projects/${projectId}/issues/${issue.id}`}
+                className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-paper-surface"
+              >
+                <div className="font-medium text-ink-primary">{issue.title}</div>
+                <div className="flex gap-2">
+                  <Badge tone={SEVERITY_TONE[issue.severity as IssueSeverity]}>{issue.severity}</Badge>
+                  <Badge tone={STATUS_TONE[issue.status as IssueStatus]}>
+                    {issue.status.replace("_", " ")}
+                  </Badge>
+                </div>
+              </Link>
+            ))}
+          </Card>
+        )}
+      </div>
     </div>
   );
 }

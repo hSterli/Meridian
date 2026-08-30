@@ -5,6 +5,7 @@ import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCaseFilters } from "@/components/test-cases/test-case-filters";
 import { ImportCsvForm } from "@/components/test-cases/import-csv-form";
 import { TestCaseSuiteSidebar } from "@/components/test-cases/test-case-suite-sidebar";
@@ -228,8 +229,9 @@ export default async function TestCasesPage({
           </div>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="flex gap-6">
+      <div className="mt-6 flex gap-6">
         <aside className="w-56 shrink-0 space-y-4">
           <TestCaseSuiteSidebar suites={suites ?? []} />
 

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { Button } from "@/components/ui/button";
 import { RunExecutor, type RunCaseItem } from "@/components/runs/run-executor";
 import { deleteRun } from "@/lib/actions/runs";
@@ -105,7 +106,10 @@ export default async function RunDetailPage({
           </div>
         }
       />
-      <RunExecutor projectId={projectId} runId={runId} cases={items} />
+      <ProjectTabs projectId={projectId} />
+      <div className="mt-6">
+        <RunExecutor projectId={projectId} runId={runId} cases={items} />
+      </div>
     </div>
   );
 }
