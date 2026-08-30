@@ -212,11 +212,11 @@ export default async function TestCasesPage({
         items={[
           { label: "Projects", href: "/projects" },
           { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
-          { label: "Test Cases" },
+          { label: "Test Case Library" },
         ]}
       />
       <PageHeader
-        title="Test Cases"
+        title="Test Case Library"
         action={
           <div className="flex items-center gap-2">
             <a href={`/projects/${projectId}/test-cases/export`}>

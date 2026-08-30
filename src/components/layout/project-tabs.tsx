@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 
 const TABS = [
-  { segment: "test-cases", label: "Test Cases" },
+  { segment: "test-cases", label: "Test Case Library" },
   { segment: "suites", label: "Suites" },
   { segment: "runs", label: "Runs" },
   { segment: "issues", label: "Issues" },

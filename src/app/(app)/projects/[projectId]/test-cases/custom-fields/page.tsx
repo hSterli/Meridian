@@ -38,7 +38,7 @@ export default async function CustomFieldsPage({
         items={[
           { label: "Projects", href: "/projects" },
           { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
-          { label: "Test Cases", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library", href: `/projects/${projectId}/test-cases` },
           { label: "Custom Fields" },
         ]}
       />
@@ -50,7 +50,7 @@ export default async function CustomFieldsPage({
             href={`/projects/${projectId}/test-cases`}
             className="text-sm font-medium text-primary hover:text-primary"
           >
-            ← Back to Test Cases
+            ← Back to Test Case Library
           </Link>
         }
       />

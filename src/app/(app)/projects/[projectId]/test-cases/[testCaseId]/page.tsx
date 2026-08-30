@@ -106,7 +106,7 @@ export default async function TestCaseDetailPage({
         items={[
           { label: "Projects", href: "/projects" },
           { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
-          { label: "Test Cases", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library", href: `/projects/${projectId}/test-cases` },
           { label: testCase.title },
         ]}
       />
