@@ -187,6 +187,7 @@ export async function createTestCase(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_test_case", 120, 60);
   if (limitError) return { error: limitError };
@@ -280,6 +281,7 @@ export async function updateTestCase(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("update_test_case", 120, 60);
   if (limitError) return { error: limitError };
@@ -349,6 +351,10 @@ export async function updateTestCase(
 }
 
 export async function deleteTestCase(projectId: string, testCaseId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/test-cases?error=read-only`);
+
   const supabase = await createClient();
   await supabase.from("test_cases").delete().eq("id", testCaseId);
   revalidatePath(`/projects/${projectId}/test-cases`);
@@ -384,6 +390,7 @@ export async function bulkImportTestCases(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("bulk_import_test_cases", 10, 3600);
   if (limitError) return { error: limitError };
