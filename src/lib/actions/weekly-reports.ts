@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
@@ -15,6 +16,7 @@ export async function updateWeeklyReportDraft(
 ): Promise<ActionState> {
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("update_weekly_report_draft", 60, 3600);
   if (limitError) return { error: limitError };
@@ -54,6 +56,7 @@ export async function updateDailyPlan(
 ): Promise<void> {
   const ctx = await getUserContext();
   if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/reports?error=read-only`);
 
   const limitError = await rateLimit("update_daily_plan", 120, 3600);
   if (limitError) return;
@@ -76,6 +79,7 @@ export async function captureWeeklyReportSnapshot(
 ): Promise<ActionState> {
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("capture_weekly_report_snapshot", 20, 3600);
   if (limitError) return { error: limitError };
@@ -127,6 +131,7 @@ export async function updateSnapshotEditorialFields(
 ): Promise<ActionState> {
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("update_snapshot_editorial", 60, 3600);
   if (limitError) return { error: limitError };
