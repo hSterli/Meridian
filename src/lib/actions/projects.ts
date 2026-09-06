@@ -24,6 +24,7 @@ export async function createProject(_prevState: ActionState, formData: FormData)
 
   const ctx = await getUserContext();
   if (!ctx || !ctx.activeOrgId) return { error: "No active team selected." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const supabase = await createClient();
   const { data: project, error } = await supabase
