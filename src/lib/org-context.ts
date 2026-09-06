@@ -7,7 +7,13 @@ const ACTIVE_ORG_COOKIE = "meridian_active_org";
 export interface OrgMembership {
   org_id: string;
   role: OrgRole;
-  organizations: { id: string; name: string; slug: string };
+  organizations: {
+    id: string;
+    name: string;
+    slug: string;
+    billing_status: "trial" | "active" | "past_due" | "cancelled";
+    trial_end_date: string | null;
+  };
 }
 
 export interface UserContext {
@@ -17,6 +23,7 @@ export interface UserContext {
   memberships: OrgMembership[];
   activeOrgId: string | null;
   activeRole: OrgRole | null;
+  isReadOnly: boolean;
 }
 
 export async function getUserContext(): Promise<UserContext | null> {
@@ -29,7 +36,7 @@ export async function getUserContext(): Promise<UserContext | null> {
 
   const { data: memberships } = await supabase
     .from("organization_members")
-    .select("org_id, role, organizations(id, name, slug)")
+    .select("org_id, role, organizations(id, name, slug, billing_status, trial_end_date)")
     .eq("user_id", user.id);
 
   const typedMemberships = (memberships ?? []) as unknown as OrgMembership[];
@@ -42,6 +49,13 @@ export async function getUserContext(): Promise<UserContext | null> {
 
   const rawFullName = user.user_metadata?.full_name;
 
+  const billingStatus = active?.organizations.billing_status;
+  const trialEndDate = active?.organizations.trial_end_date;
+  const isReadOnly =
+    billingStatus === "past_due" ||
+    billingStatus === "cancelled" ||
+    (billingStatus === "trial" && !!trialEndDate && new Date(trialEndDate) < new Date());
+
   return {
     userId: user.id,
     email: user.email ?? null,
@@ -49,6 +63,7 @@ export async function getUserContext(): Promise<UserContext | null> {
     memberships: typedMemberships,
     activeOrgId: active?.org_id ?? null,
     activeRole: active?.role ?? null,
+    isReadOnly,
   };
 }
 
