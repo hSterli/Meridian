@@ -30,7 +30,7 @@ Check `tail -3 <file>` after every file write for a stray literal `</content>` l
 **Files:**
 - Create: `supabase/migrations/0026_billing_foundation.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 -- Billing Foundation: trial state on organizations, plus an audit trail.
@@ -109,11 +109,11 @@ end;
 $$;
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Use the Supabase MCP `apply_migration` tool against project ref `ucnfcsosbdgknmzyuqbw`, with `name` `billing_foundation` and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the schema landed correctly**
+- [x] **Step 3: Verify the schema landed correctly**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -129,27 +129,27 @@ select count(*) from billing_events;
 ```
 Expected: `0` (table exists, empty).
 
-- [ ] **Step 4: Verify existing orgs weren't broken, and that new orgs get a trial**
+- [x] **Step 4: Verify existing orgs weren't broken, and that new orgs get a trial**
 
 ```sql
 select id, name, billing_status, trial_end_date from organizations limit 5;
 ```
 Expected: every existing row now has `billing_status = 'trial'` and `trial_end_date = null` (the column has no default expression, so pre-existing rows are `null` — this is expected and fine, since `isReadOnly`'s trial branch in Task 2 only evaluates `trial_end_date < now()` when `trial_end_date` is non-null, so existing orgs are correctly never read-only until this migration's forward-looking behavior applies to *newly created* orgs).
 
-- [ ] **Step 5: Run security advisors**
+- [x] **Step 5: Run security advisors**
 
 Use the Supabase MCP `get_advisors` tool (type `security`) against `ucnfcsosbdgknmzyuqbw`. Expected: no new findings beyond the same class of pre-existing accepted ones from earlier migrations (SECURITY DEFINER functions already known and accepted).
 
-- [ ] **Step 6: Regenerate TypeScript types**
+- [x] **Step 6: Regenerate TypeScript types**
 
 Use the Supabase MCP `generate_typescript_types` tool against `ucnfcsosbdgknmzyuqbw`, and write the result to `src/lib/types/database.ts`, replacing its current content. Confirm `billing_status`, `billing_plan_type`, `billing_event_type`, and `billing_events` all appear somewhere in the new file (`grep -n "billing_status\|billing_events" src/lib/types/database.ts`).
 
-- [ ] **Step 7: Type-check**
+- [x] **Step 7: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no output (the regenerated types file may cause errors elsewhere if hand-written type aliases were dropped — if so, re-add them; there should be none relevant to this change specifically).
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add supabase/migrations/0026_billing_foundation.sql src/lib/types/database.ts
@@ -163,7 +163,7 @@ git commit -m "Add billing_status/trial_end_date/plan_type to organizations, plu
 **Files:**
 - Modify: `src/lib/org-context.ts`
 
-- [ ] **Step 1: Replace the full file contents**
+- [x] **Step 1: Replace the full file contents**
 
 ```ts
 import { cookies } from "next/headers";
@@ -238,12 +238,12 @@ export async function getUserContext(): Promise<UserContext | null> {
 export { ACTIVE_ORG_COOKIE };
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/org-context.ts`
 Strip if present.
 
-- [ ] **Step 3: Write the unit test for `isReadOnly`**
+- [x] **Step 3: Write the unit test for `isReadOnly`**
 
 This is the one piece of pure, testable logic in this phase. Since `getUserContext()` itself does I/O (Supabase + cookies), extract nothing new — instead test the boolean expression directly by constructing the same shape inline, mirroring how simple pure-logic tests are written elsewhere in this codebase (fixed input, exact output).
 
@@ -292,12 +292,12 @@ describe("computeIsReadOnly (mirrors getUserContext's isReadOnly logic)", () => 
 });
 ```
 
-- [ ] **Step 4: Run the tests**
+- [x] **Step 4: Run the tests**
 
 Run: `npx vitest run --project unit src/lib/org-context.test.ts`
 Expected: 6 passed.
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output. If it reports errors in other files that read `ctx.memberships[...].organizations` expecting the old 3-field shape, add the two new fields to that call site's own type usage — there should be very few, since most other pages only read `.organizations.name`/`.id`/`.slug`, which are unaffected by adding fields.
@@ -305,7 +305,7 @@ Expected: no output. If it reports errors in other files that read `ctx.membersh
 Run: `npx eslint src/lib/org-context.ts src/lib/org-context.test.ts`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/org-context.ts src/lib/org-context.test.ts
@@ -321,7 +321,7 @@ git commit -m "Add isReadOnly to UserContext, computed from billing_status and t
 - Create: `src/components/layout/action-error-banner.tsx`
 - Modify: `src/app/(app)/layout.tsx`
 
-- [ ] **Step 1: Write the trial countdown banner**
+- [x] **Step 1: Write the trial countdown banner**
 
 Server Component — no client state needed, it just renders based on `UserContext` fields already available to the layout.
 
@@ -366,7 +366,7 @@ export function TrialBanner({
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line, then write the error banner**
+- [x] **Step 2: Check for the stray `</content>` line, then write the error banner**
 
 Run: `tail -3 src/components/layout/trial-banner.tsx` and strip if present.
 
@@ -409,11 +409,11 @@ export function ActionErrorBanner() {
 }
 ```
 
-- [ ] **Step 3: Check for the stray `</content>` line**
+- [x] **Step 3: Check for the stray `</content>` line**
 
 Run: `tail -3 src/components/layout/action-error-banner.tsx` and strip if present.
 
-- [ ] **Step 4: Wire both banners into the shared app layout**
+- [x] **Step 4: Wire both banners into the shared app layout**
 
 `(app)/layout.tsx` currently reads:
 
@@ -501,11 +501,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
 
 Note the `<Suspense>` wrapper around `ActionErrorBanner` — Next.js requires any component calling `useSearchParams()` in a page that can be statically rendered to be wrapped in `Suspense`, otherwise the build fails with a "should be wrapped in a suspense boundary" error. `fallback={null}` means nothing renders while the (essentially instant) client hydration happens.
 
-- [ ] **Step 5: Check for the stray `</content>` line**
+- [x] **Step 5: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/layout.tsx"` and strip if present.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -513,12 +513,12 @@ Expected: no output.
 Run: `npx eslint src/components/layout/trial-banner.tsx src/components/layout/action-error-banner.tsx "src/app/(app)/layout.tsx"`
 Expected: no output.
 
-- [ ] **Step 7: Build, to catch the Suspense requirement specifically**
+- [x] **Step 7: Build, to catch the Suspense requirement specifically**
 
 Run: `npm run build`
 Expected: succeeds. If it fails specifically citing `useSearchParams()` needing a Suspense boundary, confirm Step 4's `<Suspense>` wrapper is present exactly as shown.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/components/layout/trial-banner.tsx src/components/layout/action-error-banner.tsx "src/app/(app)/layout.tsx"
@@ -533,7 +533,7 @@ git commit -m "Add trial countdown banner and read-only action-error banner to t
 - Modify: `src/lib/actions/api-keys.ts`
 - Modify: `src/lib/actions/attachments.ts`
 
-- [ ] **Step 1: `createApiKey` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `createApiKey` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/api-keys.ts`, find:
 
@@ -556,7 +556,7 @@ Replace with:
   }
 ```
 
-- [ ] **Step 2: `revokeApiKey` (no `ctx` today, void, no redirect)**
+- [x] **Step 2: `revokeApiKey` (no `ctx` today, void, no redirect)**
 
 In the same file, find:
 
@@ -583,7 +583,7 @@ import { redirect } from "next/navigation";
 ```
 right after the existing `import { revalidatePath } from "next/cache";` line.
 
-- [ ] **Step 3: `uploadAttachment` (already has `ctx`, `ActionState`)**
+- [x] **Step 3: `uploadAttachment` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/attachments.ts`, find:
 
@@ -604,7 +604,7 @@ Replace with:
   const limitError = await rateLimit("upload_attachment", 30, 3600);
 ```
 
-- [ ] **Step 4: `deleteAttachment` (already has `ctx`, void, no redirect)**
+- [x] **Step 4: `deleteAttachment` (already has `ctx`, void, no redirect)**
 
 In the same file, find:
 
@@ -641,11 +641,11 @@ export async function deleteAttachment(
 
 Add `import { redirect } from "next/navigation";` to this file too (it currently has no `redirect` import).
 
-- [ ] **Step 5: Check for stray `</content>` lines**
+- [x] **Step 5: Check for stray `</content>` lines**
 
 Run: `tail -3 src/lib/actions/api-keys.ts src/lib/actions/attachments.ts` and strip any found.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -653,7 +653,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/api-keys.ts src/lib/actions/attachments.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/actions/api-keys.ts src/lib/actions/attachments.ts
@@ -668,7 +668,7 @@ git commit -m "Gate api-keys.ts and attachments.ts mutations behind isReadOnly"
 - Modify: `src/lib/actions/custom-fields.ts`
 - Modify: `src/lib/actions/issue-tracker.ts`
 
-- [ ] **Step 1: `createCustomField` and `updateCustomField` (both already have `ctx`, `ActionState`)**
+- [x] **Step 1: `createCustomField` and `updateCustomField` (both already have `ctx`, `ActionState`)**
 
 In `src/lib/actions/custom-fields.ts`, both functions have the identical shape:
 
@@ -693,7 +693,7 @@ to
 ```
 in both `createCustomField` and `updateCustomField` (this exact two-line snippet is identical and appears twice in the file — once per function).
 
-- [ ] **Step 2: `deleteCustomField` (no `ctx` today, void, no redirect)**
+- [x] **Step 2: `deleteCustomField` (no `ctx` today, void, no redirect)**
 
 In the same file, find:
 
@@ -717,7 +717,7 @@ export async function deleteCustomField(projectId: string, fieldId: string) {
 
 Add `import { redirect } from "next/navigation";` to this file (not currently imported).
 
-- [ ] **Step 3: `connectJiraTracker`, `sendIssueToJira`, `connectGithubTracker`, `sendIssueToGithub` (all already have `ctx`, `ActionState`)**
+- [x] **Step 3: `connectJiraTracker`, `sendIssueToJira`, `connectGithubTracker`, `sendIssueToGithub` (all already have `ctx`, `ActionState`)**
 
 In `src/lib/actions/issue-tracker.ts`, each of these four functions has a `const ctx = await getUserContext(); if (!ctx) return { error: "Not authenticated." };` block (verify exact surrounding text per function since two of them — `connectJiraTracker` and `connectGithubTracker` — also have a role check immediately after). Add the gate line immediately after the `if (!ctx) return { error: "Not authenticated." };` line and before any role check, in all four functions:
 
@@ -784,7 +784,7 @@ becomes:
   const limitError = await rateLimit("send_issue_to_github", 30, 3600);
 ```
 
-- [ ] **Step 4: `disconnectJiraTracker` and `disconnectSlackNotifications`-style void actions with no project/org param**
+- [x] **Step 4: `disconnectJiraTracker` and `disconnectSlackNotifications`-style void actions with no project/org param**
 
 `disconnectJiraTracker(connectionId: string)` has no `ctx`, no redirect, and — unlike every other function so far — no `projectId`/`orgId` parameter at all, since it's only ever called from the single global `/settings/integrations/jira` page. Find:
 
@@ -804,7 +804,7 @@ export async function disconnectJiraTracker(connectionId: string) {
   const supabase = await createClient();
 ```
 
-- [ ] **Step 5: `disconnectGithubTracker` (same shape, different target page)**
+- [x] **Step 5: `disconnectGithubTracker` (same shape, different target page)**
 
 Find:
 
@@ -836,11 +836,11 @@ export async function disconnectGithubTracker(
 
 This file does not import `redirect` today — add `import { redirect } from "next/navigation";` alongside the existing `import { revalidatePath } from "next/cache";` line at the top.
 
-- [ ] **Step 6: Check for stray `</content>` lines**
+- [x] **Step 6: Check for stray `</content>` lines**
 
 Run: `tail -3 src/lib/actions/custom-fields.ts src/lib/actions/issue-tracker.ts` and strip any found.
 
-- [ ] **Step 7: Type-check and lint**
+- [x] **Step 7: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -848,7 +848,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/custom-fields.ts src/lib/actions/issue-tracker.ts`
 Expected: no output.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/lib/actions/custom-fields.ts src/lib/actions/issue-tracker.ts
@@ -863,7 +863,7 @@ git commit -m "Gate custom-fields.ts and issue-tracker.ts mutations behind isRea
 - Modify: `src/lib/actions/issues.ts`
 - Modify: `src/lib/actions/members.ts`
 
-- [ ] **Step 1: `createIssue` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `createIssue` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/issues.ts`, find:
 
@@ -884,7 +884,7 @@ Replace with:
   const limitError = await rateLimit("create_issue", 60, 60);
 ```
 
-- [ ] **Step 2: `updateIssueStatus` (no `ctx` today, void, no redirect)**
+- [x] **Step 2: `updateIssueStatus` (no `ctx` today, void, no redirect)**
 
 Find:
 
@@ -906,7 +906,7 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
 
 `redirect` is already imported in this file (used by `createIssue` and `deleteIssue`).
 
-- [ ] **Step 3: `deleteIssue` (no `ctx` today, already redirects on success)**
+- [x] **Step 3: `deleteIssue` (no `ctx` today, already redirects on success)**
 
 Find:
 
@@ -926,7 +926,7 @@ export async function deleteIssue(projectId: string, issueId: string) {
   const supabase = await createClient();
 ```
 
-- [ ] **Step 4: `inviteMember` (already has `ctx`, `ActionState`)**
+- [x] **Step 4: `inviteMember` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/members.ts`, find:
 
@@ -947,7 +947,7 @@ Replace with:
   const limitError = await rateLimit("invite_member", 20, 3600);
 ```
 
-- [ ] **Step 5: `cancelInvite`, `updateMemberRole`, `removeMember` (none have `ctx` today, all void, none redirect)**
+- [x] **Step 5: `cancelInvite`, `updateMemberRole`, `removeMember` (none have `ctx` today, all void, none redirect)**
 
 All three share the exact same fix shape — add `ctx`/`isReadOnly` before the existing `const supabase = await createClient();` line, redirecting to `/settings/members` (the one page all three are called from) on block.
 
@@ -999,11 +999,11 @@ export async function removeMember(orgId: string, userId: string) {
 
 Add `import { redirect } from "next/navigation";` to this file (not currently imported). Leave `acceptPendingInvites` untouched entirely — it's explicitly excluded (spec scope decision 8; it has no single org to check `isReadOnly` against).
 
-- [ ] **Step 6: Check for stray `</content>` lines**
+- [x] **Step 6: Check for stray `</content>` lines**
 
 Run: `tail -3 src/lib/actions/issues.ts src/lib/actions/members.ts` and strip any found.
 
-- [ ] **Step 7: Type-check and lint**
+- [x] **Step 7: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1011,7 +1011,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/issues.ts src/lib/actions/members.ts`
 Expected: no output.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/lib/actions/issues.ts src/lib/actions/members.ts
@@ -1026,7 +1026,7 @@ git commit -m "Gate issues.ts and members.ts mutations behind isReadOnly"
 - Modify: `src/lib/actions/projects.ts`
 - Modify: `src/lib/actions/slack.ts`
 
-- [ ] **Step 1: `createProject` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `createProject` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/projects.ts`, find:
 
@@ -1047,7 +1047,7 @@ Replace with:
   const supabase = await createClient();
 ```
 
-- [ ] **Step 2: `connectSlackNotifications` (already has `ctx`, `ActionState`)**
+- [x] **Step 2: `connectSlackNotifications` (already has `ctx`, `ActionState`)**
 
 In `src/lib/actions/slack.ts`, find:
 
@@ -1070,7 +1070,7 @@ Replace with:
   }
 ```
 
-- [ ] **Step 3: `disconnectSlackNotifications` (no `ctx` today, void, no redirect, no project param)**
+- [x] **Step 3: `disconnectSlackNotifications` (no `ctx` today, void, no redirect, no project param)**
 
 Find:
 
@@ -1092,11 +1092,11 @@ export async function disconnectSlackNotifications(connectionId: string) {
 
 Add `import { redirect } from "next/navigation";` to this file (not currently imported).
 
-- [ ] **Step 4: Check for stray `</content>` lines**
+- [x] **Step 4: Check for stray `</content>` lines**
 
 Run: `tail -3 src/lib/actions/projects.ts src/lib/actions/slack.ts` and strip any found.
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1104,7 +1104,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/projects.ts src/lib/actions/slack.ts`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/lib/actions/projects.ts src/lib/actions/slack.ts
@@ -1118,7 +1118,7 @@ git commit -m "Gate projects.ts and slack.ts mutations behind isReadOnly"
 **Files:**
 - Modify: `src/lib/actions/runs.ts`
 
-- [ ] **Step 1: `createRunFolder` and `createRun` (both already have `ctx`, `ActionState`)**
+- [x] **Step 1: `createRunFolder` and `createRun` (both already have `ctx`, `ActionState`)**
 
 Find (appears once, in `createRunFolder`):
 
@@ -1153,7 +1153,7 @@ Replace with:
   const limitError = await rateLimit("create_run", 30, 3600);
 ```
 
-- [ ] **Step 2: `setRunCaseStatus` (already has `ctx`, void, no redirect)**
+- [x] **Step 2: `setRunCaseStatus` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1188,7 +1188,7 @@ export async function setRunCaseStatus(
   const limitError = await rateLimit("set_run_case_status", 300, 300);
 ```
 
-- [ ] **Step 3: `deleteRun` (no `ctx` today, already redirects on success)**
+- [x] **Step 3: `deleteRun` (no `ctx` today, already redirects on success)**
 
 Find:
 
@@ -1208,7 +1208,7 @@ export async function deleteRun(projectId: string, runId: string) {
   const supabase = await createClient();
 ```
 
-- [ ] **Step 4: `addTestCasesToRun` (already has `ctx`, void, no redirect)**
+- [x] **Step 4: `addTestCasesToRun` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1241,7 +1241,7 @@ export async function addTestCasesToRun(
   const limitError = await rateLimit("edit_run_membership", 60, 60);
 ```
 
-- [ ] **Step 5: `bulkDeleteRuns` (already has `ctx`, void, no redirect)**
+- [x] **Step 5: `bulkDeleteRuns` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1272,7 +1272,7 @@ export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
   await supabase.from("test_runs").delete().in("id", runIds);
 ```
 
-- [ ] **Step 6: `bulkMoveRunsToFolder` (already has `ctx`, void, no redirect)**
+- [x] **Step 6: `bulkMoveRunsToFolder` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1305,11 +1305,11 @@ export async function bulkMoveRunsToFolder(
 
 `redirect` is already imported at the top of this file (used by `createRun`) — no new import needed.
 
-- [ ] **Step 7: Check for the stray `</content>` line**
+- [x] **Step 7: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/runs.ts` and strip if present.
 
-- [ ] **Step 8: Type-check and lint**
+- [x] **Step 8: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1317,7 +1317,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/runs.ts`
 Expected: no output.
 
-- [ ] **Step 9: Commit**
+- [x] **Step 9: Commit**
 
 ```bash
 git add src/lib/actions/runs.ts
@@ -1331,7 +1331,7 @@ git commit -m "Gate runs.ts mutations behind isReadOnly"
 **Files:**
 - Modify: `src/lib/actions/suites.ts`
 
-- [ ] **Step 1: `createSuite` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `createSuite` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1352,7 +1352,7 @@ Replace with:
   const limitError = await rateLimit("create_suite", 30, 3600);
 ```
 
-- [ ] **Step 2: `addTestCasesToSuite` (already has `ctx`, void, no redirect)**
+- [x] **Step 2: `addTestCasesToSuite` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1385,7 +1385,7 @@ export async function addTestCasesToSuite(
   const limitError = await rateLimit("edit_suite_membership", 60, 60);
 ```
 
-- [ ] **Step 3: `removeTestCaseFromSuite` (already has `ctx`, void, no redirect)**
+- [x] **Step 3: `removeTestCaseFromSuite` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1416,7 +1416,7 @@ export async function removeTestCaseFromSuite(
   const limitError = await rateLimit("edit_suite_membership", 60, 60);
 ```
 
-- [ ] **Step 4: `runSuiteNow` (already has `ctx`, redirects only on success today)**
+- [x] **Step 4: `runSuiteNow` (already has `ctx`, redirects only on success today)**
 
 Find:
 
@@ -1439,7 +1439,7 @@ export async function runSuiteNow(projectId: string, suiteId: string) {
   const limitError = await rateLimit("create_run", 30, 3600);
 ```
 
-- [ ] **Step 5: `deleteSuite` (no `ctx` today, already redirects on success)**
+- [x] **Step 5: `deleteSuite` (no `ctx` today, already redirects on success)**
 
 Find:
 
@@ -1461,11 +1461,11 @@ export async function deleteSuite(projectId: string, suiteId: string) {
 
 `redirect` and `getUserContext` are already imported at the top of this file.
 
-- [ ] **Step 6: Check for the stray `</content>` line**
+- [x] **Step 6: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/suites.ts` and strip if present.
 
-- [ ] **Step 7: Type-check and lint**
+- [x] **Step 7: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1473,7 +1473,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/suites.ts`
 Expected: no output.
 
-- [ ] **Step 8: Commit**
+- [x] **Step 8: Commit**
 
 ```bash
 git add src/lib/actions/suites.ts
@@ -1487,7 +1487,7 @@ git commit -m "Gate suites.ts mutations behind isReadOnly"
 **Files:**
 - Modify: `src/lib/actions/test-cases.ts`
 
-- [ ] **Step 1: `createTestCase` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `createTestCase` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1508,7 +1508,7 @@ Replace with:
   const limitError = await rateLimit("create_test_case", 120, 60);
 ```
 
-- [ ] **Step 2: `updateTestCase` (already has `ctx`, `ActionState`)**
+- [x] **Step 2: `updateTestCase` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1529,7 +1529,7 @@ Replace with:
   const limitError = await rateLimit("update_test_case", 120, 60);
 ```
 
-- [ ] **Step 3: `deleteTestCase` (no `ctx` today, already redirects on success)**
+- [x] **Step 3: `deleteTestCase` (no `ctx` today, already redirects on success)**
 
 Find:
 
@@ -1549,7 +1549,7 @@ export async function deleteTestCase(projectId: string, testCaseId: string) {
   const supabase = await createClient();
 ```
 
-- [ ] **Step 4: `bulkImportTestCases` (already has `ctx`, `ActionState`)**
+- [x] **Step 4: `bulkImportTestCases` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1572,11 +1572,11 @@ Replace with:
 
 `redirect` and `getUserContext` are already imported at the top of this file.
 
-- [ ] **Step 5: Check for the stray `</content>` line**
+- [x] **Step 5: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/test-cases.ts` and strip if present.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1584,7 +1584,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/test-cases.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/actions/test-cases.ts
@@ -1598,7 +1598,7 @@ git commit -m "Gate test-cases.ts mutations behind isReadOnly"
 **Files:**
 - Modify: `src/lib/actions/weekly-reports.ts`
 
-- [ ] **Step 1: `updateWeeklyReportDraft` (already has `ctx`, `ActionState`)**
+- [x] **Step 1: `updateWeeklyReportDraft` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1619,7 +1619,7 @@ Replace with:
   const limitError = await rateLimit("update_weekly_report_draft", 60, 3600);
 ```
 
-- [ ] **Step 2: `updateDailyPlan` (already has `ctx`, void, no redirect)**
+- [x] **Step 2: `updateDailyPlan` (already has `ctx`, void, no redirect)**
 
 Find:
 
@@ -1652,7 +1652,7 @@ export async function updateDailyPlan(
 
 This file has no `redirect` import today — add `import { redirect } from "next/navigation";` alongside the existing `import { revalidatePath } from "next/cache";` line at the top.
 
-- [ ] **Step 3: `captureWeeklyReportSnapshot` (already has `ctx`, `ActionState`)**
+- [x] **Step 3: `captureWeeklyReportSnapshot` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1673,7 +1673,7 @@ Replace with:
   const limitError = await rateLimit("capture_weekly_report_snapshot", 20, 3600);
 ```
 
-- [ ] **Step 4: `updateSnapshotEditorialFields` (already has `ctx`, `ActionState`)**
+- [x] **Step 4: `updateSnapshotEditorialFields` (already has `ctx`, `ActionState`)**
 
 Find:
 
@@ -1694,11 +1694,11 @@ Replace with:
   const limitError = await rateLimit("update_snapshot_editorial", 60, 3600);
 ```
 
-- [ ] **Step 5: Check for the stray `</content>` line**
+- [x] **Step 5: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/weekly-reports.ts` and strip if present.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -1706,7 +1706,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/weekly-reports.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/actions/weekly-reports.ts
@@ -1719,7 +1719,7 @@ git commit -m "Gate weekly-reports.ts mutations behind isReadOnly"
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full automated suite**
+- [x] **Step 1: Run the full automated suite**
 
 ```bash
 npx tsc --noEmit
@@ -1746,7 +1746,7 @@ git status --short
 ```
 Expected: clean.
 
-- [ ] **Step 2: Manually verify enforcement actually works, using a real org**
+- [x] **Step 2: Manually verify enforcement actually works, using a real org**
 
 This is the one piece of behavior that can't be verified by `tsc`/`eslint`/`vitest`/`build` alone — it needs a live org whose trial has actually lapsed.
 
@@ -1780,7 +1780,7 @@ Afterward, restore the org so it isn't left in a broken state:
 update organizations set trial_end_date = now() + interval '14 days' where id = '<same-org-id>';
 ```
 
-- [ ] **Step 3: Confirm every scope decision from the spec is actually reflected**
+- [x] **Step 3: Confirm every scope decision from the spec is actually reflected**
 
 Re-read `docs/superpowers/specs/2026-09-05-billing-foundation-design.md`'s 10 scope decisions and confirm each is covered:
 1. Trial expiry fully derived, no stored transition — confirmed by Task 2's `isReadOnly` computation and Task 1's migration never writing anything but `'trial'`.
@@ -1794,7 +1794,7 @@ Re-read `docs/superpowers/specs/2026-09-05-billing-foundation-design.md`'s 10 sc
 9. Trial banner visible the whole 14 days, scaling styling — confirmed by Task 3's `TrialBanner`.
 10. Banner above the sidebar+content row — confirmed by Task 3's layout restructure.
 
-- [ ] **Step 4: Commit the plan checkbox updates**
+- [x] **Step 4: Commit the plan checkbox updates**
 
 ```bash
 git add docs/superpowers/plans/2026-09-05-billing-foundation.md
