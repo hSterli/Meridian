@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
@@ -30,6 +31,7 @@ export async function createCustomField(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_custom_field", 30, 3600);
   if (limitError) return { error: limitError };
@@ -69,6 +71,7 @@ export async function updateCustomField(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("update_custom_field", 30, 3600);
   if (limitError) return { error: limitError };
@@ -103,6 +106,12 @@ export async function updateCustomField(
 }
 
 export async function deleteCustomField(projectId: string, fieldId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) {
+    redirect(`/projects/${projectId}/test-cases/custom-fields?error=read-only`);
+  }
+
   const supabase = await createClient();
   await supabase.from("test_case_custom_fields").delete().eq("id", fieldId);
   revalidatePath(`/projects/${projectId}/test-cases/custom-fields`);
