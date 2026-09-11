@@ -358,6 +358,7 @@ export type Database = {
           name: string
           plan_type: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
+          stripe_customer_id: string | null
           trial_end_date: string | null
         }
         Insert: {
@@ -368,6 +369,7 @@ export type Database = {
           name: string
           plan_type?: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
+          stripe_customer_id?: string | null
           trial_end_date?: string | null
         }
         Update: {
@@ -378,6 +380,7 @@ export type Database = {
           name?: string
           plan_type?: Database["public"]["Enums"]["billing_plan_type"] | null
           slug?: string
+          stripe_customer_id?: string | null
           trial_end_date?: string | null
         }
         Relationships: []
@@ -1362,6 +1365,7 @@ export type Database = {
           name: string
           plan_type: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
+          stripe_customer_id: string | null
           trial_end_date: string | null
         }
         SetofOptions: {
