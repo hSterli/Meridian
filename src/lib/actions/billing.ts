@@ -55,6 +55,9 @@ export async function startCheckout(
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     customer: customerId,
+    payment_intent_data: {
+      setup_future_usage: "off_session",
+    },
     line_items: [
       {
         price_data: {
