@@ -1,4 +1,5 @@
 import { stripe } from "@/lib/stripe/client";
+import { nextBillingDateAfter } from "@/lib/stripe/billing-cycle";
 import { createServiceClient } from "@/lib/supabase/service";
 import type Stripe from "stripe";
 
@@ -44,6 +45,7 @@ export async function POST(request: Request) {
           billing_status: "active",
           plan_type: planType,
           stripe_customer_id: (session.customer as string) ?? null,
+          next_billing_date: nextBillingDateAfter(planType, new Date()).toISOString(),
         })
         .eq("id", orgId);
 
