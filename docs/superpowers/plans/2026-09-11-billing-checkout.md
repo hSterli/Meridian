@@ -32,12 +32,12 @@ Check `tail -3 <file>` after every file write for a stray literal `</content>` l
 - Modify: `package.json`
 - Modify: `.env.local.example`
 
-- [ ] **Step 1: Install the Stripe SDK**
+- [x] **Step 1: Install the Stripe SDK**
 
 Run: `npm install stripe`
 Expected: `package.json`'s `dependencies` gains a `"stripe": "^<version>"` line (npm resolves the current version — don't hand-edit a version number).
 
-- [ ] **Step 2: Add the two new env vars**
+- [x] **Step 2: Add the two new env vars**
 
 `.env.local.example` currently reads:
 
@@ -59,12 +59,12 @@ STRIPE_SECRET_KEY=
 STRIPE_WEBHOOK_SECRET=
 ```
 
-- [ ] **Step 3: Check for the stray `</content>` line**
+- [x] **Step 3: Check for the stray `</content>` line**
 
 Run: `tail -3 .env.local.example`
 Strip if present.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add package.json package-lock.json .env.local.example
@@ -78,18 +78,18 @@ git commit -m "Add stripe dependency and Stripe env vars"
 **Files:**
 - Create: `supabase/migrations/0027_billing_checkout.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 alter table organizations
   add column stripe_customer_id text;
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Use the Supabase MCP `apply_migration` tool against project ref `ucnfcsosbdgknmzyuqbw`, with `name` `billing_checkout` and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the column landed**
+- [x] **Step 3: Verify the column landed**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -99,20 +99,20 @@ where table_name = 'organizations' and column_name = 'stripe_customer_id';
 ```
 Expected: one row — `stripe_customer_id`, `text`.
 
-- [ ] **Step 4: Run security advisors**
+- [x] **Step 4: Run security advisors**
 
 Use the Supabase MCP `get_advisors` tool (type `security`) against `ucnfcsosbdgknmzyuqbw`. Expected: no new findings — this migration adds a plain nullable column with no RLS-relevant surface.
 
-- [ ] **Step 5: Regenerate TypeScript types**
+- [x] **Step 5: Regenerate TypeScript types**
 
 Use the Supabase MCP `generate_typescript_types` tool against `ucnfcsosbdgknmzyuqbw`, write the result to `src/lib/types/database.ts` (full replace). Confirm `stripe_customer_id` appears (`grep -n "stripe_customer_id" src/lib/types/database.ts`).
 
-- [ ] **Step 6: Type-check**
+- [x] **Step 6: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add supabase/migrations/0027_billing_checkout.sql src/lib/types/database.ts
@@ -127,7 +127,7 @@ git commit -m "Add stripe_customer_id to organizations"
 - Create: `src/lib/stripe/client.ts`
 - Test: `src/lib/stripe/client.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/stripe/client.test.ts`:
 
@@ -167,12 +167,12 @@ describe("computePrice", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `npx vitest run --project unit src/lib/stripe/client.test.ts`
 Expected: FAIL — `src/lib/stripe/client.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write `src/lib/stripe/client.ts`**
+- [x] **Step 3: Write `src/lib/stripe/client.ts`**
 
 ```ts
 import Stripe from "stripe";
@@ -225,17 +225,17 @@ export function computePrice(planType: BillingPlanType, seats: number): PriceBre
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/stripe/client.ts`
 Strip if present. Repeat for the test file.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run --project unit src/lib/stripe/client.test.ts`
 Expected: 5 passed.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output. If it errors on `new Stripe(process.env.STRIPE_SECRET_KEY!)` because `STRIPE_SECRET_KEY` is undefined at type-check time — it won't; the `!` non-null assertion tells TypeScript to trust it, and `tsc` doesn't evaluate env vars, only types. This is the same pattern already used for `NEXT_PUBLIC_SUPABASE_URL!` in `src/lib/supabase/server.ts`.
@@ -243,7 +243,7 @@ Expected: no output. If it errors on `new Stripe(process.env.STRIPE_SECRET_KEY!)
 Run: `npx eslint src/lib/stripe/client.ts src/lib/stripe/client.test.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/stripe/client.ts src/lib/stripe/client.test.ts
@@ -257,7 +257,7 @@ git commit -m "Add computePrice: monthly/annual pricing math, and the shared Str
 **Files:**
 - Create: `src/lib/actions/billing.ts`
 
-- [ ] **Step 1: Write the file**
+- [x] **Step 1: Write the file**
 
 ```ts
 "use server";
@@ -359,12 +359,12 @@ export async function checkBillingStatus(): Promise<{ billingStatus: string | nu
 
 Note `startCheckout` deliberately does **not** check `ctx.isReadOnly` — starting checkout is exactly the action a read-only org must still be able to take, since it's the way out of read-only. This mirrors why `auth.ts` and `orgs.ts` were excluded from the Foundation phase's gating.
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/billing.ts`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -372,7 +372,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/billing.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/billing.ts
@@ -387,7 +387,7 @@ git commit -m "Add startCheckout and checkBillingStatus Server Actions"
 - Create: `src/components/billing/upgrade-form.tsx`
 - Create: `src/app/(app)/billing/upgrade/page.tsx`
 
-- [ ] **Step 1: Write the client form component**
+- [x] **Step 1: Write the client form component**
 
 Create `src/components/billing/upgrade-form.tsx`:
 
@@ -442,12 +442,12 @@ export function UpgradeForm({
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/components/billing/upgrade-form.tsx`
 Strip if present.
 
-- [ ] **Step 3: Write the page**
+- [x] **Step 3: Write the page**
 
 Create `src/app/(app)/billing/upgrade/page.tsx`:
 
@@ -485,12 +485,12 @@ export default async function BillingUpgradePage() {
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/billing/upgrade/page.tsx"`
 Strip if present.
 
-- [ ] **Step 5: Type-check and lint**
+- [x] **Step 5: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -498,7 +498,7 @@ Expected: no output.
 Run: `npx eslint src/components/billing/upgrade-form.tsx "src/app/(app)/billing/upgrade/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add src/components/billing/upgrade-form.tsx "src/app/(app)/billing/upgrade/page.tsx"
@@ -512,7 +512,7 @@ git commit -m "Add /billing/upgrade plan-choice page"
 **Files:**
 - Create: `src/app/(app)/billing/upgrade/success/page.tsx`
 
-- [ ] **Step 1: Write the page**
+- [x] **Step 1: Write the page**
 
 This is a Client Component (needs `setInterval` and `useRouter`), directly under `(app)/` — the shared `(app)/layout.tsx` already handles the auth/org redirect at a higher level, so this page doesn't re-check `ctx` itself.
 
@@ -561,12 +561,12 @@ export default function BillingUpgradeSuccessPage() {
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/(app)/billing/upgrade/success/page.tsx"`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -574,7 +574,7 @@ Expected: no output.
 Run: `npx eslint "src/app/(app)/billing/upgrade/success/page.tsx"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/billing/upgrade/success/page.tsx"
@@ -588,7 +588,7 @@ git commit -m "Add polling success page for the checkout-redirect vs webhook rac
 **Files:**
 - Create: `src/app/api/v1/webhooks/stripe/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 ```ts
 import { stripe } from "@/lib/stripe/client";
@@ -660,12 +660,12 @@ export async function POST(request: Request) {
 
 Note the ordering here differs from the GitHub webhook route on purpose: GitHub logs to `webhook_events` *before* checking validity, since its signature check is a cheap inline boolean. Stripe's `stripe.webhooks.constructEvent` itself throws on an invalid signature — there's no parsed `event` to log if verification fails — so the early `401` return happens in the `catch` block before any log write, and the log write for a *valid* event happens after processing. This is a structural consequence of the Stripe SDK's verification API, not a deviation from the established pattern for its own sake.
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/api/v1/webhooks/stripe/route.ts"`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -673,7 +673,7 @@ Expected: no output.
 Run: `npx eslint "src/app/api/v1/webhooks/stripe/route.ts"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/v1/webhooks/stripe/route.ts"
@@ -686,7 +686,7 @@ git commit -m "Add Stripe webhook route: activate org on checkout.session.comple
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full automated suite**
+- [x] **Step 1: Run the full automated suite**
 
 ```bash
 npx tsc --noEmit
@@ -713,7 +713,7 @@ git status --short
 ```
 Expected: clean.
 
-- [ ] **Step 2: State the live-Stripe verification gap explicitly**
+- [x] **Step 2: State the live-Stripe verification gap explicitly**
 
 **No live Stripe account or API keys exist in this session.** The following cannot be exercised end-to-end here, and this step is not a checklist to fake-pass — it's a record of what's left for whoever has real Stripe credentials to verify before this ships to real users:
 
@@ -725,7 +725,7 @@ Expected: clean.
 
 What **is** verified: the pricing math (`computePrice`, fully unit-tested), that every file type-checks and lints cleanly (proving correct usage of the Stripe SDK's TypeScript types, correct Next.js Server Action/route conventions, and no typos in field names against the real Supabase schema), and that the production build succeeds with every new route present.
 
-- [ ] **Step 3: Confirm every scope decision from the spec is reflected**
+- [x] **Step 3: Confirm every scope decision from the spec is reflected**
 
 Re-read `docs/superpowers/specs/2026-09-11-billing-checkout-design.md`'s 11 scope decisions and confirm each is covered:
 1. `/billing/upgrade` is a dedicated minimal page, not inline in banners — Task 5.
@@ -740,7 +740,7 @@ Re-read `docs/superpowers/specs/2026-09-11-billing-checkout-design.md`'s 11 scop
 10. Polling success page, ~2s interval, ~15s timeout — Task 6.
 11. `cancel_url` needs no special handling — confirmed in Task 4's `startCheckout` (`cancel_url` just points back to `/billing/upgrade`, no other logic).
 
-- [ ] **Step 4: Commit the plan checkbox updates**
+- [x] **Step 4: Commit the plan checkbox updates**
 
 ```bash
 git add docs/superpowers/plans/2026-09-11-billing-checkout.md
