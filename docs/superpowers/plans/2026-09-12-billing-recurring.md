@@ -32,7 +32,7 @@ Check `tail -3 <file>` after every file write for a stray literal `</content>` l
 **Files:**
 - Create: `supabase/migrations/0028_billing_recurring.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 alter table organizations
@@ -78,11 +78,11 @@ select cron.schedule(
 );
 ```
 
-- [ ] **Step 2: Apply the migration**
+- [x] **Step 2: Apply the migration**
 
 Use the Supabase MCP `apply_migration` tool against project ref `ucnfcsosbdgknmzyuqbw`, with `name` `billing_recurring` and the SQL above as `query`.
 
-- [ ] **Step 3: Verify the schema and the cron job both landed**
+- [x] **Step 3: Verify the schema and the cron job both landed**
 
 Use the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -97,20 +97,20 @@ select jobname, schedule, active from cron.job where jobname = 'billing-run-cycl
 ```
 Expected: 1 row — `billing-run-cycle`, `0 6 * * *`, `active = true`. (The job existing and being active is independent of whether the Vault secrets it reads are populated yet — it'll simply produce a request to a URL that resolves to an empty string until Task 7's manual step happens.)
 
-- [ ] **Step 4: Run security advisors**
+- [x] **Step 4: Run security advisors**
 
 Use the Supabase MCP `get_advisors` tool (type `security`) against `ucnfcsosbdgknmzyuqbw`. Expected: no new findings beyond the same class of pre-existing accepted ones (SECURITY DEFINER warnings on existing integration functions, RLS-enabled-no-policy on `webhook_events`/`rate_limit_buckets`, leaked-password-protection).
 
-- [ ] **Step 5: Regenerate TypeScript types**
+- [x] **Step 5: Regenerate TypeScript types**
 
 Use the Supabase MCP `generate_typescript_types` tool against `ucnfcsosbdgknmzyuqbw`, write the result to `src/lib/types/database.ts` — **full replace, but this file also has a hand-written "App-level convenience aliases" block below the generated output that the generator's own output doesn't include; if the regenerated content doesn't have it, restore it from the pre-replace version rather than leaving it dropped** (this exact situation happened during Phase 2's migration task — confirm by running `npx tsc --noEmit` after replacing and checking for undefined-type errors across many unrelated files, which is the signature of this block having been dropped). Confirm `next_billing_date` and `payment_failed_since` both appear (`grep -n "next_billing_date\|payment_failed_since" src/lib/types/database.ts`).
 
-- [ ] **Step 6: Type-check**
+- [x] **Step 6: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add supabase/migrations/0028_billing_recurring.sql src/lib/types/database.ts
@@ -124,7 +124,7 @@ git commit -m "Add next_billing_date/payment_failed_since to organizations, sche
 **Files:**
 - Modify: `.env.local.example`
 
-- [ ] **Step 1: Add the new line**
+- [x] **Step 1: Add the new line**
 
 `.env.local.example` currently reads:
 
@@ -149,12 +149,12 @@ STRIPE_WEBHOOK_SECRET=
 CRON_SECRET=
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 .env.local.example`
 Strip if present.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add .env.local.example
@@ -169,7 +169,7 @@ git commit -m "Add CRON_SECRET env var"
 - Create: `src/lib/stripe/billing-cycle.ts`
 - Test: `src/lib/stripe/billing-cycle.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/stripe/billing-cycle.test.ts`:
 
@@ -227,12 +227,12 @@ describe("nextBillingDateAfter", () => {
 });
 ```
 
-- [ ] **Step 2: Run the tests to verify they fail**
+- [x] **Step 2: Run the tests to verify they fail**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: FAIL — `src/lib/stripe/billing-cycle.ts` doesn't exist yet.
 
-- [ ] **Step 3: Write `src/lib/stripe/billing-cycle.ts`**
+- [x] **Step 3: Write `src/lib/stripe/billing-cycle.ts`**
 
 ```ts
 export type DunningAction =
@@ -265,17 +265,17 @@ export function nextBillingDateAfter(planType: "monthly" | "annual", from: Date)
 }
 ```
 
-- [ ] **Step 4: Check for the stray `</content>` line**
+- [x] **Step 4: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/stripe/billing-cycle.ts`
 Strip if present. Repeat for the test file.
 
-- [ ] **Step 5: Run the tests to verify they pass**
+- [x] **Step 5: Run the tests to verify they pass**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: 7 passed.
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -283,7 +283,7 @@ Expected: no output.
 Run: `npx eslint src/lib/stripe/billing-cycle.ts src/lib/stripe/billing-cycle.test.ts`
 Expected: no output.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/lib/stripe/billing-cycle.ts src/lib/stripe/billing-cycle.test.ts
@@ -297,7 +297,7 @@ git commit -m "Add computeDunningAction and nextBillingDateAfter"
 **Files:**
 - Modify: `src/lib/actions/billing.ts`
 
-- [ ] **Step 1: Add `payment_intent_data` to the Checkout Session**
+- [x] **Step 1: Add `payment_intent_data` to the Checkout Session**
 
 Find:
 
@@ -322,12 +322,12 @@ Replace with:
 
 Without this, Stripe Checkout in `mode: 'payment'` does not save a reusable payment method — nothing in this phase's recurring-charge logic (Task 6) would have a saved card to charge.
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 src/lib/actions/billing.ts`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -335,7 +335,7 @@ Expected: no output.
 Run: `npx eslint src/lib/actions/billing.ts`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/billing.ts
@@ -349,7 +349,7 @@ git commit -m "Save the customer's payment method during Checkout for future rec
 **Files:**
 - Modify: `src/app/api/v1/webhooks/stripe/route.ts`
 
-- [ ] **Step 1: Import `nextBillingDateAfter` and compute the date**
+- [x] **Step 1: Import `nextBillingDateAfter` and compute the date**
 
 Find:
 
@@ -368,7 +368,7 @@ import { createServiceClient } from "@/lib/supabase/service";
 import type Stripe from "stripe";
 ```
 
-- [ ] **Step 2: Include `next_billing_date` in the organizations update**
+- [x] **Step 2: Include `next_billing_date` in the organizations update**
 
 Find:
 
@@ -399,12 +399,12 @@ Replace with:
         .eq("id", orgId);
 ```
 
-- [ ] **Step 3: Check for the stray `</content>` line**
+- [x] **Step 3: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/api/v1/webhooks/stripe/route.ts"`
 Strip if present.
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -412,7 +412,7 @@ Expected: no output.
 Run: `npx eslint "src/app/api/v1/webhooks/stripe/route.ts"`
 Expected: no output.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add "src/app/api/v1/webhooks/stripe/route.ts"
@@ -426,7 +426,7 @@ git commit -m "Set next_billing_date when a Checkout session completes"
 **Files:**
 - Create: `src/app/api/internal/billing/run-cycle/route.ts`
 
-- [ ] **Step 1: Write the route**
+- [x] **Step 1: Write the route**
 
 ```ts
 import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
@@ -568,12 +568,12 @@ export async function POST(request: Request) {
 }
 ```
 
-- [ ] **Step 2: Check for the stray `</content>` line**
+- [x] **Step 2: Check for the stray `</content>` line**
 
 Run: `tail -3 "src/app/api/internal/billing/run-cycle/route.ts"`
 Strip if present.
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit`
 Expected: no output.
@@ -581,7 +581,7 @@ Expected: no output.
 Run: `npx eslint "src/app/api/internal/billing/run-cycle/route.ts"`
 Expected: no output.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/api/internal/billing/run-cycle/route.ts"
@@ -594,7 +594,7 @@ git commit -m "Add the recurring-billing cron route: charge due orgs, escalate d
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Run the full automated suite**
+- [x] **Step 1: Run the full automated suite**
 
 ```bash
 npx tsc --noEmit
@@ -621,7 +621,7 @@ git status --short
 ```
 Expected: clean.
 
-- [ ] **Step 2: State the two live-environment gaps explicitly**
+- [x] **Step 2: State the two live-environment gaps explicitly**
 
 **No live Stripe account or API keys exist in this session.** `stripe.paymentMethods.list` and `stripe.paymentIntents.create` in `run-cycle/route.ts` have never been called against real Stripe — verified instead via the `computeDunningAction`/`nextBillingDateAfter` unit tests (the pure day-count/date-math logic, fully testable without live credentials) plus `tsc`/`eslint`/`build` proving correct Stripe SDK typing and Supabase field usage.
 
@@ -634,7 +634,7 @@ select vault.create_secret('<a real random secret, matching CRON_SECRET in the d
 
 ...the scheduled job will fire daily but its `net.http_post` call will resolve to a URL built from an empty string, so nothing will actually happen. This is a required manual step before this phase does anything in a real environment — not something this plan can complete without live infrastructure access.
 
-- [ ] **Step 3: Confirm every scope decision from the spec is reflected**
+- [x] **Step 3: Confirm every scope decision from the spec is reflected**
 
 Re-read `docs/superpowers/specs/2026-09-12-billing-recurring-design.md`'s 11 scope decisions and confirm each is covered:
 1. `setup_future_usage: "off_session"` added to `startCheckout` — Task 4.
@@ -649,7 +649,7 @@ Re-read `docs/superpowers/specs/2026-09-12-billing-recurring-design.md`'s 11 sco
 10. Payment method fetched explicitly via `stripe.paymentMethods.list`, not an implicit default — Task 6.
 11. No distributed locking — confirmed, `run-cycle/route.ts` has no locking mechanism, matches the accepted risk in the spec.
 
-- [ ] **Step 4: Commit the plan checkbox updates**
+- [x] **Step 4: Commit the plan checkbox updates**
 
 ```bash
 git add docs/superpowers/plans/2026-09-12-billing-recurring.md
