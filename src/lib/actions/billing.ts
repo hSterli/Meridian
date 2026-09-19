@@ -3,7 +3,8 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
-import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
+import { stripe, computePrice, computeMidYearSeatCharge, type BillingPlanType } from "@/lib/stripe/client";
+import { nextBillingDateAfter, remainingMonthsUntil } from "@/lib/stripe/billing-cycle";
 import type { ActionState } from "@/lib/actions/auth";
 
 export async function startCheckout(
@@ -95,4 +96,52 @@ export async function checkBillingStatus(): Promise<{ billingStatus: string | nu
     .single();
 
   return { billingStatus: data?.billing_status ?? null };
+}
+
+/**
+ * Best-effort mid-year top-up for one seat on an annual plan. No-op for
+ * monthly plans (Phase 3's cron already recomputes seats fresh every
+ * cycle) and for anything other than a plain active annual subscription.
+ * A failure here is logged and swallowed, never thrown — it must not block
+ * the caller (acceptPendingInvites, part of sign-in), and it's self-healing:
+ * the org's next annual renewal recomputes seats fresh via computePrice.
+ */
+export async function chargeMidYearAnnualSeat(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orgId: string
+): Promise<void> {
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("plan_type, billing_status, stripe_customer_id, next_billing_date, cancel_at")
+    .eq("id", orgId)
+    .single();
+
+  if (!org) return;
+  if (org.plan_type !== "annual" || org.billing_status !== "active") return;
+  if (org.cancel_at || !org.stripe_customer_id || !org.next_billing_date) return;
+
+  try {
+    const months = remainingMonthsUntil(new Date(), new Date(org.next_billing_date));
+    const amount = computeMidYearSeatCharge(months);
+
+    const methods = await stripe.paymentMethods.list({
+      customer: org.stripe_customer_id,
+      type: "card",
+    });
+    const paymentMethod = methods.data[0];
+    if (!paymentMethod) throw new Error("no saved payment method");
+
+    await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+      customer: org.stripe_customer_id,
+      payment_method: paymentMethod.id,
+      off_session: true,
+      confirm: true,
+    });
+
+    await supabase.from("billing_events").insert({ org_id: orgId, event_type: "seat_added_mid_year" });
+  } catch {
+    await supabase.from("billing_events").insert({ org_id: orgId, event_type: "payment_failed" });
+  }
 }
