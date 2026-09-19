@@ -26,3 +26,15 @@ export function nextBillingDateAfter(planType: "monthly" | "annual", from: Date)
   else next.setUTCFullYear(next.getUTCFullYear() + 1);
   return next;
 }
+
+// Inclusive of the current calendar month already in progress — a seat
+// added any time in March against a December renewal is 10 months (March
+// through December), not 9. No day-of-month proration below month
+// granularity: only the month/year components matter.
+export function remainingMonthsUntil(from: Date, until: Date): number {
+  const months =
+    (until.getUTCFullYear() - from.getUTCFullYear()) * 12 +
+    (until.getUTCMonth() - from.getUTCMonth()) +
+    1;
+  return Math.max(1, months);
+}
