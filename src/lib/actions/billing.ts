@@ -214,3 +214,34 @@ export async function switchPlan(_prevState: ActionState, formData: FormData): P
   revalidatePath("/billing");
   return { success: true };
 }
+
+export async function requestCancellation(
+  _prevState: ActionState,
+  _formData: FormData
+): Promise<ActionState> {
+  const ctx = await getUserContext();
+  if (!ctx || !ctx.activeOrgId) return { error: "No active team selected." };
+  if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
+    return { error: "Only owners and admins can cancel." };
+  }
+
+  const supabase = await createClient();
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("billing_status, next_billing_date, cancel_at")
+    .eq("id", ctx.activeOrgId)
+    .single();
+
+  if (!org) return { error: "Organization not found." };
+  if (org.billing_status !== "active") return { error: "Only an active subscription can be cancelled." };
+  if (org.cancel_at) return { error: "Cancellation is already pending." };
+  if (!org.next_billing_date) return { error: "No billing period found." };
+
+  await supabase
+    .from("organizations")
+    .update({ cancel_at: org.next_billing_date })
+    .eq("id", ctx.activeOrgId);
+
+  revalidatePath("/billing");
+  return { success: true };
+}
