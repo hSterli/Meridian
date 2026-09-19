@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computePrice } from "./client";
+import { computeMidYearSeatCharge, computePrice } from "./client";
 
 describe("computePrice", () => {
   it("charges the base plus per-seat rate for monthly", () => {
@@ -29,5 +29,19 @@ describe("computePrice", () => {
   it("carries the seat count through unchanged", () => {
     expect(computePrice("monthly", 7).seats).toBe(7);
     expect(computePrice("annual", 7).seats).toBe(7);
+  });
+});
+
+describe("computeMidYearSeatCharge", () => {
+  it("charges one seat-month at the monthly per-seat rate", () => {
+    expect(computeMidYearSeatCharge(1)).toBe(1900);
+  });
+
+  it("charges ten seat-months for a March-to-December top-up", () => {
+    expect(computeMidYearSeatCharge(10)).toBe(1900 * 10);
+  });
+
+  it("applies no discount regardless of month count", () => {
+    expect(computeMidYearSeatCharge(12)).toBe(1900 * 12);
   });
 });
