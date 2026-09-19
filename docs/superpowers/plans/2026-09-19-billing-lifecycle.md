@@ -1,6 +1,6 @@
 # Billing Lifecycle Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Give organizations on a paid plan a way to add seats mid-cycle without losing revenue on annual plans, switch between monthly and annual billing, and cancel — without introducing a new `billing_status` value.
 
@@ -15,7 +15,7 @@
 **Files:**
 - Create: `supabase/migrations/0029_billing_lifecycle.sql`
 
-- [ ] **Step 1: Write the migration**
+- [x] **Step 1: Write the migration**
 
 ```sql
 alter table organizations
@@ -24,11 +24,11 @@ alter table organizations
 
 No new enum values — `billing_event_type` already has `seat_added_mid_year`, `plan_changed`, and `subscription_cancelled` from Foundation's migration, unused until this phase.
 
-- [ ] **Step 2: Apply via Supabase MCP**
+- [x] **Step 2: Apply via Supabase MCP**
 
 Use the `apply_migration` MCP tool against project ref `ucnfcsosbdgknmzyuqbw` with this file's content.
 
-- [ ] **Step 3: Verify live**
+- [x] **Step 3: Verify live**
 
 Use the `execute_sql` MCP tool:
 
@@ -40,18 +40,18 @@ where table_name = 'organizations' and column_name = 'cancel_at';
 
 Expected: one row, `cancel_at`, `timestamp with time zone`, `YES`.
 
-- [ ] **Step 4: Run security advisors**
+- [x] **Step 4: Run security advisors**
 
 Use the `get_advisors` MCP tool (type `security`). Confirm no new findings beyond the already-accepted `pg_net`-in-public warning from Phase 3.
 
-- [ ] **Step 5: Regenerate TypeScript types**
+- [x] **Step 5: Regenerate TypeScript types**
 
 Use the `generate_typescript_types` MCP tool against `ucnfcsosbdgknmzyuqbw`. Overwrite `src/lib/types/database.ts`. **Check the diff for a dropped "App-level convenience aliases" block** (this has happened in every prior phase's Task 1) — if the generator's output doesn't include it, re-add it from git history (`git show HEAD:src/lib/types/database.ts` and copy the block back in).
 
 Run: `npx tsc --noEmit`
 Expected: no new errors. If there are ~40 errors mentioning missing aliases, that's the dropped block — fix per above and re-run.
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add supabase/migrations/0029_billing_lifecycle.sql src/lib/types/database.ts
@@ -75,7 +75,7 @@ EOF
 - Modify: `src/lib/stripe/client.ts`
 - Test: `src/lib/stripe/client.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Append to `src/lib/stripe/client.test.ts`:
 
@@ -101,12 +101,12 @@ describe("computeMidYearSeatCharge", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/stripe/client.test.ts`
 Expected: FAIL — `computeMidYearSeatCharge` is not exported.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `src/lib/stripe/client.ts`, after `computePrice`:
 
@@ -120,12 +120,12 @@ export function computeMidYearSeatCharge(remainingMonths: number): number {
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/stripe/client.test.ts`
 Expected: PASS, all tests including the pre-existing `computePrice` ones.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/stripe/client.ts src/lib/stripe/client.test.ts
@@ -145,7 +145,7 @@ EOF
 - Modify: `src/lib/stripe/billing-cycle.ts`
 - Test: `src/lib/stripe/billing-cycle.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Change the import line in `src/lib/stripe/billing-cycle.test.ts`:
 
@@ -189,12 +189,12 @@ describe("remainingMonthsUntil", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: FAIL — `remainingMonthsUntil` is not exported.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `src/lib/stripe/billing-cycle.ts`, after `nextBillingDateAfter`:
 
@@ -212,12 +212,12 @@ export function remainingMonthsUntil(from: Date, until: Date): number {
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: PASS, all tests including the pre-existing `computeDunningAction`/`nextBillingDateAfter` ones.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/stripe/billing-cycle.ts src/lib/stripe/billing-cycle.test.ts
@@ -238,7 +238,7 @@ EOF
 
 No test file — this is I/O orchestration over already-tested pure functions and the Stripe SDK, matching this codebase's established convention for `startCheckout`/the webhook/cron routes (verified via `tsc`/`eslint`/`build`, not unit tests).
 
-- [ ] **Step 1: Update imports**
+- [x] **Step 1: Update imports**
 
 In `src/lib/actions/billing.ts`, change:
 
@@ -253,7 +253,7 @@ import { stripe, computePrice, computeMidYearSeatCharge, type BillingPlanType } 
 import { nextBillingDateAfter, remainingMonthsUntil } from "@/lib/stripe/billing-cycle";
 ```
 
-- [ ] **Step 2: Add the function**
+- [x] **Step 2: Add the function**
 
 Append to `src/lib/actions/billing.ts`, after `checkBillingStatus`:
 
@@ -307,12 +307,12 @@ export async function chargeMidYearAnnualSeat(
 }
 ```
 
-- [ ] **Step 3: Type-check**
+- [x] **Step 3: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: clean.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/billing.ts
@@ -335,7 +335,7 @@ EOF
 **Files:**
 - Modify: `src/lib/actions/members.ts`
 
-- [ ] **Step 1: Add the import**
+- [x] **Step 1: Add the import**
 
 In `src/lib/actions/members.ts`, add to the top:
 
@@ -343,7 +343,7 @@ In `src/lib/actions/members.ts`, add to the top:
 import { chargeMidYearAnnualSeat } from "@/lib/actions/billing";
 ```
 
-- [ ] **Step 2: Call it per org inside the loop**
+- [x] **Step 2: Call it per org inside the loop**
 
 Change `acceptPendingInvites`'s loop from:
 
@@ -369,12 +369,12 @@ to:
   }
 ```
 
-- [ ] **Step 3: Type-check**
+- [x] **Step 3: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: clean. (This also confirms no import cycle at the type level — `billing.ts` imports `ActionState` from `auth.ts` with `import type`, which is erased at compile time, so `auth.ts → members.ts → billing.ts` stays a one-way chain at runtime.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/members.ts
@@ -397,7 +397,7 @@ EOF
 **Files:**
 - Modify: `src/lib/actions/billing.ts`
 
-- [ ] **Step 1: Add the import**
+- [x] **Step 1: Add the import**
 
 Add `revalidatePath` to `src/lib/actions/billing.ts`'s imports — change:
 
@@ -412,7 +412,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 ```
 
-- [ ] **Step 2: Add the function**
+- [x] **Step 2: Add the function**
 
 Append to `src/lib/actions/billing.ts`:
 
@@ -486,12 +486,12 @@ export async function switchPlan(_prevState: ActionState, formData: FormData): P
 }
 ```
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/lib/actions/billing.ts`
 Expected: clean (one accepted `_prevState`-unused-var warning, same class as this codebase's other `ActionState` actions).
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add src/lib/actions/billing.ts
@@ -516,7 +516,7 @@ EOF
 **Files:**
 - Modify: `src/lib/actions/billing.ts`
 
-- [ ] **Step 1: Add the function**
+- [x] **Step 1: Add the function**
 
 Append to `src/lib/actions/billing.ts`:
 
@@ -553,12 +553,12 @@ export async function requestCancellation(
 }
 ```
 
-- [ ] **Step 2: Type-check and lint**
+- [x] **Step 2: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/lib/actions/billing.ts`
 Expected: clean.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/lib/actions/billing.ts
@@ -582,7 +582,7 @@ EOF
 **Files:**
 - Modify: `src/app/api/internal/billing/run-cycle/route.ts`
 
-- [ ] **Step 1: Add the `cancel_at is null` filter to Pass 1**
+- [x] **Step 1: Add the `cancel_at is null` filter to Pass 1**
 
 Change:
 
@@ -607,7 +607,7 @@ to:
 
 Also update the comment block directly above it (currently explaining Pass 1's `past_due` inclusion and `payment_failed_since` handling) to add one sentence: `cancel_at is null` excludes any org with a pending cancellation — otherwise, on the exact day cancel_at arrives (it starts out equal to next_billing_date), this query would still see next_billing_date <= now() and charge the org for a fresh period moments before Pass 3 below cancels it.
 
-- [ ] **Step 2: Add Pass 3 after the existing dunning-escalation pass**
+- [x] **Step 2: Add Pass 3 after the existing dunning-escalation pass**
 
 Append, after the closing `}` of the `for (const org of failingOrgs ?? [])` loop and before the final `return Response.json(...)`:
 
@@ -638,7 +638,7 @@ Append, after the closing `}` of the `for (const org of failingOrgs ?? [])` loop
   }
 ```
 
-- [ ] **Step 3: Add the cancelled count to the response**
+- [x] **Step 3: Add the cancelled count to the response**
 
 Change:
 
@@ -661,12 +661,12 @@ to:
   });
 ```
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/app/api/internal/billing/run-cycle/route.ts`
 Expected: clean.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/internal/billing/run-cycle/route.ts
@@ -689,17 +689,17 @@ EOF
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Full test suite**
+- [x] **Step 1: Full test suite**
 
 Run: `npm test`
 Expected: all tests pass, including the new `computeMidYearSeatCharge` and `remainingMonthsUntil` suites.
 
-- [ ] **Step 2: Type-check, lint, build**
+- [x] **Step 2: Type-check, lint, build**
 
 Run: `npx tsc --noEmit && npx eslint . && npm run build`
 Expected: all clean.
 
-- [ ] **Step 3: Confirm live schema**
+- [x] **Step 3: Confirm live schema**
 
 Use the `execute_sql` MCP tool against `ucnfcsosbdgknmzyuqbw`:
 
@@ -709,7 +709,7 @@ select count(*) from organizations where cancel_at is not null;
 
 Expected: `0` (no org has requested cancellation yet in this environment).
 
-- [ ] **Step 4: Re-check the spec's scope decisions against the code**
+- [x] **Step 4: Re-check the spec's scope decisions against the code**
 
 Confirm each of the 12 scope decisions in `docs/superpowers/specs/2026-09-19-billing-lifecycle-design.md` is actually reflected:
 1. Monthly plans untouched — no new code path for them. ✓ (Tasks 2-5 only ever branch on `plan_type === "annual"`.)
@@ -725,11 +725,11 @@ Confirm each of the 12 scope decisions in `docs/superpowers/specs/2026-09-19-bil
 11. No new UI. ✓ (No `.tsx`/page files touched by this plan.)
 12. No "undo cancellation" action. ✓ (Not present in any task.)
 
-- [ ] **Step 5: State what remains manual**
+- [x] **Step 5: State what remains manual**
 
 No live Stripe credentials exist in this session (same as every prior phase) — `chargeMidYearAnnualSeat`'s and `switchPlan`'s actual `stripe.paymentMethods.list`/`paymentIntents.create` calls are verified via `tsc`/`eslint`/`build` and the pure-function unit tests only, not a live charge. This is explicitly flagged here rather than silently assumed to have been tested end-to-end.
 
-- [ ] **Step 6: Confirm working tree is clean**
+- [x] **Step 6: Confirm working tree is clean**
 
 Run: `git status --short`
 Expected: empty output (everything committed).
