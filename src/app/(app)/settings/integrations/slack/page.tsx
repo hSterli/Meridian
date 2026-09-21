@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/org-context";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { SlackConnectionManager } from "@/components/settings/slack-connection-manager";
 import { connectSlackNotifications, disconnectSlackNotifications } from "@/lib/actions/slack";
 
@@ -25,7 +26,14 @@ export default async function SlackIntegrationPage() {
     .eq("org_id", ctx.activeOrgId);
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-3xl">
+      <Breadcrumbs
+        items={[
+          { label: "Settings", href: "/settings" },
+          { label: "Integrations", href: "/settings/integrations" },
+          { label: "Slack" },
+        ]}
+      />
       <PageHeader
         title="Slack"
         description="Post a message to a channel when a CI-ingested test run completes."

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { getUserContext } from "@/lib/org-context";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { GithubConnectionManager } from "@/components/settings/github-connection-manager";
 import { connectGithubTracker, disconnectGithubTracker } from "@/lib/actions/issue-tracker";
 
@@ -26,7 +27,14 @@ export default async function GithubIntegrationPage() {
     .eq("provider", "github");
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8">
+    <div className="max-w-3xl">
+      <Breadcrumbs
+        items={[
+          { label: "Settings", href: "/settings" },
+          { label: "Integrations", href: "/settings/integrations" },
+          { label: "GitHub" },
+        ]}
+      />
       <PageHeader title="GitHub" description="Two-way issue sync and PR/MR feedback, per project." />
       <GithubConnectionManager
         connections={connections ?? []}

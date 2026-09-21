@@ -3,6 +3,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCasePicker } from "@/components/test-cases/test-case-picker";
 import { addTestCasesToRun } from "@/lib/actions/runs";
 
@@ -21,6 +23,12 @@ export default async function AddCasesToRunPage({
     .single();
 
   if (!run) notFound();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: existing } = await supabase
     .from("test_run_cases")
@@ -46,8 +54,18 @@ export default async function AddCasesToRunPage({
 
   return (
     <div className="max-w-2xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Runs", href: `/projects/${projectId}/runs` },
+          { label: run.name, href: `/projects/${projectId}/runs/${runId}` },
+          { label: "Add Cases" },
+        ]}
+      />
       <PageHeader title={`Add test cases to “${run.name}”`} />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <form action={action} className="space-y-4">
           <TestCasePicker testCases={addableTestCases} />
           <Button type="submit" disabled={addableTestCases.length === 0}>

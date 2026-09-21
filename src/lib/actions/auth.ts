@@ -1,11 +1,13 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { acceptPendingInvites } from "@/lib/actions/members";
 
 export interface ActionState {
   error?: string;
+  success?: boolean;
 }
 
 export async function signUp(_prevState: ActionState, formData: FormData): Promise<ActionState> {
@@ -51,4 +53,19 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect("/login");
+}
+
+export async function updateProfile(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const fullName = String(formData.get("fullName") ?? "").trim();
+  if (!fullName) return { error: "Name is required." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({ data: { full_name: fullName } });
+  if (error) return { error: error.message };
+
+  revalidatePath("/settings/profile", "layout");
+  return { success: true };
 }

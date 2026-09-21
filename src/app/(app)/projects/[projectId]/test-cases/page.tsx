@@ -1,28 +1,15 @@
 import Link from "next/link";
-import { Sparkles, PieChart, SlidersHorizontal } from "lucide-react";
+import { Sparkles, PieChart, SlidersHorizontal, ChevronRight } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCaseFilters } from "@/components/test-cases/test-case-filters";
 import { ImportCsvForm } from "@/components/test-cases/import-csv-form";
 import { TestCaseSuiteSidebar } from "@/components/test-cases/test-case-suite-sidebar";
-import type { RunCaseStatus, TestCasePriority, TestCaseStatus } from "@/lib/types/database";
-
-const PRIORITY_TONE: Record<TestCasePriority, "slate" | "amber" | "red" | "indigo"> = {
-  low: "slate",
-  medium: "indigo",
-  high: "amber",
-  critical: "red",
-};
-
-const RESULT_TONE: Record<RunCaseStatus, "slate" | "green" | "red" | "amber"> = {
-  passed: "green",
-  failed: "red",
-  blocked: "amber",
-  skipped: "slate",
-  pending: "slate",
-};
+import type { TestCasePriority, TestCaseStatus } from "@/lib/types/database";
 
 interface TestCaseRow {
   id: string;
@@ -52,7 +39,7 @@ export default async function TestCasesPage({
 
   const { data: project } = await supabase
     .from("projects")
-    .select("key, org_id")
+    .select("key, name")
     .eq("id", projectId)
     .single();
 
@@ -124,24 +111,6 @@ export default async function TestCasesPage({
   const displayIds = new Map<string, number>();
   (allByCreation ?? []).forEach((tc, i) => displayIds.set(tc.id, i + 1));
 
-  const { data: orgMembers } = project
-    ? await supabase.rpc("get_org_members", { check_org_id: project.org_id })
-    : { data: [] };
-  const ownerMap = new Map((orgMembers ?? []).map((m) => [m.user_id, m.email]));
-
-  const { data: lastResultsRaw } = await supabase
-    .from("test_run_cases")
-    .select("test_case_id, status, executed_at, test_runs!inner(project_id)")
-    .eq("test_runs.project_id", projectId)
-    .not("executed_at", "is", null)
-    .order("executed_at", { ascending: false });
-  const lastResultMap = new Map<string, RunCaseStatus>();
-  for (const r of lastResultsRaw ?? []) {
-    if (!lastResultMap.has(r.test_case_id)) {
-      lastResultMap.set(r.test_case_id, r.status as RunCaseStatus);
-    }
-  }
-
   function tagName(l: { test_case_tags: { name: string } | { name: string }[] | null }) {
     return Array.isArray(l.test_case_tags) ? l.test_case_tags[0]?.name : l.test_case_tags?.name;
   }
@@ -197,8 +166,6 @@ export default async function TestCasesPage({
   }
 
   function TestCaseRowItem({ tc }: { tc: TestCaseRow }) {
-    const ownerEmail = tc.assigned_to ? ownerMap.get(tc.assigned_to) : undefined;
-    const lastResult = lastResultMap.get(tc.id);
     return (
       <Link
         href={`/projects/${projectId}/test-cases/${tc.id}`}
@@ -235,29 +202,21 @@ export default async function TestCasesPage({
             )}
           </div>
         </div>
-        <div className="flex shrink-0 items-center gap-2">
-          {ownerEmail && (
-            <span
-              title={ownerEmail}
-              className="flex h-6 w-6 items-center justify-center rounded-full bg-meridian-soft text-[10px] font-bold text-meridian-dark"
-            >
-              {ownerEmail.slice(0, 2).toUpperCase()}
-            </span>
-          )}
-          <Badge tone={lastResult ? RESULT_TONE[lastResult] : "slate"}>
-            {lastResult ?? "No runs"}
-          </Badge>
-          <Badge tone={PRIORITY_TONE[tc.priority as TestCasePriority]}>{tc.priority}</Badge>
-          <Badge tone={tc.status === "active" ? "green" : "slate"}>{tc.status}</Badge>
-        </div>
       </Link>
     );
   }
 
   return (
     <div>
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library" },
+        ]}
+      />
       <PageHeader
-        title="Test Cases"
+        title="Test Case Library"
         action={
           <div className="flex items-center gap-2">
             <a href={`/projects/${projectId}/test-cases/export`}>
@@ -270,8 +229,9 @@ export default async function TestCasesPage({
           </div>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="flex gap-6">
+      <div className="mt-6 flex gap-6">
         <aside className="w-56 shrink-0 space-y-4">
           <TestCaseSuiteSidebar suites={suites ?? []} />
 
@@ -340,19 +300,20 @@ export default async function TestCasesPage({
           ) : groups.length > 0 ? (
             <div className="mt-4 space-y-6">
               {groups.map((group) => (
-                <div key={group.label}>
-                  <h2 className="mb-2 flex items-center gap-2 font-ui-label text-sm font-bold uppercase tracking-wide text-ink-tertiary">
+                <details key={group.label} open>
+                  <summary className="mb-2 flex list-none items-center gap-2 font-ui-label text-sm font-bold uppercase tracking-wide text-ink-tertiary [&::-webkit-details-marker]:hidden">
+                    <ChevronRight size={14} className="group-chevron shrink-0 transition-transform" />
                     {group.label}
                     <span className="rounded-full bg-surface-container-highest px-2 py-0.5 text-[11px] font-bold text-ink-secondary">
                       {group.items.length}
                     </span>
-                  </h2>
+                  </summary>
                   <Card className="divide-y divide-border-light">
                     {group.items.map((tc) => (
                       <TestCaseRowItem key={tc.id} tc={tc} />
                     ))}
                   </Card>
-                </div>
+                </details>
               ))}
             </div>
           ) : (

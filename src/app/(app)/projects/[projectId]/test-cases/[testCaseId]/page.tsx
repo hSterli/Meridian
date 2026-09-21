@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCaseForm } from "@/components/test-cases/test-case-form";
 import { updateTestCase, deleteTestCase } from "@/lib/actions/test-cases";
 import { AttachmentsPanel } from "@/components/test-cases/attachments-panel";
@@ -40,7 +42,7 @@ export default async function TestCaseDetailPage({
 
   const { data: project } = await supabase
     .from("projects")
-    .select("org_id")
+    .select("org_id, name")
     .eq("id", projectId)
     .single();
 
@@ -99,79 +101,91 @@ export default async function TestCaseDetailPage({
   const feature = Array.isArray(featureName) ? featureName[0]?.name : featureName?.name;
 
   return (
-    <div className="grid max-w-4xl grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
-      <div>
-        <PageHeader
-          title={testCase.title}
-          description={`v${testCase.version} · Report an issue against this case →`}
-          action={
-            <Link
-              href={`/projects/${projectId}/issues/new?testCaseId=${testCaseId}`}
-              className="text-sm font-medium text-primary hover:text-primary"
-            >
-              Report issue
-            </Link>
-          }
-        />
-        <Card className="p-6">
-          <TestCaseForm
-            action={updateAction}
-            submitLabel="Save changes"
-            features={(features ?? []).map((f) => f.name)}
-            orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
-            customFields={(customFieldDefs ?? []).map((f) => ({
-              id: f.id,
-              name: f.name,
-              field_type: f.field_type as TestCaseCustomFieldType,
-              options: (f.options as string[]) ?? [],
-            }))}
-            initialValues={{
-              title: testCase.title,
-              preconditions: testCase.preconditions,
-              priority: testCase.priority,
-              status: testCase.status,
-              steps: testCase.steps as TestStep[],
-              tags: tagNames,
-              feature,
-              sprintNumber: testCase.sprint_number,
-              assignedTo: testCase.assigned_to,
-              automationStatus: testCase.automation_status,
-              automationScriptRef: testCase.automation_script_ref,
-              referenceLink: testCase.reference_link,
-              customFieldValues: (testCase.custom_fields as Record<string, string>) ?? {},
-            }}
-          />
-        </Card>
-        <form action={deleteAction} className="mt-4">
-          <Button type="submit" variant="danger">
-            Delete test case
-          </Button>
-        </form>
-      </div>
+    <div className="max-w-4xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Test Case Library", href: `/projects/${projectId}/test-cases` },
+          { label: testCase.title },
+        ]}
+      />
+      <PageHeader
+        title={testCase.title}
+        description={`v${testCase.version} · Report an issue against this case →`}
+        action={
+          <Link
+            href={`/projects/${projectId}/issues/new?testCaseId=${testCaseId}`}
+            className="text-sm font-medium text-primary hover:text-primary"
+          >
+            Report issue
+          </Link>
+        }
+      />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="space-y-6">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[1fr_240px]">
         <div>
-          <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Version history</h2>
-          <Card className="divide-y divide-border-light">
-            <div className="px-3 py-2 text-sm text-ink-secondary">
-              v{testCase.version} <span className="text-xs text-ink-tertiary">current</span>
-            </div>
-            {(versions ?? []).map((v) => (
-              <div key={v.version} className="px-3 py-2 text-sm text-ink-tertiary">
-                v{v.version}{" "}
-                <span className="text-xs text-ink-tertiary">
-                  {new Date(v.changed_at).toLocaleString()}
-                </span>
-              </div>
-            ))}
+          <Card className="p-6">
+            <TestCaseForm
+              action={updateAction}
+              submitLabel="Save changes"
+              features={(features ?? []).map((f) => f.name)}
+              orgMembers={(orgMembers ?? []).map((m) => ({ user_id: m.user_id, email: m.email }))}
+              customFields={(customFieldDefs ?? []).map((f) => ({
+                id: f.id,
+                name: f.name,
+                field_type: f.field_type as TestCaseCustomFieldType,
+                options: (f.options as string[]) ?? [],
+              }))}
+              initialValues={{
+                title: testCase.title,
+                preconditions: testCase.preconditions,
+                priority: testCase.priority,
+                status: testCase.status,
+                steps: testCase.steps as TestStep[],
+                tags: tagNames,
+                feature,
+                sprintNumber: testCase.sprint_number,
+                assignedTo: testCase.assigned_to,
+                automationStatus: testCase.automation_status,
+                automationScriptRef: testCase.automation_script_ref,
+                referenceLink: testCase.reference_link,
+                customFieldValues: (testCase.custom_fields as Record<string, string>) ?? {},
+              }}
+            />
           </Card>
+          <form action={deleteAction} className="mt-4">
+            <Button type="submit" variant="danger">
+              Delete test case
+            </Button>
+          </form>
         </div>
 
-        <AttachmentsPanel
-          attachments={attachments}
-          uploadAction={uploadAction}
-          deleteAction={deleteAttachmentAction}
-        />
+        <div className="space-y-6">
+          <div>
+            <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Version history</h2>
+            <Card className="divide-y divide-border-light">
+              <div className="px-3 py-2 text-sm text-ink-secondary">
+                v{testCase.version} <span className="text-xs text-ink-tertiary">current</span>
+              </div>
+              {(versions ?? []).map((v) => (
+                <div key={v.version} className="px-3 py-2 text-sm text-ink-tertiary">
+                  v{v.version}{" "}
+                  <span className="text-xs text-ink-tertiary">
+                    {new Date(v.changed_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </Card>
+          </div>
+
+          <AttachmentsPanel
+            attachments={attachments}
+            uploadAction={uploadAction}
+            deleteAction={deleteAttachmentAction}
+          />
+        </div>
       </div>
     </div>
   );

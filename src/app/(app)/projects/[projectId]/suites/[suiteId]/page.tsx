@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { Card, Badge } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { TestCasePicker } from "@/components/test-cases/test-case-picker";
 import {
   addTestCasesToSuite,
@@ -27,6 +29,12 @@ export default async function SuiteDetailPage({
     .single();
 
   if (!suite) notFound();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: memberLinks } = await supabase
     .from("test_suite_cases")
@@ -68,6 +76,14 @@ export default async function SuiteDetailPage({
 
   return (
     <div className="max-w-4xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Suites", href: `/projects/${projectId}/suites` },
+          { label: suite.name },
+        ]}
+      />
       <PageHeader
         title={suite.name}
         description={`${members.length} test case${members.length === 1 ? "" : "s"}${
@@ -90,8 +106,9 @@ export default async function SuiteDetailPage({
           </div>
         }
       />
+      <ProjectTabs projectId={projectId} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+      <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div>
           <h2 className="mb-2 text-sm font-semibold text-ink-secondary">Test cases in this suite</h2>
           <Card className="divide-y divide-border-light">

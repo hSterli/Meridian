@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
     .order("created_at", { ascending: false });
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-8">
+    <div className="max-w-[1400px]">
       <PageHeader
         title="Projects"
         action={
@@ -38,7 +38,7 @@ export default async function ProjectsPage() {
           .
         </Card>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {projects.map((p) => (
             <Link key={p.id} href={`/projects/${p.id}/test-cases`}>
               <Card className="p-5 transition-shadow hover:shadow-md">

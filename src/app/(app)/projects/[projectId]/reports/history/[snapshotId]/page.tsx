@@ -1,8 +1,11 @@
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { Card } from "@/components/ui/card";
 import { SnapshotRagEditor } from "@/components/reports/snapshot-rag-editor";
+import { SnapshotShareActions } from "@/components/reports/snapshot-share-actions";
 import type { WeeklyMetrics } from "@/lib/weekly-report-metrics";
 
 function formatPercent(n: number): string {
@@ -25,14 +28,35 @@ export default async function WeeklyReportSnapshotPage({
 
   if (!snapshot) notFound();
 
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
+
   const metrics = snapshot.metrics as unknown as WeeklyMetrics;
 
   return (
     <div className="max-w-4xl space-y-6">
+      <div className="print:hidden">
+        <Breadcrumbs
+          items={[
+            { label: "Projects", href: "/projects" },
+            { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+            { label: "Weekly Report", href: `/projects/${projectId}/reports` },
+            { label: "History", href: `/projects/${projectId}/reports/history` },
+            { label: `Week Ending ${snapshot.week_ending}` },
+          ]}
+        />
+      </div>
       <PageHeader
         title={`Report — Week Ending ${snapshot.week_ending}`}
         description={`Captured ${new Date(snapshot.created_at).toLocaleString()}`}
+        action={<SnapshotShareActions />}
       />
+      <div className="print:hidden">
+        <ProjectTabs projectId={projectId} />
+      </div>
 
       <Card className="p-5">
         <SnapshotRagEditor

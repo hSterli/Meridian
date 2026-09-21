@@ -1,6 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
+import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { ProjectTabs } from "@/components/layout/project-tabs";
 import { NewRunForm } from "@/components/runs/new-run-form";
 import { createRun } from "@/lib/actions/runs";
 
@@ -11,6 +13,12 @@ export default async function NewRunPage({
 }) {
   const { projectId } = await params;
   const supabase = await createClient();
+
+  const { data: project } = await supabase
+    .from("projects")
+    .select("name")
+    .eq("id", projectId)
+    .single();
 
   const { data: testCases } = await supabase
     .from("test_cases")
@@ -29,8 +37,17 @@ export default async function NewRunPage({
 
   return (
     <div className="max-w-2xl">
+      <Breadcrumbs
+        items={[
+          { label: "Projects", href: "/projects" },
+          { label: project?.name ?? "Project", href: `/projects/${projectId}/test-cases` },
+          { label: "Runs", href: `/projects/${projectId}/runs` },
+          { label: "New" },
+        ]}
+      />
       <PageHeader title="New test run" description="Pick which test cases go into this run." />
-      <Card className="p-6">
+      <ProjectTabs projectId={projectId} />
+      <Card className="mt-6 p-6">
         <NewRunForm
           action={action}
           testCases={testCases ?? []}

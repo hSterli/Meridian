@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { clsx } from "clsx";
 
 const TABS = [
-  { segment: "test-cases", label: "Test Cases" },
+  { segment: "test-cases", label: "Test Case Library" },
   { segment: "suites", label: "Suites" },
   { segment: "runs", label: "Runs" },
   { segment: "issues", label: "Issues" },
@@ -16,7 +16,7 @@ export function ProjectTabs({ projectId }: { projectId: string }) {
   const pathname = usePathname();
 
   return (
-    <nav className="mt-4 flex gap-6 border-b border-border-light">
+    <nav className="flex gap-6 border-b border-border-light">
       {TABS.map((tab) => {
         const href = `/projects/${projectId}/${tab.segment}`;
         const active = pathname?.startsWith(href);
