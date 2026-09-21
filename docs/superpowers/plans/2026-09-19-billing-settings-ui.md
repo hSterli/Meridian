@@ -1,6 +1,6 @@
 # Billing Settings UI Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Give an org's owner/admin a real Settings → Billing page showing plan, price, and next charge, with working switch-plan and cancel-subscription controls — the final phase of the billing initiative, pure UI wiring onto Phases 2-4's existing Server Actions.
 
@@ -15,7 +15,7 @@
 **Files:**
 - Create: `src/components/settings/billing-manager.tsx`
 
-- [ ] **Step 1: Write the component**
+- [x] **Step 1: Write the component**
 
 ```tsx
 "use client";
@@ -156,12 +156,12 @@ export function BillingManager({
 }
 ```
 
-- [ ] **Step 2: Type-check**
+- [x] **Step 2: Type-check**
 
 Run: `npx tsc --noEmit`
 Expected: this file alone won't type-check cleanly yet if nothing imports it (unused-file errors don't occur in TS, so this should already be clean) — confirm no errors reference `billing-manager.tsx`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add src/components/settings/billing-manager.tsx
@@ -185,7 +185,7 @@ EOF
 **Files:**
 - Create: `src/app/(app)/settings/billing/page.tsx`
 
-- [ ] **Step 1: Write the page**
+- [x] **Step 1: Write the page**
 
 ```tsx
 import { redirect } from "next/navigation";
@@ -237,12 +237,12 @@ export default async function BillingSettingsPage() {
 }
 ```
 
-- [ ] **Step 2: Type-check and lint**
+- [x] **Step 2: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/app/\(app\)/settings/billing/page.tsx src/components/settings/billing-manager.tsx`
 Expected: clean.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add "src/app/(app)/settings/billing/page.tsx"
@@ -266,7 +266,7 @@ EOF
 **Files:**
 - Modify: `src/app/(app)/settings/page.tsx`
 
-- [ ] **Step 1: Remove `Billing` from the disabled list**
+- [x] **Step 1: Remove `Billing` from the disabled list**
 
 Change the disabled-items array from:
 
@@ -297,7 +297,7 @@ to:
         ].map((s) => (
 ```
 
-- [ ] **Step 2: Add a real `Billing` link**
+- [x] **Step 2: Add a real `Billing` link**
 
 Insert a new `<Link>` immediately after the existing `/settings/integrations` link and before the disabled-items `.map()` block:
 
@@ -317,12 +317,12 @@ Insert a new `<Link>` immediately after the existing `/settings/integrations` li
         </Link>
 ```
 
-- [ ] **Step 3: Type-check and lint**
+- [x] **Step 3: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint "src/app/(app)/settings/page.tsx"`
 Expected: clean. (`CreditCard` is already imported at the top of this file for the old disabled row — no import changes needed.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add "src/app/(app)/settings/page.tsx"
@@ -344,12 +344,12 @@ EOF
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Automated checks**
+- [x] **Step 1: Automated checks**
 
 Run: `npm test && npx tsc --noEmit && npx eslint . && npm run build`
 Expected: all clean. (No new unit tests are expected from this phase — `npm test`'s count should be unchanged from Phase 4's 97.)
 
-- [ ] **Step 2: Manual browser verification of all five states**
+- [x] **Step 2: Manual browser verification of all five states**
 
 Start the dev server and sign in as the test account. Using the Supabase MCP `execute_sql` tool against `ucnfcsosbdgknmzyuqbw`, temporarily set the test org's row to each state in turn, reloading `/settings/billing` after each:
 
@@ -383,7 +383,7 @@ update organizations set billing_status = 'cancelled' where slug = '<test org sl
 ```
 Expected: "Your subscription has ended." + "Resubscribe" button linking to `/billing/upgrade`.
 
-- [ ] **Step 3: Restore the test org's original state**
+- [x] **Step 3: Restore the test org's original state**
 
 ```sql
 update organizations set billing_status = 'trial', plan_type = null, trial_end_date = now() + interval '14 days', next_billing_date = null, cancel_at = null where slug = '<test org slug>';
@@ -391,7 +391,7 @@ update organizations set billing_status = 'trial', plan_type = null, trial_end_d
 
 Confirm via `execute_sql` that the row matches whatever its state was before Step 2 started (check first, before running Step 2, what the actual pre-existing values are, and restore exactly those rather than assuming defaults).
 
-- [ ] **Step 4: Re-check the spec's scope decisions against the code**
+- [x] **Step 4: Re-check the spec's scope decisions against the code**
 
 Confirm each of the 7 scope decisions in `docs/superpowers/specs/2026-09-19-billing-settings-ui-design.md` is reflected:
 1. One page, `/settings/api`-shaped. ✓ (Task 2.)
@@ -402,7 +402,7 @@ Confirm each of the 7 scope decisions in `docs/superpowers/specs/2026-09-19-bill
 6. Settings index Billing row is now a real link. ✓ (Task 3.)
 7. Seat count/price computed fresh on every load, not cached. ✓ (Task 2's `computePrice` call.)
 
-- [ ] **Step 5: Confirm working tree is clean**
+- [x] **Step 5: Confirm working tree is clean**
 
 Run: `git status --short`
 Expected: empty output.
