@@ -19,6 +19,7 @@ export async function createSuite(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_suite", 30, 3600);
   if (limitError) return { error: limitError };
@@ -50,6 +51,7 @@ export async function addTestCasesToSuite(
   const testCaseIds = formData.getAll("testCaseIds").map(String);
   const ctx = await getUserContext();
   if (!ctx || testCaseIds.length === 0) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/suites/${suiteId}?error=read-only`);
 
   const limitError = await rateLimit("edit_suite_membership", 60, 60);
   if (limitError) return;
@@ -80,6 +82,7 @@ export async function removeTestCaseFromSuite(
 ) {
   const ctx = await getUserContext();
   if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/suites/${suiteId}?error=read-only`);
 
   const limitError = await rateLimit("edit_suite_membership", 60, 60);
   if (limitError) return;
@@ -99,6 +102,7 @@ export async function removeTestCaseFromSuite(
 export async function runSuiteNow(projectId: string, suiteId: string) {
   const ctx = await getUserContext();
   if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/suites/${suiteId}?error=read-only`);
 
   const limitError = await rateLimit("create_run", 30, 3600);
   if (limitError) return;
@@ -151,6 +155,10 @@ export async function runSuiteNow(projectId: string, suiteId: string) {
 }
 
 export async function deleteSuite(projectId: string, suiteId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/suites?error=read-only`);
+
   const supabase = await createClient();
   await supabase.from("test_suites").delete().eq("id", suiteId);
   revalidatePath(`/projects/${projectId}/suites`);

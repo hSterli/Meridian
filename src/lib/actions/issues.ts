@@ -26,6 +26,7 @@ export async function createIssue(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_issue", 60, 60);
   if (limitError) return { error: limitError };
@@ -51,6 +52,10 @@ export async function createIssue(
 }
 
 export async function updateIssueStatus(projectId: string, issueId: string, status: IssueStatus) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/issues/${issueId}?error=read-only`);
+
   const supabase = await createClient();
   await supabase
     .from("issues")
@@ -145,6 +150,10 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
 }
 
 export async function deleteIssue(projectId: string, issueId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/issues?error=read-only`);
+
   const supabase = await createClient();
   await supabase.from("issues").delete().eq("id", issueId);
   revalidatePath(`/projects/${projectId}/issues`);

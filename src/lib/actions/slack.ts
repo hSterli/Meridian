@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
@@ -21,6 +22,7 @@ export async function connectSlackNotifications(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
   if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
     return { error: "Only owners and admins can connect Slack notifications." };
   }
@@ -46,6 +48,10 @@ export async function connectSlackNotifications(
 }
 
 export async function disconnectSlackNotifications(connectionId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect("/settings/integrations/slack?error=read-only");
+
   const supabase = await createClient();
   await supabase.rpc("delete_slack_connection", { p_connection_id: connectionId });
   revalidatePath("/settings/integrations/slack");

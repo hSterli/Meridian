@@ -45,6 +45,7 @@ export async function createRunFolder(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_run_folder", 30, 3600);
   if (limitError) return { error: limitError };
@@ -72,6 +73,7 @@ export async function createRun(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("create_run", 30, 3600);
   if (limitError) return { error: limitError };
@@ -123,6 +125,7 @@ export async function setRunCaseStatus(
 ) {
   const ctx = await getUserContext();
   if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/runs/${runId}?error=read-only`);
 
   const limitError = await rateLimit("set_run_case_status", 300, 300);
   if (limitError) return;
@@ -164,6 +167,10 @@ export async function setRunCaseStatus(
 }
 
 export async function deleteRun(projectId: string, runId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/runs?error=read-only`);
+
   const supabase = await createClient();
   await supabase.from("test_runs").delete().eq("id", runId);
   revalidatePath(`/projects/${projectId}/runs`);
@@ -180,6 +187,7 @@ export async function addTestCasesToRun(
   const testCaseIds = formData.getAll("testCaseIds").map(String);
   const ctx = await getUserContext();
   if (!ctx || testCaseIds.length === 0) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/runs/${runId}?error=read-only`);
 
   const limitError = await rateLimit("edit_run_membership", 60, 60);
   if (limitError) return;
@@ -220,6 +228,7 @@ export async function addTestCasesToRun(
 export async function bulkDeleteRuns(projectId: string, runIds: string[]) {
   const ctx = await getUserContext();
   if (!ctx || runIds.length === 0) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/runs?error=read-only`);
 
   const limitError = await rateLimit("bulk_run_action", 30, 60);
   if (limitError) return;
@@ -238,6 +247,7 @@ export async function bulkMoveRunsToFolder(
 ) {
   const ctx = await getUserContext();
   if (!ctx || runIds.length === 0) return;
+  if (ctx.isReadOnly) redirect(`/projects/${projectId}/runs?error=read-only`);
 
   const limitError = await rateLimit("bulk_run_action", 30, 60);
   if (limitError) return;

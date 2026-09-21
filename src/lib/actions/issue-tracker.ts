@@ -2,6 +2,7 @@
 
 import { randomBytes } from "crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
@@ -40,6 +41,7 @@ export async function connectJiraTracker(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
   if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
     return { error: "Only owners and admins can connect an issue tracker." };
   }
@@ -68,6 +70,10 @@ export async function connectJiraTracker(
 }
 
 export async function disconnectJiraTracker(connectionId: string) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect("/settings/integrations/jira?error=read-only");
+
   const supabase = await createClient();
   await supabase.rpc("delete_jira_connection", { p_connection_id: connectionId });
   revalidatePath("/settings/integrations/jira");
@@ -82,6 +88,7 @@ export async function sendIssueToJira(
 ): Promise<ActionState> {
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("send_issue_to_jira", 30, 3600);
   if (limitError) return { error: limitError };
@@ -154,6 +161,7 @@ export async function connectGithubTracker(
 
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
   if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
     return { error: "Only owners and admins can connect an issue tracker." };
   }
@@ -203,6 +211,10 @@ export async function disconnectGithubTracker(
   repoName: string,
   webhookId: number | null
 ) {
+  const ctx = await getUserContext();
+  if (!ctx) return;
+  if (ctx.isReadOnly) redirect("/settings/integrations/github?error=read-only");
+
   const supabase = await createClient();
 
   if (webhookId) {
@@ -225,6 +237,7 @@ export async function sendIssueToGithub(
 ): Promise<ActionState> {
   const ctx = await getUserContext();
   if (!ctx) return { error: "Not authenticated." };
+  if (ctx.isReadOnly) return { error: "Your trial has ended — add payment to continue." };
 
   const limitError = await rateLimit("send_issue_to_github", 30, 3600);
   if (limitError) return { error: limitError };
