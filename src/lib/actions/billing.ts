@@ -1,9 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getUserContext } from "@/lib/org-context";
-import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
+import { stripe, computePrice, computeMidYearSeatCharge, type BillingPlanType } from "@/lib/stripe/client";
+import { nextBillingDateAfter, remainingMonthsUntil } from "@/lib/stripe/billing-cycle";
 import type { ActionState } from "@/lib/actions/auth";
 
 export async function startCheckout(
@@ -95,4 +97,151 @@ export async function checkBillingStatus(): Promise<{ billingStatus: string | nu
     .single();
 
   return { billingStatus: data?.billing_status ?? null };
+}
+
+/**
+ * Best-effort mid-year top-up for one seat on an annual plan. No-op for
+ * monthly plans (Phase 3's cron already recomputes seats fresh every
+ * cycle) and for anything other than a plain active annual subscription.
+ * A failure here is logged and swallowed, never thrown — it must not block
+ * the caller (acceptPendingInvites, part of sign-in), and it's self-healing:
+ * the org's next annual renewal recomputes seats fresh via computePrice.
+ */
+export async function chargeMidYearAnnualSeat(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orgId: string
+): Promise<void> {
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("plan_type, billing_status, stripe_customer_id, next_billing_date, cancel_at")
+    .eq("id", orgId)
+    .single();
+
+  if (!org) return;
+  if (org.plan_type !== "annual" || org.billing_status !== "active") return;
+  if (org.cancel_at || !org.stripe_customer_id || !org.next_billing_date) return;
+
+  try {
+    const months = remainingMonthsUntil(new Date(), new Date(org.next_billing_date));
+    const amount = computeMidYearSeatCharge(months);
+
+    const methods = await stripe.paymentMethods.list({
+      customer: org.stripe_customer_id,
+      type: "card",
+    });
+    const paymentMethod = methods.data[0];
+    if (!paymentMethod) throw new Error("no saved payment method");
+
+    await stripe.paymentIntents.create({
+      amount,
+      currency: "usd",
+      customer: org.stripe_customer_id,
+      payment_method: paymentMethod.id,
+      off_session: true,
+      confirm: true,
+    });
+
+    await supabase.from("billing_events").insert({ org_id: orgId, event_type: "seat_added_mid_year" });
+  } catch {
+    await supabase.from("billing_events").insert({ org_id: orgId, event_type: "payment_failed" });
+  }
+}
+
+export async function switchPlan(_prevState: ActionState, formData: FormData): Promise<ActionState> {
+  const targetPlan = String(formData.get("planType") ?? "") as BillingPlanType;
+  if (targetPlan !== "monthly" && targetPlan !== "annual") return { error: "Choose a plan." };
+
+  const ctx = await getUserContext();
+  if (!ctx || !ctx.activeOrgId) return { error: "No active team selected." };
+  if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
+    return { error: "Only owners and admins can change plans." };
+  }
+
+  const supabase = await createClient();
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("plan_type, billing_status, stripe_customer_id, cancel_at")
+    .eq("id", ctx.activeOrgId)
+    .single();
+
+  if (!org) return { error: "Organization not found." };
+  if (org.billing_status !== "active") return { error: "Only an active subscription can switch plans." };
+  if (org.cancel_at) return { error: "Cancellation is already pending — nothing to switch." };
+  if (org.plan_type === targetPlan) return { error: "Already on that plan." };
+
+  if (targetPlan === "monthly") {
+    await supabase.from("organizations").update({ plan_type: "monthly" }).eq("id", ctx.activeOrgId);
+    await supabase.from("billing_events").insert({ org_id: ctx.activeOrgId, event_type: "plan_changed" });
+    revalidatePath("/billing");
+    return { success: true };
+  }
+
+  if (!org.stripe_customer_id) return { error: "No payment method on file." };
+
+  const { count: seats } = await supabase
+    .from("organization_members")
+    .select("user_id", { count: "exact", head: true })
+    .eq("org_id", ctx.activeOrgId);
+
+  const price = computePrice("annual", seats ?? 0);
+
+  const methods = await stripe.paymentMethods.list({ customer: org.stripe_customer_id, type: "card" });
+  const paymentMethod = methods.data[0];
+  if (!paymentMethod) return { error: "No payment method on file." };
+
+  try {
+    await stripe.paymentIntents.create({
+      amount: price.totalCents,
+      currency: "usd",
+      customer: org.stripe_customer_id,
+      payment_method: paymentMethod.id,
+      off_session: true,
+      confirm: true,
+    });
+  } catch {
+    return { error: "Payment failed. Please try again or update your payment method." };
+  }
+
+  await supabase
+    .from("organizations")
+    .update({
+      plan_type: "annual",
+      next_billing_date: nextBillingDateAfter("annual", new Date()).toISOString(),
+    })
+    .eq("id", ctx.activeOrgId);
+  await supabase.from("billing_events").insert({ org_id: ctx.activeOrgId, event_type: "plan_changed" });
+
+  revalidatePath("/billing");
+  return { success: true };
+}
+
+export async function requestCancellation(
+  _prevState: ActionState,
+  _formData: FormData
+): Promise<ActionState> {
+  const ctx = await getUserContext();
+  if (!ctx || !ctx.activeOrgId) return { error: "No active team selected." };
+  if (ctx.activeRole !== "owner" && ctx.activeRole !== "admin") {
+    return { error: "Only owners and admins can cancel." };
+  }
+
+  const supabase = await createClient();
+  const { data: org } = await supabase
+    .from("organizations")
+    .select("billing_status, next_billing_date, cancel_at")
+    .eq("id", ctx.activeOrgId)
+    .single();
+
+  if (!org) return { error: "Organization not found." };
+  if (org.billing_status !== "active") return { error: "Only an active subscription can be cancelled." };
+  if (org.cancel_at) return { error: "Cancellation is already pending." };
+  if (!org.next_billing_date) return { error: "No billing period found." };
+
+  await supabase
+    .from("organizations")
+    .update({ cancel_at: org.next_billing_date })
+    .eq("id", ctx.activeOrgId);
+
+  revalidatePath("/billing");
+  return { success: true };
 }

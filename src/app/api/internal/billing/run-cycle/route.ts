@@ -23,10 +23,16 @@ export async function POST(request: Request) {
   // currently null (the first failure in a streak); every failure after
   // that preserves the original timestamp so Pass 2's day-count can
   // actually advance toward day 5/30 instead of restarting at zero daily.
+  // cancel_at is null excludes any org with a pending cancellation —
+  // otherwise, on the exact day cancel_at arrives (it starts out equal to
+  // next_billing_date), this query would still see next_billing_date <=
+  // now() and charge the org for a fresh period moments before Pass 3
+  // below cancels it.
   const { data: dueOrgs } = await supabase
     .from("organizations")
     .select("id, plan_type, stripe_customer_id, payment_failed_since")
     .in("billing_status", ["active", "past_due"])
+    .is("cancel_at", null)
     .lte("next_billing_date", now.toISOString());
 
   for (const org of dueOrgs ?? []) {
@@ -129,9 +135,35 @@ export async function POST(request: Request) {
     }
   }
 
+  // Pass 3: finalize any pending cancellation whose paid-through period has
+  // now elapsed. cancel_at was set by requestCancellation to the org's
+  // next_billing_date at request time — access continues until that date
+  // arrives, then this pass (reusing this existing daily job rather than a
+  // new one) flips billing_status, matching Foundation's isReadOnly
+  // treatment of 'cancelled'. Pass 1 already excludes these orgs via
+  // cancel_at is null, so there's no race with a fresh charge on the
+  // cutover day.
+  const { data: cancelingOrgs } = await supabase
+    .from("organizations")
+    .select("id")
+    .not("cancel_at", "is", null)
+    .lte("cancel_at", now.toISOString());
+
+  for (const org of cancelingOrgs ?? []) {
+    await supabase
+      .from("organizations")
+      .update({ billing_status: "cancelled", cancel_at: null })
+      .eq("id", org.id);
+    await supabase.from("billing_events").insert({
+      org_id: org.id,
+      event_type: "subscription_cancelled",
+    });
+  }
+
   return Response.json({
     status: "ok",
     processed: (dueOrgs ?? []).length,
     failing: (failingOrgs ?? []).length,
+    cancelled: (cancelingOrgs ?? []).length,
   });
 }

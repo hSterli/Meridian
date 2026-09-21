@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDunningAction, nextBillingDateAfter } from "./billing-cycle";
+import { computeDunningAction, nextBillingDateAfter, remainingMonthsUntil } from "./billing-cycle";
 
 describe("computeDunningAction", () => {
   const failedAt = new Date("2026-01-01T00:00:00Z");
@@ -47,5 +47,37 @@ describe("nextBillingDateAfter", () => {
     expect(result.getUTCFullYear()).toBe(2027);
     expect(result.getUTCMonth()).toBe(0); // January
     expect(result.getUTCDate()).toBe(15);
+  });
+});
+
+describe("remainingMonthsUntil", () => {
+  it("matches the worked example: March to December inclusive is 10 months", () => {
+    const from = new Date("2026-03-05T00:00:00Z");
+    const until = new Date("2026-12-01T00:00:00Z");
+    expect(remainingMonthsUntil(from, until)).toBe(10);
+  });
+
+  it("counts the current partial month as a full month", () => {
+    const from = new Date("2026-01-31T23:00:00Z");
+    const until = new Date("2026-02-01T01:00:00Z");
+    expect(remainingMonthsUntil(from, until)).toBe(2);
+  });
+
+  it("floors at a minimum of 1 for the same month", () => {
+    const from = new Date("2026-06-01T00:00:00Z");
+    const until = new Date("2026-06-28T00:00:00Z");
+    expect(remainingMonthsUntil(from, until)).toBe(1);
+  });
+
+  it("floors at a minimum of 1 even if until is before from", () => {
+    const from = new Date("2026-06-15T00:00:00Z");
+    const until = new Date("2026-01-01T00:00:00Z");
+    expect(remainingMonthsUntil(from, until)).toBe(1);
+  });
+
+  it("counts a full year apart as 13 (12 plus the inclusive current month)", () => {
+    const from = new Date("2026-01-15T00:00:00Z");
+    const until = new Date("2027-01-15T00:00:00Z");
+    expect(remainingMonthsUntil(from, until)).toBe(13);
   });
 });

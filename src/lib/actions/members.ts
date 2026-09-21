@@ -7,6 +7,7 @@ import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
 import type { OrgRole } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
+import { chargeMidYearAnnualSeat } from "@/lib/actions/billing";
 
 export async function inviteMember(_prevState: ActionState, formData: FormData): Promise<ActionState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
@@ -84,5 +85,7 @@ export async function acceptPendingInvites() {
       .from("organization_members")
       .insert({ org_id: invite.org_id, user_id: user.id, role: invite.role });
     await supabase.from("organization_invites").delete().eq("id", invite.id);
+
+    await chargeMidYearAnnualSeat(supabase, invite.org_id);
   }
 }

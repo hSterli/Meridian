@@ -53,3 +53,11 @@ export function computePrice(planType: BillingPlanType, seats: number): PriceBre
     totalCents: annualSubtotal - discountCents,
   };
 }
+
+// Marginal monthly cost of one seat for `remainingMonths` months, no annual
+// discount — used only for a mid-year top-up charge on an annual plan when
+// a seat is added between renewals, never for a full renewal (which still
+// goes through computePrice).
+export function computeMidYearSeatCharge(remainingMonths: number): number {
+  return PER_SEAT_MONTHLY_CENTS * remainingMonths;
+}

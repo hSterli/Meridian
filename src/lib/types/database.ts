@@ -352,6 +352,7 @@ export type Database = {
       organizations: {
         Row: {
           billing_status: Database["public"]["Enums"]["billing_status"]
+          cancel_at: string | null
           created_at: string
           created_by: string
           id: string
@@ -365,6 +366,7 @@ export type Database = {
         }
         Insert: {
           billing_status?: Database["public"]["Enums"]["billing_status"]
+          cancel_at?: string | null
           created_at?: string
           created_by: string
           id?: string
@@ -378,6 +380,7 @@ export type Database = {
         }
         Update: {
           billing_status?: Database["public"]["Enums"]["billing_status"]
+          cancel_at?: string | null
           created_at?: string
           created_by?: string
           id?: string
@@ -1365,6 +1368,7 @@ export type Database = {
         Args: { org_name: string; org_slug: string }
         Returns: {
           billing_status: Database["public"]["Enums"]["billing_status"]
+          cancel_at: string | null
           created_at: string
           created_by: string
           id: string
