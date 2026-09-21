@@ -70,16 +70,25 @@ export default async function SettingsPage() {
           <ChevronRight size={18} className="text-ink-tertiary" />
         </Link>
 
+        <Link
+          href="/settings/billing"
+          className="flex items-center gap-4 px-5 py-4 transition-colors hover:bg-paper-surface"
+        >
+          <div className="rounded-lg bg-meridian-soft p-2 text-primary">
+            <CreditCard size={18} />
+          </div>
+          <div className="flex-1">
+            <p className="font-ui-label font-semibold text-ink-primary">Billing</p>
+            <p className="text-sm text-ink-secondary">Plan, seats, and payment details.</p>
+          </div>
+          <ChevronRight size={18} className="text-ink-tertiary" />
+        </Link>
+
         {[
           {
             icon: Building2,
             title: "Organization",
             description: "Name, slug, and workspace-wide defaults.",
-          },
-          {
-            icon: CreditCard,
-            title: "Billing",
-            description: "Plan, seats, and payment details.",
           },
         ].map((s) => (
           <div key={s.title} className="flex items-center gap-4 px-5 py-4 opacity-60">
