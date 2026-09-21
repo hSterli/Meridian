@@ -68,6 +68,10 @@ export type Database = {
           github_repo_owner: string | null
           github_webhook_id: number | null
           github_webhook_secret: string | null
+          gitlab_instance_url: string | null
+          gitlab_project_path: string | null
+          gitlab_webhook_id: number | null
+          gitlab_webhook_token: string | null
           id: string
           jira_base_url: string
           jira_email: string
@@ -85,6 +89,10 @@ export type Database = {
           github_repo_owner?: string | null
           github_webhook_id?: number | null
           github_webhook_secret?: string | null
+          gitlab_instance_url?: string | null
+          gitlab_project_path?: string | null
+          gitlab_webhook_id?: number | null
+          gitlab_webhook_token?: string | null
           id?: string
           jira_base_url: string
           jira_email: string
@@ -102,6 +110,10 @@ export type Database = {
           github_repo_owner?: string | null
           github_webhook_id?: number | null
           github_webhook_secret?: string | null
+          gitlab_instance_url?: string | null
+          gitlab_project_path?: string | null
+          gitlab_webhook_id?: number | null
+          gitlab_webhook_token?: string | null
           id?: string
           jira_base_url?: string
           jira_email?: string
@@ -804,6 +816,8 @@ export type Database = {
           created_by: string
           folder_id: string | null
           id: string
+          mr_iid: number | null
+          mr_url: string | null
           name: string
           pr_number: number | null
           pr_url: string | null
@@ -817,6 +831,8 @@ export type Database = {
           created_by: string
           folder_id?: string | null
           id?: string
+          mr_iid?: number | null
+          mr_url?: string | null
           name: string
           pr_number?: number | null
           pr_url?: string | null
@@ -830,6 +846,8 @@ export type Database = {
           created_by?: string
           folder_id?: string | null
           id?: string
+          mr_iid?: number | null
+          mr_url?: string | null
           name?: string
           pr_number?: number | null
           pr_url?: string | null
@@ -1113,6 +1131,14 @@ export type Database = {
           token: string
         }[]
       }
+      api_get_gitlab_pat_for_project: {
+        Args: { p_org_id: string; p_project_id: string }
+        Returns: {
+          instance_url: string
+          project_path: string
+          token: string
+        }[]
+      }
       api_get_run: {
         Args: { p_org_id: string; p_run_id: string }
         Returns: {
@@ -1121,6 +1147,8 @@ export type Database = {
           created_by: string
           folder_id: string | null
           id: string
+          mr_iid: number | null
+          mr_url: string | null
           name: string
           pr_number: number | null
           pr_url: string | null
@@ -1174,6 +1202,7 @@ export type Database = {
       api_ingest_run_results: {
         Args: {
           p_key_id: string
+          p_mr_iid?: number
           p_org_id: string
           p_pr_number?: number
           p_project_id: string
@@ -1183,6 +1212,7 @@ export type Database = {
         Returns: {
           auto_created: number
           matched: number
+          mr_url: string
           pr_url: string
           run_id: string
         }[]
@@ -1195,6 +1225,8 @@ export type Database = {
           created_by: string
           folder_id: string | null
           id: string
+          mr_iid: number | null
+          mr_url: string | null
           name: string
           pr_number: number | null
           pr_url: string | null
@@ -1261,6 +1293,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_gitlab_connection: {
+        Args: {
+          p_instance_url: string
+          p_project_id: string
+          p_project_path: string
+          p_token: string
+          p_webhook_token: string
+        }
+        Returns: string
+      }
       create_jira_connection: {
         Args: {
           p_base_url: string
@@ -1300,6 +1342,10 @@ export type Database = {
         Args: { p_connection_id: string }
         Returns: undefined
       }
+      delete_gitlab_connection: {
+        Args: { p_connection_id: string }
+        Returns: undefined
+      }
       delete_jira_connection: {
         Args: { p_connection_id: string }
         Returns: undefined
@@ -1309,6 +1355,7 @@ export type Database = {
         Returns: undefined
       }
       get_github_pat: { Args: { p_connection_id: string }; Returns: string }
+      get_gitlab_pat: { Args: { p_connection_id: string }; Returns: string }
       get_jira_api_token: { Args: { p_connection_id: string }; Returns: string }
       get_org_members: {
         Args: { check_org_id: string }
@@ -1334,7 +1381,7 @@ export type Database = {
     Enums: {
       issue_severity: "low" | "medium" | "high" | "critical"
       issue_status: "open" | "in_progress" | "resolved" | "closed"
-      issue_tracker_provider: "jira" | "github"
+      issue_tracker_provider: "jira" | "github" | "gitlab"
       org_role: "owner" | "admin" | "member"
       report_rag_status: "red" | "amber" | "green"
       run_case_status: "pending" | "passed" | "failed" | "blocked" | "skipped"
@@ -1475,7 +1522,7 @@ export const Constants = {
     Enums: {
       issue_severity: ["low", "medium", "high", "critical"],
       issue_status: ["open", "in_progress", "resolved", "closed"],
-      issue_tracker_provider: ["jira", "github"],
+      issue_tracker_provider: ["jira", "github", "gitlab"],
       org_role: ["owner", "admin", "member"],
       report_rag_status: ["red", "amber", "green"],
       run_case_status: ["pending", "passed", "failed", "blocked", "skipped"],

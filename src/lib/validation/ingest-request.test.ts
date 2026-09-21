@@ -29,6 +29,22 @@ describe("validateIngestRequestBody", () => {
     expect(result).toEqual({ error: "prNumber must be a positive integer." });
   });
 
+  it("accepts a valid body with a positive integer mrIid", () => {
+    const result = validateIngestRequestBody({ ...validBody, mrIid: 7 });
+    expect("data" in result).toBe(true);
+    if ("data" in result) expect(result.data.mrIid).toBe(7);
+  });
+
+  it("rejects a non-integer mrIid", () => {
+    const result = validateIngestRequestBody({ ...validBody, mrIid: 4.5 });
+    expect(result).toEqual({ error: "mrIid must be a positive integer." });
+  });
+
+  it("rejects a zero or negative mrIid", () => {
+    const result = validateIngestRequestBody({ ...validBody, mrIid: 0 });
+    expect(result).toEqual({ error: "mrIid must be a positive integer." });
+  });
+
   it("rejects a missing projectId", () => {
     const bodyWithoutProjectId: Record<string, unknown> = { ...validBody };
     delete bodyWithoutProjectId.projectId;

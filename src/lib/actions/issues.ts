@@ -7,6 +7,7 @@ import { getUserContext } from "@/lib/org-context";
 import { rateLimit } from "@/lib/rate-limit";
 import { transitionJiraIssueStatus } from "@/lib/jira/client";
 import { setGithubIssueState } from "@/lib/github/client";
+import { setGitlabIssueState } from "@/lib/gitlab/client";
 import type { IssueSeverity, IssueStatus } from "@/lib/types/database";
 import type { ActionState } from "@/lib/actions/auth";
 
@@ -63,7 +64,7 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
   const { data: link } = await supabase
     .from("issue_tracker_links")
     .select(
-      "id, external_issue_key, connection_id, issue_tracker_connections(provider, jira_base_url, jira_email, jira_project_key, github_repo_owner, github_repo_name)"
+      "id, external_issue_key, connection_id, issue_tracker_connections(provider, jira_base_url, jira_email, jira_project_key, github_repo_owner, github_repo_name, gitlab_instance_url, gitlab_project_path)"
     )
     .eq("issue_id", issueId)
     .maybeSingle();
@@ -103,6 +104,22 @@ export async function updateIssueStatus(projectId: string, issueId: string, stat
             {
               repoOwner: connection.github_repo_owner,
               repoName: connection.github_repo_name,
+              token,
+            },
+            Number(link.external_issue_key),
+            status
+          );
+        }
+      } else if (connection.provider === "gitlab") {
+        const { data: token } = await supabase.rpc("get_gitlab_pat", {
+          p_connection_id: link.connection_id,
+        });
+
+        if (token && connection.gitlab_instance_url && connection.gitlab_project_path) {
+          result = await setGitlabIssueState(
+            {
+              instanceUrl: connection.gitlab_instance_url,
+              projectPath: connection.gitlab_project_path,
               token,
             },
             Number(link.external_issue_key),
