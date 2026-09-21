@@ -356,6 +356,8 @@ export type Database = {
           created_by: string
           id: string
           name: string
+          next_billing_date: string | null
+          payment_failed_since: string | null
           plan_type: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
           stripe_customer_id: string | null
@@ -367,6 +369,8 @@ export type Database = {
           created_by: string
           id?: string
           name: string
+          next_billing_date?: string | null
+          payment_failed_since?: string | null
           plan_type?: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
           stripe_customer_id?: string | null
@@ -378,6 +382,8 @@ export type Database = {
           created_by?: string
           id?: string
           name?: string
+          next_billing_date?: string | null
+          payment_failed_since?: string | null
           plan_type?: Database["public"]["Enums"]["billing_plan_type"] | null
           slug?: string
           stripe_customer_id?: string | null
@@ -1363,6 +1369,8 @@ export type Database = {
           created_by: string
           id: string
           name: string
+          next_billing_date: string | null
+          payment_failed_since: string | null
           plan_type: Database["public"]["Enums"]["billing_plan_type"] | null
           slug: string
           stripe_customer_id: string | null
