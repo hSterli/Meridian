@@ -1,6 +1,6 @@
 # Billing Email Notifications Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Send real email (via Resend) for the dunning/cancellation transitions the billing cron already computes, plus a new proactive trial-ending-reminder check — closing the "logged but never delivered" gap left open since Foundation.
 
@@ -16,7 +16,7 @@
 - Create: `src/lib/email/client.ts`
 - Test: `src/lib/email/client.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Create `src/lib/email/client.test.ts`:
 
@@ -86,12 +86,12 @@ describe("formatTrialExpiredEmail", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/email/client.test.ts`
 Expected: FAIL — `./client` module doesn't exist yet.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 Create `src/lib/email/client.ts`:
 
@@ -177,12 +177,12 @@ export function formatTrialExpiredEmail(orgName: string): { subject: string; tex
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/email/client.test.ts`
 Expected: PASS, all 8 tests.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/email/client.ts src/lib/email/client.test.ts
@@ -206,7 +206,7 @@ EOF
 - Modify: `src/lib/stripe/billing-cycle.ts`
 - Test: `src/lib/stripe/billing-cycle.test.ts`
 
-- [ ] **Step 1: Write the failing tests**
+- [x] **Step 1: Write the failing tests**
 
 Change the import line in `src/lib/stripe/billing-cycle.test.ts`:
 
@@ -245,12 +245,12 @@ describe("computeTrialReminderAction", () => {
 });
 ```
 
-- [ ] **Step 2: Run to verify it fails**
+- [x] **Step 2: Run to verify it fails**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: FAIL — `computeTrialReminderAction` is not exported.
 
-- [ ] **Step 3: Implement**
+- [x] **Step 3: Implement**
 
 In `src/lib/stripe/billing-cycle.ts`, after `remainingMonthsUntil`:
 
@@ -269,12 +269,12 @@ export function computeTrialReminderAction(trialEndDate: Date, now: Date): Trial
 }
 ```
 
-- [ ] **Step 4: Run to verify it passes**
+- [x] **Step 4: Run to verify it passes**
 
 Run: `npx vitest run --project unit src/lib/stripe/billing-cycle.test.ts`
 Expected: PASS, all tests including the pre-existing `computeDunningAction`/`nextBillingDateAfter`/`remainingMonthsUntil` ones.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/stripe/billing-cycle.ts src/lib/stripe/billing-cycle.test.ts
@@ -293,7 +293,7 @@ EOF
 **Files:**
 - Modify: `.env.local.example`
 
-- [ ] **Step 1: Add the two new lines**
+- [x] **Step 1: Add the two new lines**
 
 Current file ends with `CRON_SECRET=`. Append:
 
@@ -302,7 +302,7 @@ RESEND_API_KEY=
 RESEND_FROM_EMAIL=
 ```
 
-- [ ] **Step 2: Commit**
+- [x] **Step 2: Commit**
 
 ```bash
 git add .env.local.example
@@ -321,7 +321,7 @@ EOF
 **Files:**
 - Modify: `src/app/api/internal/billing/run-cycle/route.ts`
 
-- [ ] **Step 1: Update imports**
+- [x] **Step 1: Update imports**
 
 Change:
 
@@ -346,7 +346,7 @@ import {
 } from "@/lib/email/client";
 ```
 
-- [ ] **Step 2: Add `trySendBillingEmail` after the `POST` function's opening auth check, before Pass 1**
+- [x] **Step 2: Add `trySendBillingEmail` after the `POST` function's opening auth check, before Pass 1**
 
 Insert this function above `export async function POST`:
 
@@ -382,7 +382,7 @@ async function trySendBillingEmail(
 }
 ```
 
-- [ ] **Step 3: Add `name` to Pass 2's and Pass 3's `.select()` calls**
+- [x] **Step 3: Add `name` to Pass 2's and Pass 3's `.select()` calls**
 
 Change Pass 2's query from:
 
@@ -424,7 +424,7 @@ to:
     .lte("cancel_at", now.toISOString());
 ```
 
-- [ ] **Step 4: Call `trySendBillingEmail` in Pass 2's three branches**
+- [x] **Step 4: Call `trySendBillingEmail` in Pass 2's three branches**
 
 Change:
 
@@ -472,7 +472,7 @@ to:
     }
 ```
 
-- [ ] **Step 5: Call `trySendBillingEmail` in Pass 3's loop**
+- [x] **Step 5: Call `trySendBillingEmail` in Pass 3's loop**
 
 Change:
 
@@ -506,12 +506,12 @@ to:
   }
 ```
 
-- [ ] **Step 6: Type-check and lint**
+- [x] **Step 6: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/app/api/internal/billing/run-cycle/route.ts`
 Expected: clean.
 
-- [ ] **Step 7: Commit**
+- [x] **Step 7: Commit**
 
 ```bash
 git add src/app/api/internal/billing/run-cycle/route.ts
@@ -536,7 +536,7 @@ EOF
 **Files:**
 - Modify: `src/app/api/internal/billing/run-cycle/route.ts`
 
-- [ ] **Step 1: Update imports**
+- [x] **Step 1: Update imports**
 
 Add `computeTrialReminderAction` to the `billing-cycle` import and the two trial formatters to the `email/client` import:
 
@@ -557,7 +557,7 @@ import {
 } from "@/lib/email/client";
 ```
 
-- [ ] **Step 2: Add Pass 4 after Pass 3's loop, before the final `return Response.json(...)`**
+- [x] **Step 2: Add Pass 4 after Pass 3's loop, before the final `return Response.json(...)`**
 
 ```ts
   // Pass 4: trial-ending reminders. Disjoint from Pass 1-3 (billing_status
@@ -585,7 +585,7 @@ import {
   }
 ```
 
-- [ ] **Step 3: Add a `trialRemindersChecked` count to the response**
+- [x] **Step 3: Add a `trialRemindersChecked` count to the response**
 
 Change:
 
@@ -610,12 +610,12 @@ to:
   });
 ```
 
-- [ ] **Step 4: Type-check and lint**
+- [x] **Step 4: Type-check and lint**
 
 Run: `npx tsc --noEmit && npx eslint src/app/api/internal/billing/run-cycle/route.ts`
 Expected: clean.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/internal/billing/run-cycle/route.ts
@@ -638,17 +638,17 @@ EOF
 
 **Files:** none (verification only)
 
-- [ ] **Step 1: Full test suite**
+- [x] **Step 1: Full test suite**
 
 Run: `npm test`
 Expected: all tests pass, including the new `client.test.ts` (8 tests) and `computeTrialReminderAction` suite (3 tests) — total should be 103 (current main) + 11 = 114.
 
-- [ ] **Step 2: Type-check, lint, build**
+- [x] **Step 2: Type-check, lint, build**
 
 Run: `npx tsc --noEmit && npx eslint . && npm run build`
 Expected: all clean.
 
-- [ ] **Step 3: Re-check the spec's scope decisions against the code**
+- [x] **Step 3: Re-check the spec's scope decisions against the code**
 
 Confirm each of the 9 scope decisions in `docs/superpowers/specs/2026-09-23-billing-email-notifications-design.md` is reflected:
 1. Fetch-based, no `resend` npm dependency. ✓ (`package.json` untouched by this plan — confirm no new dependency was added.)
@@ -661,11 +661,11 @@ Confirm each of the 9 scope decisions in `docs/superpowers/specs/2026-09-23-bill
 8. `RESEND_API_KEY`/`RESEND_FROM_EMAIL` env vars, unset in this environment. ✓ (Task 3.)
 9. Pass 4 appended, not inserted at the top. ✓ (Task 5.)
 
-- [ ] **Step 4: State what remains manual**
+- [x] **Step 4: State what remains manual**
 
 No live Resend account/API key exists in this session — `sendEmail`'s actual `fetch` call to Resend's API is verified via `tsc`/`eslint`/`build` and the pure-formatter unit tests only, not a live send. This is explicitly flagged here rather than silently assumed to have been tested end-to-end, the same posture as every Stripe call since Phase 2.
 
-- [ ] **Step 5: Confirm working tree is clean**
+- [x] **Step 5: Confirm working tree is clean**
 
 Run: `git status --short`
 Expected: empty output.
