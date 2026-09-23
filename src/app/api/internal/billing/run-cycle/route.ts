@@ -1,5 +1,9 @@
 import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
-import { computeDunningAction, nextBillingDateAfter } from "@/lib/stripe/billing-cycle";
+import {
+  computeDunningAction,
+  nextBillingDateAfter,
+  computeTrialReminderAction,
+} from "@/lib/stripe/billing-cycle";
 import { createServiceClient } from "@/lib/supabase/service";
 import {
   sendEmail,
@@ -7,6 +11,8 @@ import {
   formatDowngradeEmail,
   formatDunningCancelledEmail,
   formatVoluntaryCancelledEmail,
+  formatTrialReminderEmail,
+  formatTrialExpiredEmail,
 } from "@/lib/email/client";
 
 // Best-effort — an org with no owner, a Resend outage, or a malformed
@@ -205,10 +211,35 @@ export async function POST(request: Request) {
     await trySendBillingEmail(supabase, org.id, subject, text);
   }
 
+  // Pass 4: trial-ending reminders. Disjoint from Pass 1-3 (billing_status
+  // = 'trial' here vs. ['active', 'past_due'] there) — order relative to
+  // them doesn't matter. Nothing else in this codebase proactively checks
+  // trial_end_date; isReadOnly (Foundation) only derives expiry lazily on
+  // read, so this is the first place a trial's approach/lapse is ever
+  // acted on rather than just silently enforced.
+  const { data: trialOrgs } = await supabase
+    .from("organizations")
+    .select("id, name, trial_end_date")
+    .eq("billing_status", "trial")
+    .not("trial_end_date", "is", null);
+
+  for (const org of trialOrgs ?? []) {
+    const action = computeTrialReminderAction(new Date(org.trial_end_date!), now);
+
+    if (action.type === "reminder") {
+      const { subject, text } = formatTrialReminderEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
+    } else if (action.type === "expired") {
+      const { subject, text } = formatTrialExpiredEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
+    }
+  }
+
   return Response.json({
     status: "ok",
     processed: (dueOrgs ?? []).length,
     failing: (failingOrgs ?? []).length,
     cancelled: (cancelingOrgs ?? []).length,
+    trialsChecked: (trialOrgs ?? []).length,
   });
 }
