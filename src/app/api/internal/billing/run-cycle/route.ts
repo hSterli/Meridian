@@ -1,6 +1,43 @@
 import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
 import { computeDunningAction, nextBillingDateAfter } from "@/lib/stripe/billing-cycle";
 import { createServiceClient } from "@/lib/supabase/service";
+import {
+  sendEmail,
+  formatDunningNoticeEmail,
+  formatDowngradeEmail,
+  formatDunningCancelledEmail,
+  formatVoluntaryCancelledEmail,
+} from "@/lib/email/client";
+
+// Best-effort — an org with no owner, a Resend outage, or a malformed
+// response must never affect billing_status/cancel_at or fail the cron.
+// Mirrors trySendSlackNotification's exact division of responsibility.
+async function trySendBillingEmail(
+  supabase: ReturnType<typeof createServiceClient>,
+  orgId: string,
+  subject: string,
+  text: string
+): Promise<boolean> {
+  try {
+    const { data: owner } = await supabase
+      .from("organization_members")
+      .select("user_id")
+      .eq("org_id", orgId)
+      .eq("role", "owner")
+      .single();
+
+    if (!owner) return false;
+
+    const { data: userData } = await supabase.auth.admin.getUserById(owner.user_id);
+    const email = userData?.user?.email;
+    if (!email) return false;
+
+    const result = await sendEmail({ to: email, subject, text });
+    return "ok" in result;
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: Request) {
   const secret = request.headers.get("x-cron-secret");
@@ -111,7 +148,7 @@ export async function POST(request: Request) {
   // would stay past_due (and in Pass 1's retry loop) forever.
   const { data: failingOrgs } = await supabase
     .from("organizations")
-    .select("id, payment_failed_since")
+    .select("id, name, payment_failed_since")
     .in("billing_status", ["active", "past_due"])
     .not("payment_failed_since", "is", null);
 
@@ -120,9 +157,13 @@ export async function POST(request: Request) {
 
     if (action.type === "notice") {
       await supabase.from("billing_events").insert({ org_id: org.id, event_type: "payment_failed" });
+      const { subject, text } = formatDunningNoticeEmail(org.name, action.day);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     } else if (action.type === "downgrade") {
       await supabase.from("organizations").update({ billing_status: "past_due" }).eq("id", org.id);
       await supabase.from("billing_events").insert({ org_id: org.id, event_type: "payment_failed" });
+      const { subject, text } = formatDowngradeEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     } else if (action.type === "cancel") {
       await supabase
         .from("organizations")
@@ -132,6 +173,8 @@ export async function POST(request: Request) {
         org_id: org.id,
         event_type: "subscription_cancelled",
       });
+      const { subject, text } = formatDunningCancelledEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     }
   }
 
@@ -145,7 +188,7 @@ export async function POST(request: Request) {
   // cutover day.
   const { data: cancelingOrgs } = await supabase
     .from("organizations")
-    .select("id")
+    .select("id, name")
     .not("cancel_at", "is", null)
     .lte("cancel_at", now.toISOString());
 
@@ -158,6 +201,8 @@ export async function POST(request: Request) {
       org_id: org.id,
       event_type: "subscription_cancelled",
     });
+    const { subject, text } = formatVoluntaryCancelledEmail(org.name);
+    await trySendBillingEmail(supabase, org.id, subject, text);
   }
 
   return Response.json({
