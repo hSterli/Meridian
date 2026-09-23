@@ -1,6 +1,49 @@
 import { stripe, computePrice, type BillingPlanType } from "@/lib/stripe/client";
-import { computeDunningAction, nextBillingDateAfter } from "@/lib/stripe/billing-cycle";
+import {
+  computeDunningAction,
+  nextBillingDateAfter,
+  computeTrialReminderAction,
+} from "@/lib/stripe/billing-cycle";
 import { createServiceClient } from "@/lib/supabase/service";
+import {
+  sendEmail,
+  formatDunningNoticeEmail,
+  formatDowngradeEmail,
+  formatDunningCancelledEmail,
+  formatVoluntaryCancelledEmail,
+  formatTrialReminderEmail,
+  formatTrialExpiredEmail,
+} from "@/lib/email/client";
+
+// Best-effort — an org with no owner, a Resend outage, or a malformed
+// response must never affect billing_status/cancel_at or fail the cron.
+// Mirrors trySendSlackNotification's exact division of responsibility.
+async function trySendBillingEmail(
+  supabase: ReturnType<typeof createServiceClient>,
+  orgId: string,
+  subject: string,
+  text: string
+): Promise<boolean> {
+  try {
+    const { data: owner } = await supabase
+      .from("organization_members")
+      .select("user_id")
+      .eq("org_id", orgId)
+      .eq("role", "owner")
+      .single();
+
+    if (!owner) return false;
+
+    const { data: userData } = await supabase.auth.admin.getUserById(owner.user_id);
+    const email = userData?.user?.email;
+    if (!email) return false;
+
+    const result = await sendEmail({ to: email, subject, text });
+    return "ok" in result;
+  } catch {
+    return false;
+  }
+}
 
 export async function POST(request: Request) {
   const secret = request.headers.get("x-cron-secret");
@@ -111,7 +154,7 @@ export async function POST(request: Request) {
   // would stay past_due (and in Pass 1's retry loop) forever.
   const { data: failingOrgs } = await supabase
     .from("organizations")
-    .select("id, payment_failed_since")
+    .select("id, name, payment_failed_since")
     .in("billing_status", ["active", "past_due"])
     .not("payment_failed_since", "is", null);
 
@@ -120,9 +163,13 @@ export async function POST(request: Request) {
 
     if (action.type === "notice") {
       await supabase.from("billing_events").insert({ org_id: org.id, event_type: "payment_failed" });
+      const { subject, text } = formatDunningNoticeEmail(org.name, action.day);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     } else if (action.type === "downgrade") {
       await supabase.from("organizations").update({ billing_status: "past_due" }).eq("id", org.id);
       await supabase.from("billing_events").insert({ org_id: org.id, event_type: "payment_failed" });
+      const { subject, text } = formatDowngradeEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     } else if (action.type === "cancel") {
       await supabase
         .from("organizations")
@@ -132,6 +179,8 @@ export async function POST(request: Request) {
         org_id: org.id,
         event_type: "subscription_cancelled",
       });
+      const { subject, text } = formatDunningCancelledEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
     }
   }
 
@@ -145,7 +194,7 @@ export async function POST(request: Request) {
   // cutover day.
   const { data: cancelingOrgs } = await supabase
     .from("organizations")
-    .select("id")
+    .select("id, name")
     .not("cancel_at", "is", null)
     .lte("cancel_at", now.toISOString());
 
@@ -158,6 +207,32 @@ export async function POST(request: Request) {
       org_id: org.id,
       event_type: "subscription_cancelled",
     });
+    const { subject, text } = formatVoluntaryCancelledEmail(org.name);
+    await trySendBillingEmail(supabase, org.id, subject, text);
+  }
+
+  // Pass 4: trial-ending reminders. Disjoint from Pass 1-3 (billing_status
+  // = 'trial' here vs. ['active', 'past_due'] there) — order relative to
+  // them doesn't matter. Nothing else in this codebase proactively checks
+  // trial_end_date; isReadOnly (Foundation) only derives expiry lazily on
+  // read, so this is the first place a trial's approach/lapse is ever
+  // acted on rather than just silently enforced.
+  const { data: trialOrgs } = await supabase
+    .from("organizations")
+    .select("id, name, trial_end_date")
+    .eq("billing_status", "trial")
+    .not("trial_end_date", "is", null);
+
+  for (const org of trialOrgs ?? []) {
+    const action = computeTrialReminderAction(new Date(org.trial_end_date!), now);
+
+    if (action.type === "reminder") {
+      const { subject, text } = formatTrialReminderEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
+    } else if (action.type === "expired") {
+      const { subject, text } = formatTrialExpiredEmail(org.name);
+      await trySendBillingEmail(supabase, org.id, subject, text);
+    }
   }
 
   return Response.json({
@@ -165,5 +240,6 @@ export async function POST(request: Request) {
     processed: (dueOrgs ?? []).length,
     failing: (failingOrgs ?? []).length,
     cancelled: (cancelingOrgs ?? []).length,
+    trialsChecked: (trialOrgs ?? []).length,
   });
 }

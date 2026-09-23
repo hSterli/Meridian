@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { computeDunningAction, nextBillingDateAfter, remainingMonthsUntil } from "./billing-cycle";
+import {
+  computeDunningAction,
+  nextBillingDateAfter,
+  remainingMonthsUntil,
+  computeTrialReminderAction,
+} from "./billing-cycle";
 
 describe("computeDunningAction", () => {
   const failedAt = new Date("2026-01-01T00:00:00Z");
@@ -79,5 +84,27 @@ describe("remainingMonthsUntil", () => {
     const from = new Date("2026-01-15T00:00:00Z");
     const until = new Date("2027-01-15T00:00:00Z");
     expect(remainingMonthsUntil(from, until)).toBe(13);
+  });
+});
+
+describe("computeTrialReminderAction", () => {
+  it("fires a reminder exactly 3 days before trial_end_date", () => {
+    const trialEndDate = new Date("2026-01-15T00:00:00Z");
+    const now = new Date("2026-01-12T00:00:00Z");
+    expect(computeTrialReminderAction(trialEndDate, now)).toEqual({ type: "reminder" });
+  });
+
+  it("fires expired on the first day after trial_end_date has passed", () => {
+    const trialEndDate = new Date("2026-01-15T00:00:00Z");
+    const now = new Date("2026-01-15T12:00:00Z");
+    expect(computeTrialReminderAction(trialEndDate, now)).toEqual({ type: "expired" });
+  });
+
+  it("returns none for every other day count, including well past expiry", () => {
+    const trialEndDate = new Date("2026-01-15T00:00:00Z");
+    for (const days of [10, 5, 4, 2, 1, -1, -5, -30]) {
+      const now = new Date(trialEndDate.getTime() - days * 24 * 60 * 60 * 1000);
+      expect(computeTrialReminderAction(trialEndDate, now)).toEqual({ type: "none" });
+    }
   });
 });

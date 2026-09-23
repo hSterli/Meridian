@@ -38,3 +38,16 @@ export function remainingMonthsUntil(from: Date, until: Date): number {
     1;
   return Math.max(1, months);
 }
+
+export type TrialReminderAction = { type: "none" } | { type: "reminder" } | { type: "expired" };
+
+// Mirrors computeDunningAction's exact-day-only philosophy — fires once per
+// org, relying on the cron running once daily at a fixed time so each org's
+// day-count decrements by exactly one per run.
+export function computeTrialReminderAction(trialEndDate: Date, now: Date): TrialReminderAction {
+  const daysRemaining = Math.ceil((trialEndDate.getTime() - now.getTime()) / (24 * 60 * 60 * 1000));
+
+  if (daysRemaining === 3) return { type: "reminder" };
+  if (daysRemaining === 0) return { type: "expired" };
+  return { type: "none" };
+}
